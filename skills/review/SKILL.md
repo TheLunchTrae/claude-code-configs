@@ -1,5 +1,8 @@
 ---
 description: "Review code and present findings"
+agent: reviewer
+context: fork
+allowed-tools: Bash(git diff*), Bash(git log*), Bash(git status*), Bash(git branch*), Read, Grep, Glob
 ---
 
 # Review: $ARGUMENTS
@@ -22,10 +25,10 @@ If $ARGUMENTS is empty or unclear, ask the user which type of review they want b
 
 ## Step 3: Review
 
-Delegate to the reviewer agent with the gathered code. The reviewer will produce per-issue severity ratings (CRITICAL, HIGH, MEDIUM, LOW) and a PASSED or BLOCKED verdict.
+Review the gathered code using your review methodology. Format the output according to [template.md](template.md).
 
 ## Step 4: Present findings
 
-Summarize the reviewer's findings grouped by severity. For each issue include the file, line, and description. Present the verdict clearly.
+Present the findings grouped by severity. For each issue include the file, line, and description. Present the verdict clearly.
 
 Stop here. The user will decide what to do next — if they want fixes applied, they will ask.

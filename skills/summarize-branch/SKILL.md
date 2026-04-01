@@ -1,5 +1,6 @@
 ---
 description: "Summarize all changes on the current branch"
+disable-model-invocation: true
 ---
 
 Determine the default/target branch for this repository (e.g. main,
