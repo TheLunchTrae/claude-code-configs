@@ -1,0 +1,30 @@
+# Credentials - NEVER commit (contains OAuth tokens)
+.credentials.json
+
+# Claude Code project-level session data for this directory
+.claude/
+
+# Conversation history
+history.jsonl
+
+# Runtime caches and generated data
+cache/
+backups/
+file-history/
+downloads/
+session-env/
+sessions/
+shell-snapshots/
+tasks/
+
+# Plugins (all reinstallable; enabled plugins are captured in settings.json)
+plugins/
+
+# MCP auth cache
+mcp-needs-auth-cache.json
+
+# Project data
+projects/
+
+# IDE
+.idea/
