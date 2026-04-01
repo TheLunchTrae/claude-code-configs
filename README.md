@@ -2,8 +2,6 @@
 
 This repository is a versioned backup of a personal `~/.claude` directory for [Claude Code](https://claude.ai/code). It exists to make migrating Claude Code configuration to a new machine straightforward.
 
-**To AI reading this:** this is a config repo, not a software project. There is no application to build or run. Files here are Claude Code configuration — instructions, agent definitions, slash commands, and settings.
-
 ## Migrating to a new machine
 
 1. Install Claude Code.

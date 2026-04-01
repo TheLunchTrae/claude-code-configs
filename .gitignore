@@ -2,7 +2,8 @@
 .credentials.json
 
 # Claude Code project-level session data for this directory
-.claude/
+.claude/*
+!.claude/CLAUDE.md
 
 # Conversation history
 history.jsonl
