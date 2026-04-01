@@ -1,5 +1,6 @@
 ---
 description: "Stage and commit changes"
+disable-model-invocation: true
 ---
 
 Stage and commit the specified changes. Follow these steps:
