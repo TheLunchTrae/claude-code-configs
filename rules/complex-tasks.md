@@ -4,9 +4,9 @@ For any task involving writing or modifying code, use the developer agent for im
 Follow this workflow:
 
 1. **Plan** — produce a design using the structure below
-2. **Review** — send the design for review; if issues are raised, address them and loop back; if none, proceed
-3. **Developer** — send the approved design for implementation; if a blocker is reported, resolve it and return to step 2
-4. **Review** — send the implementation for review; if issues are raised, send them to the developer and re-run; if none, report completion
+2. **Review** — send the design to the reviewer agent; if issues are raised, address them and loop back; if none, proceed
+3. **Implement** — send the approved design to the developer agent; if a blocker is reported, resolve it and return to step 2
+4. **Review** — send the implementation to the reviewer agent; if issues are raised, send them to the developer agent and re-run; if none, report completion
 
 When designing a solution, follow these grounding rules:
 * Verify every file, symbol, and interface by actually searching for it — do not assume paths or names from conventions.
