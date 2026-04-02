@@ -35,14 +35,14 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 [What could go wrong. What existing consumers could break.]
 ```
 
-### 2. Reviewer — design review
+### 2. Review — design
 
-Send the design to the reviewer. If issues are raised, address them and loop back to this step. If the reviewer finds nothing blocking, proceed.
+Send the design to the reviewer. If issues are raised, address them and loop back to this step. If nothing blocking is found, proceed.
 
 ### 3. Developer — implementation
 
 Send the approved design to the developer. If they report a blocker, resolve it — revise the design if needed and return to step 2. Otherwise proceed.
 
-### 4. Reviewer — implementation review
+### 4. Review — implementation
 
-Send the implementation to the reviewer. If issues are raised, send them to the developer for fixes and re-run this step. If the reviewer finds nothing blocking, report completion to the user.
+Send the implementation to the reviewer. If issues are raised, send them to the developer for fixes and re-run this step. If nothing blocking is found, report completion to the user.
