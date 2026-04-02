@@ -22,7 +22,7 @@ When designing a solution, follow these grounding rules:
 * Pass context to agents verbatim — do not summarize or filter when delegating.
 
 # Config Sync
-This repo maintains parallel Claude Code and OpenCode configurations. When any config file is created or modified — `CLAUDE.md`, `settings.json`, `agents/`, `skills/` — the corresponding OpenCode equivalent in `opencode/` must be updated in the same commit. See `skills/opencode-sync/SKILL.md` for the full mapping and translation rules.
+This repo maintains parallel Claude Code and OpenCode configurations. When any config file is created or modified — `CLAUDE.md`, `settings.json`, `agents/`, `skills/` — the corresponding OpenCode equivalent in `opencode/` must be updated in the same commit. See `.claude/skills/opencode-sync/SKILL.md` for the full mapping and translation rules.
 
 For non-trivial tasks, consider this structure before implementing:
 
