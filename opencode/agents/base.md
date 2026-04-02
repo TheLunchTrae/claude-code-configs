@@ -37,20 +37,12 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 
 ### 2. Reviewer — design review
 
-Send the design to the reviewer. Wait for the verdict.
-
-- **BLOCKED**: Revise the design and resend.
-- **PASSED**: Proceed.
+Send the design to the reviewer. If issues are raised, address them and loop back to this step. If the reviewer finds nothing blocking, proceed.
 
 ### 3. Developer — implementation
 
-Send the approved design to the developer. Wait for the completion report.
-
-If the developer reports a blocker, resolve it — revise the design if needed and return to step 2.
+Send the approved design to the developer. If they report a blocker, resolve it — revise the design if needed and return to step 2. Otherwise proceed.
 
 ### 4. Reviewer — implementation review
 
-Send the developer's completion report to the reviewer. Wait for the verdict.
-
-- **BLOCKED**: Send the issues to the developer for fixes. Re-run this step after.
-- **PASSED**: Report completion to the user.
+Send the implementation to the reviewer. If issues are raised, send them to the developer for fixes and re-run this step. If the reviewer finds nothing blocking, report completion to the user.
