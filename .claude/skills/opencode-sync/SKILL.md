@@ -19,7 +19,7 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/general.md` | `opencode/AGENTS.md` (General Standards section) | Cross-agent content. All OC agents inherit AGENTS.md. |
 | `rules/security.md` | `opencode/AGENTS.md` (Security section) | Cross-agent content. Same. |
 | `rules/complex-tasks.md` | `opencode/agents/base.md` (body) | Orchestration behavior. Goes into base agent, not AGENTS.md — see Base Agent section below. |
-| `settings.json` | `opencode/opencode.json` | Permissions translated (see below). Plugins have no equivalent. |
+| `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` | Ported without CC-specific frontmatter (`context: fork`, `allowed-tools`). |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
@@ -58,14 +58,18 @@ Claude Code uses three separate arrays (`deny`, `ask`, `allow`). OpenCode uses a
 2. Express `deny` rules after — more specific deny rules must come after broader ask rules so they take precedence.
 
 Example:
-```json
+```jsonc
 // Claude Code (settings.json)
 "deny": ["Bash(git push --force*)"],
 "ask":  ["Bash(git push*)"]
 
-// OpenCode (opencode.json) — deny must come AFTER ask to win
-"bash(git push*)": "ask",
-"bash(git push --force*)": "deny"
+// OpenCode (opencode.jsonc) — deny must come AFTER ask to win
+"permission": {
+  "bash": {
+    "git push*": "ask",
+    "git push --force*": "deny"
+  }
+}
 ```
 
 ## Known gaps (features with no OpenCode equivalent)
