@@ -37,12 +37,12 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 
 ### 2. Review — design
 
-Send the design to the reviewer. If issues are raised, address them and loop back to this step. If nothing blocking is found, proceed.
+Send the design to the reviewer agent. If issues are raised, address them and loop back to this step. If nothing blocking is found, proceed.
 
-### 3. Developer — implementation
+### 3. Implement
 
-Send the approved design to the developer. If they report a blocker, resolve it — revise the design if needed and return to step 2. Otherwise proceed.
+Send the approved design to the developer agent. If they report a blocker, resolve it — revise the design if needed and return to step 2. Otherwise proceed.
 
 ### 4. Review — implementation
 
-Send the implementation to the reviewer. If issues are raised, send them to the developer for fixes and re-run this step. If nothing blocking is found, report completion to the user.
+Send the implementation to the reviewer agent. If issues are raised, send them to the developer agent for fixes and re-run this step. If nothing blocking is found, report completion to the user.
