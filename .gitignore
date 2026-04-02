@@ -5,6 +5,7 @@
 .claude/*
 !.claude/CLAUDE.md
 !.claude/skills/
+!.claude/rules/
 
 # Conversation history
 history.jsonl

@@ -4,7 +4,9 @@ description: "Reference guide for keeping Claude Code and OpenCode configs in sy
 
 # OpenCode Sync Reference
 
-This skill documents the mapping between Claude Code configs in this repo and their OpenCode equivalents in `opencode/`. Use this as a reference when creating or modifying any config file.
+OpenCode docs: https://opencode.ai/docs
+
+This skill documents the mapping between Claude Code configs in this repo and their OpenCode equivalents in `opencode/`. Use this as a reference when creating or modifying any config file. Consult the OpenCode docs link above when the mapping is unclear or a feature needs verification.
 
 ## Rule: Keep configs in sync
 
@@ -14,7 +16,9 @@ When any config file is created or modified, the corresponding OpenCode equivale
 
 | Claude Code | OpenCode | Notes |
 |-------------|----------|-------|
-| `CLAUDE.md` | `opencode/AGENTS.md` | Same content. OpenCode also reads `CLAUDE.md` as fallback. |
+| `rules/general.md` | `opencode/AGENTS.md` (General Standards section) | Cross-agent content. All OC agents inherit AGENTS.md. |
+| `rules/security.md` | `opencode/AGENTS.md` (Security section) | Cross-agent content. Same. |
+| `rules/complex-tasks.md` | `opencode/agents/base.md` (body) | Orchestration behavior. Goes into base agent, not AGENTS.md — see Base Agent section below. |
 | `settings.json` | `opencode/opencode.json` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` | Ported without CC-specific frontmatter (`context: fork`, `allowed-tools`). |
@@ -22,6 +26,29 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `skills/commit/SKILL.md` | `opencode/commands/commit/COMMAND.md` | Becomes a model-mediated command (see limitations). |
 | `skills/summarize-branch/SKILL.md` | `opencode/commands/summarize-branch/COMMAND.md` | Same. |
 | `skills/<name>/SKILL.md` (agent-invocable) | `opencode/skills/<name>/SKILL.md` + `opencode/commands/<name>/COMMAND.md` | Skill for agent consumption; thin command wrapper for user invocation. |
+
+## Rules vs CLAUDE.md
+
+Claude Code supports a `rules/` directory (mirrors `~/.claude/rules/`) as an alternative to putting everything in `CLAUDE.md`. Rules are loaded automatically at session start, same as `CLAUDE.md`, but allow content to be split by topic.
+
+**This repo's convention:**
+- `rules/` — user-level rules loaded globally across all projects (general.md, security.md, complex-tasks.md)
+- `CLAUDE.md` — minimal pointer to `rules/`
+- `.claude/rules/` — repo-specific rules (e.g. config-sync.md), committed via `.gitignore` exception
+
+When adding a new user-level rule, create a new file in `rules/` rather than expanding `CLAUDE.md`.
+
+## Base Agent (OpenCode)
+
+OpenCode has no implicit base agent equivalent to Claude Code's default behavior. The base agent fills this role.
+
+**The split:**
+- `opencode/AGENTS.md` — content from rules that should apply to **all** agents (general standards, security). Every OC agent inherits this.
+- `opencode/agents/base.md` — content specific to the **primary orchestrating agent** (complex task methodology, when to delegate to developer/reviewer). This is where `rules/complex-tasks.md` content lives in OC.
+
+**When adding a new rule, decide:**
+- Does it apply to every agent (developer, reviewer, base)? → `opencode/AGENTS.md`
+- Does it describe how the primary agent should orchestrate or approach work? → `opencode/agents/base.md`
 
 ## Permissions translation
 
@@ -68,6 +95,12 @@ Determine the category first:
 - Create `skills/<name>/SKILL.md` (Claude Code)
 - Create `opencode/skills/<name>/SKILL.md` (remove `agent:`, `context: fork`, `allowed-tools` from frontmatter)
 - Create `opencode/commands/<name>/COMMAND.md` (thin wrapper: `agent: <name>` + one-line instruction to use the skill)
+
+## When adding a new rule
+
+1. Create `rules/<topic>.md` (Claude Code)
+2. Decide: cross-agent content or base-agent content? (see Base Agent section above)
+3. Add to `opencode/AGENTS.md` (cross-agent) or `opencode/agents/base.md` (base agent)
 
 ## When modifying permissions (settings.json)
 
