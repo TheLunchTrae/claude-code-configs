@@ -1,6 +1,7 @@
 ---
 description: "Primary agent for general coding and task orchestration. Handles direct user interaction, designs solutions, and coordinates implementation and review through developer and reviewer subagents."
 mode: primary
+temperature: 0.5
 ---
 
 # Base Agent
