@@ -21,11 +21,11 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/complex-tasks.md` | `opencode/agents/base.md` (body) | Orchestration behavior. Goes into base agent, not AGENTS.md — see Base Agent section below. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
-| `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review/COMMAND.md` | Skill for agent use; command with `agent: reviewer` + `subtask: true` for user invocation with context isolation. |
+| `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: reviewer` + `subtask: true` for user invocation with context isolation. |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
-| `skills/commit/SKILL.md` | `opencode/commands/commit/COMMAND.md` | `disable-model-invocation` maps to OC command (see Skill Categories below). |
-| `skills/summarize-branch/SKILL.md` | `opencode/commands/summarize-branch/COMMAND.md` | Same. |
-| `skills/<name>/SKILL.md` (agent-invocable) | `opencode/skills/<name>/SKILL.md` + `opencode/commands/<name>/COMMAND.md` | Skill for agent consumption; thin command wrapper for user invocation. |
+| `skills/commit/SKILL.md` | `opencode/commands/commit.md` | `disable-model-invocation` maps to OC command (see Skill Categories below). |
+| `skills/summarize-branch/SKILL.md` | `opencode/commands/summarize-branch.md` | Same. |
+| `skills/<name>/SKILL.md` (agent-invocable) | `opencode/skills/<name>/SKILL.md` + `opencode/commands/<name>.md` | Skill for agent consumption; thin command wrapper for user invocation. |
 
 ## Rules vs CLAUDE.md
 
@@ -59,13 +59,13 @@ CC skills with `disable-model-invocation: true` are pure-automation, user-initia
 **Difference:** OC commands still go through the LLM — there is no true "no model" mode in OpenCode. Behavior is equivalent but less deterministic.
 
 - Create `skills/<name>/SKILL.md` with `disable-model-invocation: true` (Claude Code)
-- Create `opencode/commands/<name>/COMMAND.md` with the same instruction body, no CC-specific frontmatter (OpenCode)
+- Create `opencode/commands/<name>.md` with the same instruction body, no CC-specific frontmatter (OpenCode)
 
 ### Agent-invocable skill, no context isolation → OC skill + thin command
 
 - Create `skills/<name>/SKILL.md` (Claude Code)
 - Create `opencode/skills/<name>/SKILL.md` — remove `agent:`, `context:`, `allowed-tools` from frontmatter; add `name:` matching the directory name
-- Create `opencode/commands/<name>/COMMAND.md` — thin wrapper: `agent: <name>` + one-line instruction to invoke the skill
+- Create `opencode/commands/<name>.md` — thin wrapper: `agent: <name>` + one-line instruction to invoke the skill
 
 ### Agent-invocable skill with `context: fork` → OC skill + command with `subtask: true`
 
@@ -73,7 +73,7 @@ CC's `context: fork` runs the skill in an isolated subagent context. The OC equi
 
 - Create `skills/<name>/SKILL.md` with `context: fork` (Claude Code)
 - Create `opencode/skills/<name>/SKILL.md` — same as above; add a note in the body that this skill is intended to be invoked as a subagent
-- Create `opencode/commands/<name>/COMMAND.md` with `agent: <name>` + `subtask: true`
+- Create `opencode/commands/<name>.md` with `agent: <name>` + `subtask: true`
 
 ## Permissions translation
 
@@ -129,17 +129,17 @@ Determine the category first — see **Skill categories** above.
 
 **No model / pure automation** (`disable-model-invocation: true`):
 - Create `skills/<name>/SKILL.md` (Claude Code)
-- Create `opencode/commands/<name>/COMMAND.md` (same body, remove CC-specific frontmatter keys)
+- Create `opencode/commands/<name>.md` (same body, remove CC-specific frontmatter keys)
 
 **Agent-invocable, no context isolation**:
 - Create `skills/<name>/SKILL.md` (Claude Code)
 - Create `opencode/skills/<name>/SKILL.md` (add `name:` key; remove `agent:`, `context:`, `allowed-tools`)
-- Create `opencode/commands/<name>/COMMAND.md` (`agent: <name>` + one-line invocation instruction)
+- Create `opencode/commands/<name>.md` (`agent: <name>` + one-line invocation instruction)
 
 **Agent-invocable with `context: fork`**:
 - Create `skills/<name>/SKILL.md` with `context: fork` (Claude Code)
 - Create `opencode/skills/<name>/SKILL.md` (add `name:` key; add a note in body that it is intended for subagent invocation)
-- Create `opencode/commands/<name>/COMMAND.md` (`agent: <name>` + `subtask: true` + one-line invocation instruction)
+- Create `opencode/commands/<name>.md` (`agent: <name>` + `subtask: true` + one-line invocation instruction)
 
 ## When adding a new rule
 
