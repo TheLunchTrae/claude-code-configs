@@ -6,19 +6,21 @@ Delete artifacts saved under `~/.opencode-artifacts/`.
 
 Interpret `$ARGUMENTS` to determine scope:
 
-- **No arguments** — delete everything: `rm -rf ~/.opencode-artifacts/*`
-- **One word matching a command name** (e.g. `handoff`) — delete that command's directory: `rm -rf ~/.opencode-artifacts/<command>`
-- **One word matching a project name** (e.g. `my-repo`) — delete that project's file from every command directory
-- **Two words** (e.g. `handoff my-repo`) — delete that single file: `rm -f ~/.opencode-artifacts/<command>/<project>.md`
+- **No arguments** — all files under `~/.opencode-artifacts/`
+- **One word matching a project directory** (e.g. `my-repo`) — all files under `~/.opencode-artifacts/my-repo/`
+- **One word matching a command name** (e.g. `handoff`) — `handoff.md` inside every project directory
+- **Two words** (e.g. `my-repo handoff`) — the single file `~/.opencode-artifacts/my-repo/handoff.md`
 
 Steps:
 
 1. Confirm `~/.opencode-artifacts/` exists. If it does not, tell the user there is nothing to clean up and stop.
 
-2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, check whether it matches a subdirectory name under `~/.opencode-artifacts/` to distinguish a command name from a project name.
+2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, check whether a subdirectory of that name exists under `~/.opencode-artifacts/` to identify it as a project; otherwise treat it as a command name and find `<word>.md` in every project directory.
 
-3. List what will be removed, then delete it.
+3. Resolve the full list of individual files that would be deleted and display them to the user. Ask for confirmation before proceeding.
 
-4. Confirm what was deleted.
+4. Upon confirmation, delete each file individually with `rm <file>`. After all files are removed, clean up any empty directories left behind using `rmdir`.
+
+5. Confirm what was deleted.
 
 $ARGUMENTS
