@@ -24,6 +24,12 @@ Reads `~/.opencode-artifacts/handoff/<project>.md` and orients the agent at the 
 
 OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
 
+### /cleanup-artifacts — `opencode/commands/cleanup-artifacts/COMMAND.md`
+
+Deletes artifacts under `~/.opencode-artifacts/`. Supports `--command <name>` to target a specific command's directory, `--project <project>` to remove a project's file across all commands, or both flags together to delete a single file. No arguments deletes everything.
+
+OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+
 # Artifact storage convention
 
 OpenCode commands that write persistent artifacts use:
