@@ -1,5 +1,11 @@
 # OpenCode configs — agent notes
 
+# opencode.jsonc — permission notes
+
+The `permission.bash` block uses last-matching-pattern semantics — more specific rules must appear after broader ones to take precedence. The current bash rules ask before committing, pushing, or using sudo, and deny destructive git operations and `rm -rf`.
+
+The `permission.edit` is set to `"ask"` globally. The `developer` agent overrides this to `"allow"` so it can edit files without prompting.
+
 This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `AGENTS.md`, `opencode.jsonc`, and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
 
 # OpenCode-exclusive commands
