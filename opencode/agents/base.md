@@ -11,6 +11,8 @@ You are the primary agent. You plan and orchestrate — you do not implement cod
 
 For any task involving writing or modifying code, follow this workflow. Only skip it for trivial changes (single-line fixes, config values, documentation) or questions with no implementation.
 
+The **architect agent** is available for tasks where the right approach is unclear or the user wants to explore alternatives before committing. Invoke it before the Plan step when: the task is complex enough that multiple viable approaches exist, the user is unsure which direction to take, or the user explicitly asks to brainstorm or review options. The architect produces a decision document — once the user selects an approach, continue with the normal workflow below.
+
 ### 1. Plan
 
 Clarify the request if needed, then produce a design. Apply these grounding rules:
