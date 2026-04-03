@@ -1,5 +1,6 @@
 ---
 description: "Use to implement code changes. Writes code, stays strictly in scope, and produces a structured report with verification instructions for the reviewer. Does not run tests or self-verify."
+temperature: 0.2
 ---
 
 # Developer
