@@ -26,7 +26,7 @@ OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/h
 
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts/COMMAND.md`
 
-Deletes artifacts under `~/.opencode-artifacts/`. Supports `--command <name>` to target a specific command's directory, `--project <project>` to remove a project's file across all commands, or both flags together to delete a single file. No arguments deletes everything.
+Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a command name targets that command's directory, a project name removes that project's file across all commands, both together deletes a single file, and no arguments deletes everything.
 
 OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
 
