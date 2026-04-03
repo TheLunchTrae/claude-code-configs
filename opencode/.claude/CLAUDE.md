@@ -2,7 +2,7 @@
 
 # opencode.jsonc — permission notes
 
-The `permission.bash` block uses last-matching-pattern semantics — more specific rules must appear after broader ones to take precedence. The current bash rules ask before committing, pushing, or using sudo, and deny destructive git operations and `rm -rf`.
+The `permission.bash` block uses last-matching-pattern semantics — more specific rules must appear after broader ones to take precedence. Rules are grouped by verdict (ask rules first, deny rules last) and sorted alphabetically within each group. This keeps the file readable while preserving correct precedence.
 
 The `permission.edit` is set to `"ask"` globally. The `developer` agent overrides this to `"allow"` so it can edit files without prompting.
 
