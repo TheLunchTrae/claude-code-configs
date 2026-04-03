@@ -7,15 +7,16 @@ and `skills/` (user-invocable slash commands).
 
 Do not treat the absence of source code as a problem to fix.
 
-# Symlinking into ~/.claude
+# Symlinking into .claude/
 
-Every file added to `agents/`, `rules/`, or `skills/` in this repo must be symlinked into the corresponding location under `~/.claude/` in the same operation — unless explicitly told not to. Symlink individual files, not directories, so individual files can be excluded if needed.
+Every file added to `agents/`, `rules/`, or `skills/` in this repo must have a corresponding relative symlink created inside `.claude/` in the same operation — unless explicitly told not to. Symlinking individual files (not directories) means individual files can be excluded if needed.
 
 ```
-ln -sf $(git rev-parse --show-toplevel)/<dir>/<file> ~/.claude/<dir>/<file>
+ln -sf ../../<dir>/<file> .claude/<dir>/<file>        # agents/ and rules/
+ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
 ```
 
-Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `~/.claude/` in the same operation.
+Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
 
 # Config changes: Claude Code first, then OpenCode
 

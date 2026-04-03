@@ -4,6 +4,7 @@
 # Claude Code project-level session data for this directory
 .claude/*
 !.claude/CLAUDE.md
+!.claude/agents/
 !.claude/skills/
 !.claude/rules/
 
