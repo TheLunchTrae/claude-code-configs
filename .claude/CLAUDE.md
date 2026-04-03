@@ -7,6 +7,17 @@ and `skills/` (user-invocable slash commands).
 
 Do not treat the absence of source code as a problem to fix.
 
+# Symlinking into .claude/
+
+Every file added to `agents/`, `rules/`, or `skills/` in this repo must have a corresponding relative symlink created inside `.claude/` in the same operation — unless explicitly told not to. Symlinking individual files (not directories) means individual files can be excluded if needed.
+
+```
+ln -sf ../../<dir>/<file> .claude/<dir>/<file>        # agents/ and rules/
+ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
+```
+
+Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
+
 # Config changes: Claude Code first, then OpenCode
 
 By default, all config changes target the **Claude Code** configs (`rules/`, `agents/`, `skills/`, `settings.json`). After making changes to the Claude Code configs, sync them to the corresponding OpenCode equivalents in `opencode/` in the same commit (see `/opencode-sync` for the mapping).

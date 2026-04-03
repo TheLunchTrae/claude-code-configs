@@ -1,11 +1,6 @@
 # Credentials - NEVER commit (contains OAuth tokens)
 .credentials.json
 
-# Claude Code project-level session data for this directory
-.claude/*
-!.claude/CLAUDE.md
-!.claude/skills/
-!.claude/rules/
 
 # Conversation history
 history.jsonl

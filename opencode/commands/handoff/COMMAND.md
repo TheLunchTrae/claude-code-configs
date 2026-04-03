@@ -9,9 +9,9 @@ Write a structured session summary so this context can be resumed in a future se
    - If that fails, run `basename $(git rev-parse --show-toplevel)` to use the local repo directory name
    - If not in a git repo, run `basename $PWD`
 
-2. Ensure the directory exists: `mkdir -p ~/.opencode-artifacts/handoff`
+2. Ensure the directory exists: `mkdir -p ~/.opencode-artifacts/<project>`
 
-3. Write the summary to `~/.opencode-artifacts/handoff/<project>.md`, overwriting any previous entry. Use this exact structure:
+3. Write the summary to `~/.opencode-artifacts/<project>/handoff.md`, overwriting any previous entry. Use this exact structure:
 
 ```
 ## Session Memory — <today's date>
