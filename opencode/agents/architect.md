@@ -1,5 +1,6 @@
 ---
 description: "Use to explore multiple approaches and trade-offs before committing to a design. Frames the problem, lays out options with pros/cons, and produces a recommendation. Does not implement anything."
+mode: subagent
 temperature: 0.7
 ---
 

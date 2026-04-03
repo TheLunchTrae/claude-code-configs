@@ -108,6 +108,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 | `temperature` | float | Response randomness (0.0–1.0). |
 | `top_p` | float | Alternative randomness control. |
 | `hidden` | bool | Hide this agent from the TUI autocomplete menu. |
+| `mode` | string | Set to `"subagent"` to restrict the agent to invocation by other agents only — not selectable as a primary agent by the user. |
 | `disable` | bool | Disable the agent entirely without deleting the file. |
 
 ## Known gaps (features with no OpenCode equivalent)

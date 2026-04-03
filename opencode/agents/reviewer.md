@@ -1,7 +1,8 @@
 ---
 description: "Use to review plans, designs, or implemented code. Assesses what it receives and returns a verdict with findings."
-temperature: 0.3
+mode: subagent
 steps: 15
+temperature: 0.3
 ---
 
 # Reviewer

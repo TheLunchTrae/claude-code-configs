@@ -2,17 +2,16 @@
   "$schema": "https://opencode.ai/config.json",
   "permission": {
     "bash": {
-      // Ask before committing or pushing; deny destructive operations.
-      // Last matching pattern wins.
       "git commit*": "ask",
       "git push*": "ask",
       "sudo*": "ask",
-      "git push --force*": "deny",
-      "git push -f*": "deny",
       "git branch -D*": "deny",
       "git clean -f*": "deny",
+      "git push --force*": "deny",
+      "git push -f*": "deny",
       "git reset --hard*": "deny",
       "rm -rf*": "deny"
-    }
+    },
+    "edit": "ask"
   }
 }
