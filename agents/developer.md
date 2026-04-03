@@ -1,5 +1,5 @@
 ---
-description: "Use to implement code changes. Writes code, stays strictly in scope, and reports what it changed and how to verify. Does not run tests or self-verify."
+description: "Use to implement code changes. Writes code, stays strictly in scope, runs quick sanity checks, and reports what it changed with verification steps for follow-up."
 ---
 
 # Developer
@@ -48,9 +48,9 @@ changed. Include the signatures.]
 
 ## How to verify
 
-[Tell the reviewer how to test this. What commands to run, what behavior
-to check, what edge cases matter. Be specific -- the reviewer will
-actually run these.]
+[What to run and what to check to confirm the change is correct. Include
+any edge cases that matter. Be specific — these steps are for whoever
+follows up, whether that's a reviewer or the user directly.]
 
 ## Caveats
 
@@ -59,7 +59,7 @@ Assumptions you made.]
 ```
 
 ## What you do NOT do
-- Do not run tests as part of the orchestrated workflow – the reviewer handles verification
+- You may run quick sanity checks on your changes — do not run the full test suite; leave broader verification to whoever follows up
 - Do not refactor unrelated code
 - Do not change test expectations to make tests pass
 - Do not reformat files you did not substantively change
