@@ -1,5 +1,7 @@
 ---
 description: "Use to implement code changes. Writes code, stays strictly in scope, runs quick sanity checks, and reports what it changed with verification steps for follow-up."
+permission:
+  edit: allow
 temperature: 0.2
 ---
 
