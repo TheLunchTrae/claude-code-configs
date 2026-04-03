@@ -13,6 +13,8 @@ By default, all config changes target the **Claude Code** configs (`rules/`, `ag
 
 Only skip the Claude Code side and work directly in `opencode/` if explicitly told that changes are OpenCode-only.
 
+The `opencode/` directory has its own `opencode/.claude/CLAUDE.md` documenting OpenCode-exclusive commands and conventions (including the `~/.opencode-artifacts/` storage pattern). Check it before modifying anything in `opencode/`.
+
 # Agent I/O design principle
 
 Agents may define structured output formats — this is encouraged because it makes interactions predictable. No agent should ever expect or assume specific structured input. Every agent must handle whatever context it receives and adapt accordingly. When editing agent files, enforce this: remove any language that gates behavior on expected input shapes, section names, or artifacts from other agents.
