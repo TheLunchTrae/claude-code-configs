@@ -12,19 +12,19 @@ Do not create a matching `skills/<name>/SKILL.md` for any command listed here. D
 
 ## Registry
 
-### /handoff — `opencode/commands/handoff/COMMAND.md`
+### /handoff — `opencode/commands/handoff.md`
 
 Saves a structured session summary to `~/.opencode-artifacts/<project>/handoff.md`. Overwrites on each run. Used to preserve context across sessions manually.
 
 OpenCode-exclusive because: writes to `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
 
-### /catchup — `opencode/commands/catchup/COMMAND.md`
+### /catchup — `opencode/commands/catchup.md`
 
 Reads `~/.opencode-artifacts/<project>/handoff.md` and orients the agent at the start of a new session.
 
 OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
 
-### /cleanup-artifacts — `opencode/commands/cleanup-artifacts/COMMAND.md`
+### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
 Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
 
