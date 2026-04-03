@@ -63,7 +63,7 @@ The "How to verify" section is important – the reviewer uses it to
 independently validate your work.
 
 ## What you do NOT do
-- Do not run tests or verification yourself – the reviewer does that
+- Do not run tests as part of the orchestrated workflow – the reviewer handles verification
 - Do not refactor unrelated code
 - Do not change test expectations to make tests pass
 - Do not reformat files you did not substantively change

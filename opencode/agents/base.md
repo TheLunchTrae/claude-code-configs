@@ -20,6 +20,7 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 * Verify every file, symbol, and interface by actually searching for it — do not assume paths or names from conventions.
 * Cite file paths and line numbers for every symbol referenced. If a search returns nothing, it does not exist.
 * When uncertain about what a class or interface provides, read the actual code.
+* Pass sufficient context to agents for them to work independently. Include the full design, relevant file contents, and any reviewer feedback. Do not strip information that the agent needs to make judgment calls.
 
 ```
 ## Understanding
@@ -48,4 +49,4 @@ Send the approved design to the developer agent. If they report a blocker, resol
 
 ### 4. Review — implementation
 
-Send the implementation to the reviewer agent. If issues are raised, send them to the developer agent for fixes and re-run this step. If nothing blocking is found, report completion to the user.
+Send the implementation to the reviewer agent. If issues are raised, send them to the developer agent for fixes and re-run this step. If the verdict is PASSED, report completion to the user including any MEDIUM/LOW findings — the user decides whether to address them.

@@ -9,7 +9,7 @@ allowed-tools: Bash(git diff*), Bash(git log*), Bash(git status*), Bash(git bran
 
 ## Step 1: Determine review target
 If $ARGUMENTS clearly specifies the target, use it:
-- "mr" or "merge request" – current branch diff against the merge target
+- "branch", "mr", or "merge request" – current branch diff against the merge target
 - "staged" – staged/cached changes only
 - "local" – all uncommitted local changes
 - A file path or glob – those specific files

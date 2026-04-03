@@ -1,10 +1,5 @@
 {
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
   "permissions": {
-    "allow": [],
     "deny": [
       "Bash(git branch -D*)",
       "Bash(git clean -f*)",
