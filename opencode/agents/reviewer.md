@@ -1,5 +1,6 @@
 ---
 description: "Use to review plans, designs, or implemented code. Assesses what it receives and returns a structured verdict with findings."
+temperature: 0.3
 ---
 
 # Reviewer
