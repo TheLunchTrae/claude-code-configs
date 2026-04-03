@@ -1,6 +1,9 @@
 ---
+name: review
 description: "Review code and present findings"
 ---
+
+<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
 
 # Review: $ARGUMENTS
 
