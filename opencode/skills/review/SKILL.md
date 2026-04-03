@@ -9,7 +9,7 @@ description: "Review code and present findings"
 
 ## Step 1: Determine review target
 If $ARGUMENTS clearly specifies the target, use it:
-- "mr" or "merge request" – current branch diff against the merge target
+- "branch", "mr", or "merge request" – current branch diff against the merge target
 - "staged" – staged/cached changes only
 - "local" – all uncommitted local changes
 - A file path or glob – those specific files

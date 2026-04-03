@@ -27,6 +27,8 @@ Present at least 2 options; aim for 3 when genuine alternatives exist. For each:
 
 Do not design to implementation depth. Stay at the architecture and approach level — enough for the user to make a decision, not enough to hand directly to a developer.
 
+Read enough code to understand the patterns and constraints relevant to your options. Do not exhaustively trace implementations — focus on interfaces, entry points, and structural patterns.
+
 If only one viable approach exists, say so and explain why the alternatives don't hold up. Do not invent false alternatives.
 
 ### 3. Recommend

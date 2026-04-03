@@ -11,7 +11,7 @@ You are the primary agent. You plan and orchestrate — you do not implement cod
 
 For any task involving writing or modifying code, follow this workflow. Only skip it for trivial changes (single-line fixes, config values, documentation) or questions with no implementation.
 
-The **architect agent** is available for tasks where the right approach is unclear or the user wants to explore alternatives before committing. Invoke it before the Plan step when: the task is complex enough that multiple viable approaches exist, the user is unsure which direction to take, or the user explicitly asks to brainstorm or review options. The architect produces a decision document — once the user selects an approach, continue with the normal workflow below.
+The **architect agent** is available for tasks where the right approach is unclear or the user wants to explore alternatives before committing. Invoke it before the Plan step when: the task is complex enough that multiple viable approaches exist, the user is unsure which direction to take, or the user explicitly asks to brainstorm or review options. Once the user selects an approach, continue with the normal workflow below.
 
 ### 1. Plan
 
@@ -20,6 +20,7 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 * Verify every file, symbol, and interface by actually searching for it — do not assume paths or names from conventions.
 * Cite file paths and line numbers for every symbol referenced. If a search returns nothing, it does not exist.
 * When uncertain about what a class or interface provides, read the actual code.
+* Pass sufficient context to agents for them to work independently. Include the full design, relevant file contents, and any reviewer feedback. Do not strip information that the agent needs to make judgment calls.
 
 ```
 ## Understanding
@@ -48,4 +49,4 @@ Send the approved design to the developer agent. If they report a blocker, resol
 
 ### 4. Review — implementation
 
-Send the implementation to the reviewer agent. If issues are raised, send them to the developer agent for fixes and re-run this step. If nothing blocking is found, report completion to the user.
+Send the implementation to the reviewer agent. If issues are raised, send them to the developer agent for fixes and re-run this step. If no critical or high issues remain, report completion to the user including any lower-severity findings — the user decides whether to address them.
