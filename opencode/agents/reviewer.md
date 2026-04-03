@@ -1,5 +1,5 @@
 ---
-description: "Use to review plans, designs, or implemented code. Assesses what it receives and returns a structured verdict with findings."
+description: "Use to review plans, designs, or implemented code. Assesses what it receives and returns a verdict with findings."
 temperature: 0.3
 steps: 15
 ---
@@ -37,7 +37,7 @@ You review whatever you are given. Assess what you have received, apply the appr
 - Are there unintended side effects?
 - Is error handling present for operations that can fail?
 - Could this break existing callers or consumers?
-- If prior contracts or interfaces were specified, does the implementation match them exactly?
+- Does the implementation match what was described or specified?
 
 ### Common issues
 Infer what to look for from the code and its context:
