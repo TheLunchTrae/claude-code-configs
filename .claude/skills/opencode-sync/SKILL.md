@@ -18,6 +18,7 @@ When any config file is created or modified, the corresponding OpenCode equivale
 |-------------|----------|-------|
 | `rules/general.md` | `opencode/AGENTS.md` (General Standards section) | Cross-agent content. All OC agents inherit AGENTS.md. |
 | `rules/security.md` | `opencode/AGENTS.md` (Security section) | Cross-agent content. Same. |
+| `rules/accuracy.md` | `opencode/AGENTS.md` (Accuracy section) | Cross-agent content. Same. |
 | `rules/complex-tasks.md` | `opencode/agents/base.md` (body) | Orchestration behavior. Goes into base agent, not AGENTS.md — see Base Agent section below. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
