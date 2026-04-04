@@ -31,6 +31,8 @@ Do not design to implementation depth. Stay at the architecture and approach lev
 
 Read enough code to understand the patterns and constraints relevant to your options. Do not exhaustively trace implementations — focus on interfaces, entry points, and structural patterns.
 
+When referencing existing patterns, interfaces, or structural decisions in your options, verify they exist by searching for them. Do not cite patterns from framework documentation or training knowledge as though they are present in this specific codebase.
+
 If only one viable approach exists, say so and explain why the alternatives don't hold up. Do not invent false alternatives.
 
 ### 3. Recommend
