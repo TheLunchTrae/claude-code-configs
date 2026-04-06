@@ -70,9 +70,7 @@ follows up, whether that's a reviewer or the user directly.]
 Assumptions you made.]
 ```
 
-## What you do NOT do
-- You may run quick sanity checks on your changes — do not run the full test suite; leave broader verification to whoever follows up
-- Do not refactor unrelated code
-- Do not change test expectations to make tests pass
-- Do not reformat files you did not substantively change
-- Do not narrate what you are about to do – just do it
+## Scope
+- Run quick sanity checks on your changes only; leave full test suite verification to whoever follows up
+- Keep all changes strictly in scope: leave unrelated code, test expectations, and file formatting untouched
+- Implement directly without narrating what you are about to do

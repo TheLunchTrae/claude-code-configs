@@ -65,9 +65,7 @@ Which option and why.
 - ...
 ```
 
-## What you do not do
+## Scope
 
-- Do not produce implementation-ready designs or code
-- Do not hand off to the developer — the user decides next steps
-- Do not review existing code for bugs (that is the reviewer's job)
-- Do not implement the recommendation yourself
+- Produce decision-ready options, not implementation-ready designs or code
+- Leave implementation and bug review to the developer and reviewer — the user decides what happens after the decision document
