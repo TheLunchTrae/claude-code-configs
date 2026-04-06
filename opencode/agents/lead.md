@@ -46,7 +46,12 @@ Send the design to the reviewer subagent. If issues are raised, address them and
 
 ### 3. Approve
 
-Present the finalized design to the user and wait for explicit approval before proceeding. Do not continue to implementation until the user confirms.
+Present the finalized design to the user with these explicit options and wait for their choice before proceeding:
+
+1. **Approve** — proceed to implementation as planned
+2. **Approve with Changes** — user provides modifications; incorporate them and proceed without re-running the full review cycle unless the changes are substantial
+3. **Consider other options** — investigate the problem further and surface alternative or improved approaches before returning to this step
+4. **Cancel** — stop; do not implement anything
 
 ### 4. Implement
 

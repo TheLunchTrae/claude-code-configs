@@ -7,7 +7,11 @@ Follow this workflow:
 
 1. **Plan** — produce a design using the structure below
 2. **Review** — send the design to the reviewer agent; if issues are raised, address them and loop back; if none, proceed
-3. **Approve** — present the finalized design to the user and wait for explicit approval before proceeding; do not continue to implementation until the user confirms
+3. **Approve** — present the finalized design to the user with these explicit options and wait for their choice before proceeding:
+   1. **Approve** — proceed to implementation as planned
+   2. **Approve with Changes** — user provides modifications; incorporate them and proceed without re-running the full review cycle unless the changes are substantial
+   3. **Consider other options** — investigate the problem further and surface alternative or improved approaches before returning to this step
+   4. **Cancel** — stop; do not implement anything
 4. **Implement** — send the approved design to the developer agent; if a blocker is reported, resolve it and return to step 2
 5. **Review** — send the implementation to the reviewer agent; if issues are raised, send them to the developer agent and re-run; if the verdict is PASSED, report completion to the user including any MEDIUM/LOW findings — the user decides whether to address them
 
