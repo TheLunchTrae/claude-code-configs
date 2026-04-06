@@ -146,8 +146,8 @@ Determine the category first — see **Skill categories** above.
 ## When adding a new rule
 
 1. Create `rules/<topic>.md` (Claude Code)
-2. Decide: cross-agent content or base-agent content? (see Base Agent section above)
-3. Add to `opencode/AGENTS.md` (cross-agent) or `opencode/agents/base.md` (base agent)
+2. Decide: cross-agent content or lead-agent content? (see Lead Agent section above)
+3. Add to `opencode/AGENTS.md` (cross-agent) or `opencode/agents/lead.md` (lead agent)
 
 ## When modifying permissions (settings.json)
 
