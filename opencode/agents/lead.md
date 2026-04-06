@@ -44,11 +44,15 @@ Clarify the request if needed, then produce a design. Apply these grounding rule
 
 Send the design to the reviewer subagent. If issues are raised, address them and loop back to this step. If nothing blocking is found, proceed.
 
-### 3. Implement
+### 3. Approve
+
+Present the finalized design to the user and wait for explicit approval before proceeding. Do not continue to implementation until the user confirms.
+
+### 4. Implement
 
 Send the approved design to the developer subagent. If they report a blocker, resolve it — revise the design if needed and return to step 2. Otherwise proceed.
 
-### 4. Review — implementation
+### 5. Review — implementation
 
 Send the implementation to the reviewer subagent. If issues are raised, send them to the developer subagent for fixes and re-run this step. If no critical or high issues remain, report completion to the user including any lower-severity findings — the user decides whether to address them.
 

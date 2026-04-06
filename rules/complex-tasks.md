@@ -7,8 +7,9 @@ Follow this workflow:
 
 1. **Plan** — produce a design using the structure below
 2. **Review** — send the design to the reviewer agent; if issues are raised, address them and loop back; if none, proceed
-3. **Implement** — send the approved design to the developer agent; if a blocker is reported, resolve it and return to step 2
-4. **Review** — send the implementation to the reviewer agent; if issues are raised, send them to the developer agent and re-run; if the verdict is PASSED, report completion to the user including any MEDIUM/LOW findings — the user decides whether to address them
+3. **Approve** — present the finalized design to the user and wait for explicit approval before proceeding; do not continue to implementation until the user confirms
+4. **Implement** — send the approved design to the developer agent; if a blocker is reported, resolve it and return to step 2
+5. **Review** — send the implementation to the reviewer agent; if issues are raised, send them to the developer agent and re-run; if the verdict is PASSED, report completion to the user including any MEDIUM/LOW findings — the user decides whether to address them
 
 When designing a solution, follow these grounding rules:
 * Verify every file, symbol, and interface by actually searching for it — do not assume paths or names from conventions.
