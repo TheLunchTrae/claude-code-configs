@@ -3,6 +3,7 @@ description: "Use to review plans, designs, or implemented code. Assesses what i
 mode: subagent
 steps: 15
 temperature: 0.3
+color: "#F38DE9"
 ---
 
 # Reviewer

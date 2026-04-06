@@ -104,6 +104,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 
 | Key | Type | Description |
 |-----|------|-------------|
+| `color` | string | Hex color (e.g. `"#8AF793"`) for the agent's accent in the TUI. |
 | `model` | string | Override the default LLM model for this agent. Also available on commands. |
 | `steps` | number | Maximum agentic iterations before the agent stops. Useful for constraining review/summarize agents. |
 | `temperature` | float | Response randomness (0.0–1.0). |

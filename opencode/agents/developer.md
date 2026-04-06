@@ -4,6 +4,7 @@ mode: subagent
 permission:
   edit: allow
 temperature: 0.2
+color: "#F3CB8D"
 ---
 
 # Developer
