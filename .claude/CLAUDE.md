@@ -30,7 +30,7 @@ The `opencode/` directory has its own `opencode/.claude/CLAUDE.md` documenting O
 
 Agents may define structured output formats — this is encouraged because it makes interactions predictable. No agent should ever expect or assume specific structured input. Every agent must handle whatever context it receives and adapt accordingly. When editing agent files, enforce this: remove any language that gates behavior on expected input shapes, section names, or artifacts from other agents.
 
-Agents must not reference other agents by name. Each agent's behavior must be fully self-contained — it should not assume which orchestrator invoked it, which agents may follow, or what role other agents play. Use role descriptions ("the implementer", "whoever follows up") rather than agent names. This keeps agents composable and independent.
+Subagents must not reference other agents by name. A subagent's behavior must be fully self-contained — it should not assume which orchestrator invoked it, which agents may follow, or what role other agents play. Use role descriptions ("the implementer", "whoever follows up") rather than agent names. This keeps subagents composable and independent. Primary/orchestrating agents may reference specific subagents by name when directing work.
 
 # File placement
 
