@@ -19,7 +19,7 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/general.md` | `opencode/AGENTS.md` (General Standards section) | Cross-agent content. All OC agents inherit AGENTS.md. |
 | `rules/security.md` | `opencode/AGENTS.md` (Security section) | Cross-agent content. Same. |
 | `rules/accuracy.md` | `opencode/AGENTS.md` (Accuracy section) | Cross-agent content. Same. |
-| `rules/complex-tasks.md` | `opencode/agents/base.md` (body) | Orchestration behavior. Goes into base agent, not AGENTS.md — see Base Agent section below. |
+| `rules/complex-tasks.md` | `opencode/agents/lead.md` (body) | Orchestration behavior. Goes into lead agent, not AGENTS.md — see Lead Agent section below. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: reviewer` + `subtask: true` for user invocation with context isolation. |
@@ -39,17 +39,17 @@ Claude Code supports a `rules/` directory (mirrors `~/.claude/rules/`) as an alt
 
 When adding a new user-level rule, create a new file in `rules/` rather than expanding `CLAUDE.md`.
 
-## Base Agent (OpenCode)
+## Lead Agent (OpenCode)
 
-OpenCode has no implicit base agent equivalent to Claude Code's default behavior. The base agent fills this role.
+OpenCode has no implicit primary agent equivalent to Claude Code's default behavior. The lead agent fills this role.
 
 **The split:**
 - `opencode/AGENTS.md` — content from rules that should apply to **all** agents (general standards, security). Every OC agent inherits this.
-- `opencode/agents/base.md` — content specific to the **primary orchestrating agent** (complex task methodology, when to delegate to developer/reviewer). This is where `rules/complex-tasks.md` content lives in OC.
+- `opencode/agents/lead.md` — content specific to the **primary orchestrating agent** (complex task methodology, when to delegate to subagents). This is where `rules/complex-tasks.md` content lives in OC.
 
 **When adding a new rule, decide:**
-- Does it apply to every agent (developer, reviewer, base)? → `opencode/AGENTS.md`
-- Does it describe how the primary agent should orchestrate or approach work? → `opencode/agents/base.md`
+- Does it apply to every agent (developer, reviewer, lead)? → `opencode/AGENTS.md`
+- Does it describe how the primary agent should orchestrate or approach work? → `opencode/agents/lead.md`
 
 ## Skill categories and their OC equivalents
 
@@ -104,6 +104,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 
 | Key | Type | Description |
 |-----|------|-------------|
+| `color` | string | Hex color (e.g. `"#8AF793"`) for the agent's accent in the TUI. |
 | `model` | string | Override the default LLM model for this agent. Also available on commands. |
 | `steps` | number | Maximum agentic iterations before the agent stops. Useful for constraining review/summarize agents. |
 | `temperature` | float | Response randomness (0.0–1.0). |
@@ -146,8 +147,8 @@ Determine the category first — see **Skill categories** above.
 ## When adding a new rule
 
 1. Create `rules/<topic>.md` (Claude Code)
-2. Decide: cross-agent content or base-agent content? (see Base Agent section above)
-3. Add to `opencode/AGENTS.md` (cross-agent) or `opencode/agents/base.md` (base agent)
+2. Decide: cross-agent content or lead-agent content? (see Lead Agent section above)
+3. Add to `opencode/AGENTS.md` (cross-agent) or `opencode/agents/lead.md` (lead agent)
 
 ## When modifying permissions (settings.json)
 

@@ -2,6 +2,7 @@
 description: "Use to explore multiple approaches and trade-offs before committing to a design. Frames the problem, lays out options with pros/cons, and produces a recommendation. Does not implement anything."
 mode: subagent
 temperature: 0.7
+color: "#8AB6F4"
 ---
 
 # Architect
@@ -67,9 +68,7 @@ Which option and why.
 - ...
 ```
 
-## What you do not do
+## Scope
 
-- Do not produce implementation-ready designs or code
-- Do not hand off to the developer — the user decides next steps
-- Do not review existing code for bugs (that is the reviewer's job)
-- Do not implement the recommendation yourself
+- Produce decision-ready options, not implementation-ready designs or code
+- Leave implementation and bug review to whoever follows up — the user decides what happens after the decision document
