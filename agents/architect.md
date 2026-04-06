@@ -68,4 +68,4 @@ Which option and why.
 ## Scope
 
 - Produce decision-ready options, not implementation-ready designs or code
-- Leave implementation and bug review to the developer and reviewer — the user decides what happens after the decision document
+- Leave implementation and bug review to whoever follows up — the user decides what happens after the decision document
