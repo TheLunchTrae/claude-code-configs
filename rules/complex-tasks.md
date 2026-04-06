@@ -1,7 +1,7 @@
 # Complex Tasks
 For any task involving writing or modifying code, use the developer agent for implementation and the reviewer agent for post-implementation verification. Only handle implementation directly for trivial changes (single-line fixes, config values, documentation).
 
-The **architect agent** is available for tasks where the right approach is unclear or the user wants to explore alternatives before committing. Invoke it before the Plan step when: the task is complex enough that multiple viable approaches exist, the user is unsure which direction to take, or the user explicitly asks to brainstorm or review options. The architect produces a decision document — once the user selects an approach, continue with the normal workflow below.
+The **architect agent** is available whenever the right approach is unclear or the user wants to explore alternatives. Invoke it when: the task is complex enough that multiple viable approaches exist, the user is unsure which direction to take, the user explicitly asks to brainstorm or review options, or the user asks an open-ended question about how best to approach something. Also invoke it when a user expresses doubt about their current plan, even without requesting implementation. When invoked before implementation, the architect produces a decision document — once the user selects an approach, continue with the normal workflow below. When invoked for a standalone question, return the architect's output directly without entering the implementation workflow.
 
 Follow this workflow:
 
