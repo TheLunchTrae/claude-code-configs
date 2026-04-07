@@ -2,6 +2,8 @@
 description: "Primary agent for general coding and task orchestration. Handles direct user interaction, designs solutions, and coordinates implementation and review through subagents."
 mode: primary
 temperature: 0.5
+permission:
+  edit: allow
 color: "#8AF793"
 ---
 

@@ -2,6 +2,8 @@
 description: "Primary orchestrator. Plans and coordinates work through subagents — does not implement directly."
 mode: primary
 temperature: 0.5
+permission:
+  edit: allow
 color: "#8AF793"
 ---
 
