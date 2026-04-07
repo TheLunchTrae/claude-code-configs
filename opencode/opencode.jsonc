@@ -15,6 +15,10 @@
     "edit": {
       "*": "ask",
       "~/.opencode-artifacts/**": "allow"
+    },
+    "external_directory": {
+      "*": "ask",
+      "~/.opencode-artifacts/**": "allow"
     }
   }
 }
