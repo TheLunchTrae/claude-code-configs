@@ -12,6 +12,9 @@
       "git reset --hard*": "deny",
       "rm -rf*": "deny"
     },
-    "edit": "ask"
+    "edit": {
+      "*": "ask",
+      "~/.opencode-artifacts/**": "allow"
+    }
   }
 }
