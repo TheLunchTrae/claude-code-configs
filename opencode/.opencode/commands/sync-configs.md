@@ -37,6 +37,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `agents/code-simplifier.md` | `agents/code-simplifier.md` |
 | `agents/refactor-cleaner.md` | `agents/refactor-cleaner.md` |
 | `agents/doc-updater.md` | `agents/doc-updater.md` |
+| `agents/mcp-builder.md` | `agents/mcp-builder.md` |
 
 ### Commands
 | Remote | Local |
