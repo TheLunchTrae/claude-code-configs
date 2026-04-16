@@ -1,6 +1,6 @@
 ---
 name: python-developer
-description: Senior Python developer for implementing features, fixing bugs, and modifying Python code. Writes idiomatic, type-safe, well-tested Python. Use for any Python implementation task.
+description: Senior Python developer for implementing features, fixing bugs, and modifying .py code. Writes idiomatic, type-safe, well-tested Python across Django, Flask, FastAPI, and plain Python. Use for any Python implementation task.
 tools: ["Read", "Edit", "Write", "Grep", "Glob", "Bash"]
 ---
 
