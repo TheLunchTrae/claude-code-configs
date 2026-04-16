@@ -1,4 +1,5 @@
 ---
+description: Senior Go code reviewer. Reviews for idiomatic patterns, error handling, concurrency safety, and security. Use for all Go code changes.
 mode: subagent
 temperature: 0.1
 color: "#80CBC4"

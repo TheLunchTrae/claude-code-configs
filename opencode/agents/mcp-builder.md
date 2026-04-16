@@ -1,4 +1,5 @@
 ---
+description: MCP server developer for building Model Context Protocol servers with TypeScript (@modelcontextprotocol/sdk) or Python (mcp SDK). Designs agent-friendly tool interfaces with typed schemas (Zod / Pydantic), handles stdio / SSE / streamable-HTTP transports, secure secret loading, and structured error reporting via isError. Use for any MCP server, tool, resource, or prompt implementation task.
 mode: subagent
 temperature: 0.1
 color: "#8E44AD"

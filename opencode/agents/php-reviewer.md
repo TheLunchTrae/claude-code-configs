@@ -1,4 +1,5 @@
 ---
+description: Senior PHP code reviewer. Reviews for security vulnerabilities, modern PHP idioms, type safety, and correctness. Use for all PHP code changes.
 mode: subagent
 temperature: 0.1
 color: "#B39DDB"

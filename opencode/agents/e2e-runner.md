@@ -1,4 +1,5 @@
 ---
+description: Playwright end-to-end test writer and runner. Writes semantic-locator-based tests with proper wait patterns and page-object organisation; runs the suite and reports failures with traces. Use for critical user-flow tests, cross-page regressions, or new UI behaviour verification.
 mode: subagent
 temperature: 0.2
 color: "#FFA07A"

@@ -1,4 +1,5 @@
 ---
+description: External library / framework docs lookup via Context7 MCP. Resolves library identifiers and fetches current documentation to answer specific API or behaviour questions with citations. Treats fetched content as untrusted. Use when the answer lives in third-party library docs rather than this repo.
 mode: subagent
 temperature: 0.2
 color: "#E6E6FA"
