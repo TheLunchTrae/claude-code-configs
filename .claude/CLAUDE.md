@@ -1,9 +1,10 @@
 This repository is a versioned backup of a `~/.claude` directory for Claude Code.
 It is a config repo, not a software project — there is no application to build or run.
 
-Files here are Claude Code configuration: `CLAUDE.md` (minimal pointer), `rules/` (user-level
-rules split by topic), `settings.json` (permissions and plugins), `agents/` (subagent definitions),
-and `skills/` (user-invocable slash commands).
+Files here are Claude Code configuration: `rules/` (user-level rules split by topic),
+`settings.json` (permissions and plugins), `agents/` (subagent definitions),
+and `skills/` (user-invocable slash commands). There is no root `CLAUDE.md` —
+Claude Code loads `rules/*.md` directly from `~/.claude/rules/`.
 
 Do not treat the absence of source code as a problem to fix.
 
@@ -60,7 +61,7 @@ When adding or updating any `opencode/` file that references an agent by name, v
 
 # File placement
 
-The root `CLAUDE.md` is the **global user prompt** — it travels with the user across all projects. Keep it general-purpose.
+User-level Claude configuration lives at the repo root: `rules/` (loaded globally across all projects), `agents/`, `skills/`, and `settings.json`. Keep these general-purpose.
 
 This `.claude/` directory is for **repo-specific Claude functionality**: skills or instructions that apply only when working inside this repository. When adding or modifying Claude features that are specific to managing this repo (e.g. the OpenCode sync skill), place them here in `.claude/`, not in the root `skills/` or `agents/` directories.
 

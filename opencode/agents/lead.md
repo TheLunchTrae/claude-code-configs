@@ -60,6 +60,28 @@ Implement the approved design directly. If you hit a blocker, revise the design 
 
 Send the implementation to the **code-reviewer** subagent. If issues are raised, fix them and re-run this step. If no critical or high issues remain, report completion to the user including any lower-severity findings — the user decides whether to address them.
 
+## Available subagents
+
+When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently. Language-specific reviewers escalate CRITICAL findings to the `security-reviewer` on their own.
+
+| Agent | Purpose | When to invoke |
+|-------|---------|----------------|
+| planner | Implementation planning | Complex features, multi-step refactoring, or new architecture that needs phases, dependencies, and risks laid out before coding. |
+| architect | System design and tradeoffs | Multiple viable approaches, user is unsure, or open-ended design questions. Can run before the workflow to produce a decision document. |
+| code-reviewer | Quality, security, and maintainability review | After every design and every implementation (already in the workflow above). |
+| security-reviewer | Vulnerability detection | Auth, user input, DB queries, crypto, API endpoints, file I/O, or anything handling sensitive data. |
+| build-error-resolver | Build and type-error fixes | Build fails or type check fails — minimal diffs, no refactoring. |
+| code-simplifier | Simplify existing code | Clarifying or consolidating code without changing behavior. |
+| refactor-cleaner | Dead code and duplicate removal | Unused exports or imports, duplicate logic, or leftover scaffolding. |
+| performance-optimizer | Bottleneck analysis | Slow queries, N+1 patterns, algorithmic hotspots, or memory/resource leaks. |
+| e2e-runner | Playwright end-to-end tests | Critical user flows, cross-page regression checks, or new UI-level behavior. |
+| doc-updater | Documentation and codemaps | Public API changes, README drift, or docstring gaps. |
+| docs-lookup | External library/framework docs via Context7 | Behavior questions where the answer lives in third-party docs, not in this repo. |
+| typescript-reviewer | TypeScript/JavaScript-specific review | Any TypeScript or JavaScript change. |
+| go-reviewer | Go-specific review | Any Go change. |
+| csharp-reviewer | C#/.NET-specific review | Any C# change. |
+| php-reviewer | PHP-specific review | Any PHP change. |
+
 ## Risky actions
 
 Before taking actions that are hard to reverse or visible to others, confirm with the user:
