@@ -64,6 +64,16 @@ Authored OpenCode plugins live in `opencode/plugins/`. They are TypeScript modul
 
 Keep runtime dependencies minimal. Prefer Node/Bun built-ins; pull in an npm runtime dep only if the value clearly outweighs the install surface.
 
+## Plugin SDK reference
+
+When authoring a plugin, the canonical reference for the `Plugin` type, the `Hooks` interface (every available event with its `input` / `output` signature), and the `tool()` helper is the package source:
+
+- Repo: <https://github.com/anomalyco/opencode/tree/dev/packages/plugin>
+- `src/index.ts` — `PluginInput`, `Plugin`, `Hooks`, `ToolDefinition` re-exports.
+- `src/tool.ts` — `tool()` helper and `tool.schema` (re-export of `zod`).
+
+Verify hook signatures and the return shape against the source before adding a new event handler. The OpenCode docs page is a good orientation but the source is authoritative.
+
 ## Registry
 
 ### `plugins/artifacts.ts` — ArtifactsPlugin

@@ -56,7 +56,7 @@ const reject = (reason: string): never => {
 
 export const BlockSecretsPlugin: Plugin = async () => ({
   "tool.execute.before": async (input, output) => {
-    const toolName = input.tool?.toLowerCase?.() ?? ""
+    const toolName = input.tool.toLowerCase()
     const args = (output.args ?? {}) as Record<string, unknown>
 
     if (toolName === "bash") {
