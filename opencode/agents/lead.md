@@ -76,6 +76,10 @@ When a task needs specialized knowledge or a focused pass over the code, delegat
 | e2e-runner | Playwright end-to-end tests | Critical user flows, cross-page regression checks, or new UI-level behavior. |
 | doc-updater | Documentation and codemaps | Public API changes, README drift, or docstring gaps. |
 | docs-lookup | External library/framework docs via Context7 | Behavior questions where the answer lives in third-party docs, not in this repo. |
+| typescript-developer | TypeScript/JavaScript implementation | Any TypeScript or JavaScript implementation task. Pair with `typescript-reviewer` afterward. |
+| go-developer | Go implementation | Any Go implementation task. Pair with `go-reviewer` afterward. |
+| csharp-developer | C#/.NET implementation | Any C# implementation task. Pair with `csharp-reviewer` afterward. |
+| php-developer | PHP implementation | Any PHP implementation task. Pair with `php-reviewer` afterward. |
 | typescript-reviewer | TypeScript/JavaScript-specific review | Any TypeScript or JavaScript change. |
 | go-reviewer | Go-specific review | Any Go change. |
 | csharp-reviewer | C#/.NET-specific review | Any C# change. |
