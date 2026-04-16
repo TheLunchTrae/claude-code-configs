@@ -12,6 +12,3 @@ Pipeline:
 2. Run formatter checks.
 3. Run lint and type checks where available.
 4. Produce a concise remediation list.
-
-This command mirrors hook behavior but is operator-invoked, giving manual control over the
-same quality checks that run automatically during development.

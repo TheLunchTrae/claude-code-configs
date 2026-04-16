@@ -19,8 +19,9 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/general.md` | `opencode/instructions/general.md` | Cross-agent content. Loaded via `instructions` array in `opencode.jsonc`. |
 | `rules/security.md` | `opencode/instructions/security.md` | Cross-agent content. Same. |
 | `rules/accuracy.md` | `opencode/instructions/accuracy.md` | Cross-agent content. Same. |
-| `rules/git-workflow.md` | `opencode/instructions/git-workflow.md` | Cross-agent content. Same. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
+| _(none — OpenCode-only)_ | `opencode/plugins/*.ts` | Authored OpenCode plugins. Auto-discovered at session start. No Claude Code equivalent — CC's plugin system is npm-package-based and unrelated. |
+| _(none — OpenCode-only)_ | `opencode/package.json`, `opencode/tsconfig.json` | Manifest + tsconfig so `bun install` resolves plugin SDK + types at the OC config root. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: code-reviewer` + `subtask: true` for user invocation with context isolation. |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
@@ -78,20 +79,24 @@ CC's `context: fork` runs the skill in an isolated subagent context. The OC equi
 
 ## Permissions translation
 
-Claude Code uses three separate arrays (`deny`, `ask`, `allow`). OpenCode uses a flat map where the last matching rule wins. When translating:
+Claude Code uses three separate arrays (`allow`, `ask`, `deny`). OpenCode uses a single flat map matched top-down where the last matching pattern wins. When translating, flatten the three arrays into one map and order them so precedence is preserved:
 
-1. Express `ask` rules first.
-2. Express `deny` rules after — more specific deny rules must come after broader ask rules so they take precedence.
+1. Express `allow` rules first (broadest — overridden by anything later).
+2. Express `ask` rules next.
+3. Express `deny` rules last (most restrictive — takes precedence over everything above).
+4. Sort alphabetically within each group.
 
 Example:
 ```jsonc
 // Claude Code (settings.json)
-"deny": ["Bash(git push --force*)"],
-"ask":  ["Bash(git push*)"]
+"allow": ["Bash(git status*)"],
+"ask":   ["Bash(git push*)"],
+"deny":  ["Bash(git push --force*)"]
 
-// OpenCode (opencode.jsonc) — deny must come AFTER ask to win
+// OpenCode (opencode.jsonc) — allow → ask → deny, each group alpha-sorted
 "permission": {
   "bash": {
+    "git status*": "allow",
     "git push*": "ask",
     "git push --force*": "deny"
   }
@@ -118,8 +123,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 | Claude Code feature | Status in OpenCode | Impact |
 |--------------------|-------------------|--------|
 | `allowed-tools` per-skill | No inline allowlist on commands. Approximate via agent-level `permission` in `opencode.jsonc`. | Tool scope is less granular — applies to the agent globally, not per-invocation. |
-| Hooks (`settings.json` shell hooks) | Requires TypeScript plugin module in `opencode/plugins/`. | Not portable without writing JS/TS code. |
-| Official plugins (`frontend-design`, `superpowers`, `playwright`) | Claude Code-specific packages. | No OpenCode equivalent. Lost. |
+| Official Claude Code plugins (`frontend-design`, `superpowers`, `playwright`) | CC-specific packages with no OC equivalent. | Lost on the OC side. Authored OC plugins live in `opencode/plugins/` but are not a substitute. |
 
 ## When adding a new agent
 

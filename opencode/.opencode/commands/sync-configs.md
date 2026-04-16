@@ -19,7 +19,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `instructions/general.md` | `instructions/general.md` |
 | `instructions/security.md` | `instructions/security.md` |
 | `instructions/accuracy.md` | `instructions/accuracy.md` |
-| `instructions/git-workflow.md` | `instructions/git-workflow.md` |
 | `instructions/code-review.md` | `instructions/code-review.md` |
 | `instructions/coding-style.md` | `instructions/coding-style.md` |
 | `instructions/development-workflow.md` | `instructions/development-workflow.md` |
@@ -75,6 +74,16 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `skills/push/SKILL.md` | `skills/push/SKILL.md` |
 | `skills/review/SKILL.md` | `skills/review/SKILL.md` |
 | `skills/review/template.md` | `skills/review/template.md` |
+
+### Plugins
+| Remote | Local |
+|--------|-------|
+| `plugins/artifacts.ts` | `plugins/artifacts.ts` |
+| `plugins/block-secrets.ts` | `plugins/block-secrets.ts` |
+| `package.json` | `package.json` |
+| `tsconfig.json` | `tsconfig.json` |
+
+After any change to the Plugins section, prompt the user to run `bun install` in the OpenCode config root so plugin dependencies (`@opencode-ai/plugin`, types) are resolved before the next session.
 
 ## Sync procedure
 

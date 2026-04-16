@@ -4,14 +4,7 @@ description: "Save a session summary to resume later"
 
 Write a structured session summary so this context can be resumed in a future session.
 
-1. Determine the project name:
-   - Try `git remote get-url origin` and extract the repository name (the last path segment, without `.git`)
-   - If that fails, run `basename $(git rev-parse --show-toplevel)` to use the local repo directory name
-   - If not in a git repo, run `basename $PWD`
-
-2. Ensure the directory exists: `mkdir -p ~/.opencode-artifacts/<project>`
-
-3. Write the summary to `~/.opencode-artifacts/<project>/handoff.md`, overwriting any previous entry. Use this exact structure:
+1. Compose the summary using this exact structure:
 
 ```
 ## Session Memory — <today's date>
@@ -32,6 +25,12 @@ Ordered list of what should happen next.
 File paths, branch names, external constraints, environment quirks, or anything else needed to resume without re-discovering it.
 ```
 
-4. Confirm to the user that the handoff was saved and where.
+2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin handles project resolution and directory creation. The artifact lands at `~/.opencode-artifacts/<project>/handoff.md`, overwriting any previous entry.
+
+3. Confirm to the user that the handoff was saved and report the path returned by the tool.
+
+**Fallback:** If `artifact_write` is unavailable (the `artifacts` plugin failed to load), fall back to shell:
+- Resolve `<project>` via `git remote get-url origin` → strip `.git` and take the last path segment, else `basename $(git rev-parse --show-toplevel)`, else `basename $PWD`.
+- `mkdir -p ~/.opencode-artifacts/<project>` and write the summary to `~/.opencode-artifacts/<project>/handoff.md`.
 
 $ARGUMENTS
