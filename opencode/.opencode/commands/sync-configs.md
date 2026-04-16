@@ -35,7 +35,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `agents/security-reviewer.md` | `agents/security-reviewer.md` |
 | `agents/code-reviewer.md` | `agents/code-reviewer.md` |
 | `agents/code-simplifier.md` | `agents/code-simplifier.md` |
-| `agents/build-error-resolver.md` | `agents/build-error-resolver.md` |
 | `agents/refactor-cleaner.md` | `agents/refactor-cleaner.md` |
 | `agents/doc-updater.md` | `agents/doc-updater.md` |
 
@@ -54,16 +53,13 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/handoff.md` | `commands/handoff.md` |
 | `commands/catchup.md` | `commands/catchup.md` |
 | `commands/cleanup-artifacts.md` | `commands/cleanup-artifacts.md` |
-| `commands/build-fix.md` | `commands/build-fix.md` |
 | `commands/code-review.md` | `commands/code-review.md` |
 | `commands/update-docs.md` | `commands/update-docs.md` |
 | `commands/verify.md` | `commands/verify.md` |
 | `commands/orchestrate.md` | `commands/orchestrate.md` |
 | `commands/refactor-clean.md` | `commands/refactor-clean.md` |
 | `commands/e2e.md` | `commands/e2e.md` |
-| `commands/go-build.md` | `commands/go-build.md` |
 | `commands/go-review.md` | `commands/go-review.md` |
-| `commands/rust-build.md` | `commands/rust-build.md` |
 | `.opencode/commands/sync-configs.md` | `.opencode/commands/sync-configs.md` |
 
 ### Skills

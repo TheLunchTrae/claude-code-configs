@@ -70,7 +70,6 @@ When a task needs specialized knowledge or a focused pass over the code, delegat
 | architect | System design and tradeoffs | Multiple viable approaches, user is unsure, or open-ended design questions. Can run before the workflow to produce a decision document. |
 | code-reviewer | Quality, security, and maintainability review | After every design and every implementation (already in the workflow above). |
 | security-reviewer | Vulnerability detection | Auth, user input, DB queries, crypto, API endpoints, file I/O, or anything handling sensitive data. |
-| build-error-resolver | Build and type-error fixes | Build fails or type check fails — minimal diffs, no refactoring. |
 | code-simplifier | Simplify existing code | Clarifying or consolidating code without changing behavior. |
 | refactor-cleaner | Dead code and duplicate removal | Unused exports or imports, duplicate logic, or leftover scaffolding. |
 | performance-optimizer | Bottleneck analysis | Slow queries, N+1 patterns, algorithmic hotspots, or memory/resource leaks. |
