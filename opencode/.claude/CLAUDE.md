@@ -1,20 +1,5 @@
 # OpenCode configs — agent notes
 
-# Work environment notes
-
-These notes apply to the OpenCode installation used at work. They do not affect Claude Code.
-
-## Available tools
-
-**Playwright** — Playwright is installed and available in this environment. The `e2e-runner`
-agent and any E2E testing workflows can use `npx playwright test` and related commands directly.
-
-**GitLab MCP server** — A GitLab MCP server is configured for the internal GitLab instance at
-work. This provides MCP tools for reading issues, MRs, pipelines, and repository data. It does
-not need to be declared in `opencode.jsonc` — it is available through the MCP server
-configuration. When working with GitLab-hosted repos, agents can use these tools for context.
-Do not hardcode GitLab URLs or tokens in any config file.
-
 # opencode.jsonc — permission notes
 
 The `permission.bash` block is matched top-down with last-matching-pattern semantics, so denies must sit at the bottom to take precedence over broader allows or asks. The canonical order is **`allow` rules → `ask` rules → `deny` rules**, and each group is sorted alphabetically. Keep rules grouped and alphabetised on every edit.
