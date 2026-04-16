@@ -19,7 +19,7 @@ Do not hardcode GitLab URLs or tokens in any config file.
 
 The `permission.bash` block uses last-matching-pattern semantics — more specific rules must appear after broader ones to take precedence. Rules are grouped by verdict (ask rules first, deny rules last) and sorted alphabetically within each group. This keeps the file readable while preserving correct precedence.
 
-The `permission.edit` is set to `"ask"` globally. The `developer` agent overrides this to `"allow"` so it can edit files without prompting.
+The `permission.edit` is set to `"ask"` globally.
 
 This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `AGENTS.md`, `opencode.jsonc`, and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
 
@@ -50,6 +50,12 @@ OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/h
 Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
 
 OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+
+### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
+
+Fetches each file in a manifest from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/`, compares to the local copy under `~/.claude/`, and merges changes (prefer remote, preserve clear local-only customizations, ask user when intent is ambiguous or diffs are large). Reports updated, unchanged, and failed files.
+
+OpenCode-exclusive because: it writes directly to `~/.claude/` config files and is designed for syncing the global OpenCode config setup, not for use within individual projects.
 
 # Artifact storage convention
 

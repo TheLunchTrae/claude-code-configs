@@ -1,6 +1,6 @@
 ---
 description: "Review code and present findings"
-agent: reviewer
+agent: code-reviewer
 context: fork
 allowed-tools: Bash(git diff*), Bash(git log*), Bash(git status*), Bash(git branch*), Read, Grep, Glob
 ---

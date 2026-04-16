@@ -7,6 +7,18 @@ and `skills/` (user-invocable slash commands).
 
 Do not treat the absence of source code as a problem to fix.
 
+# Reference: everything-claude-code (ECC)
+
+These configs are based on [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by affaan-m. When working in this repo and needing to reference ECC, clone it locally:
+
+```sh
+git clone https://github.com/affaan-m/everything-claude-code.git /tmp/ecc
+```
+
+Key ECC paths to reference:
+- `/tmp/ecc/rules/common/` — common rules across languages
+- `/tmp/ecc/.opencode/` — ECC's OpenCode configuration (uses `instructions` array + `instructions/` folder)
+
 # Symlinking into .claude/
 
 Every file added to `agents/`, `rules/`, or `skills/` in this repo must have a corresponding relative symlink created inside `.claude/` in the same operation — unless explicitly told not to. Symlinking individual files (not directories) means individual files can be excluded if needed.
@@ -18,7 +30,7 @@ ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
 
 Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
 
-**Not all agents are symlinked here.** This is a config-only repo with no source code, so language-specific code reviewers (`code-reviewer`, `cpp-reviewer`, `csharp-reviewer`, `go-reviewer`, `java-reviewer`, `php-reviewer`, `python-reviewer`, `rust-reviewer`, `typescript-reviewer`) are intentionally excluded from `.claude/agents/`. Only the 5 config-management agents are symlinked: `architect`, `developer`, `planner`, `reviewer`, `security-reviewer`. When adding new agents to the repo, follow the same standard — only symlink agents that are relevant to working in a config repo. Do not symlink language-specific or code-review agents.
+**Not all agents are symlinked here.** This is a config-only repo with no source code, so language-specific reviewers and code-quality agents are intentionally excluded from `.claude/agents/`. Only 3 agents are symlinked: `architect`, `planner`, `security-reviewer`. When adding new agents to the repo, follow the same standard — only symlink agents that are relevant to working in a config repo. Do not symlink language-specific, code-review, or implementation-focused agents.
 
 # Config changes: Claude Code first, then OpenCode
 
