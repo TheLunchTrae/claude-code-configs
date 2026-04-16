@@ -16,16 +16,30 @@ The Feature Implementation Workflow describes the development pipeline: research
    - Identify dependencies and risks
    - Break down into phases
 
-2. **Code Review**
+2. **Implement**
+   - For language-specific work, delegate to the matching developer agent. Each one knows its language's idioms, tooling, and anti-patterns, and will run the project's type checker / linter / tests before reporting done.
+   - Available developer agents:
+
+   | Agent | Use for |
+   |-------|---------|
+   | **csharp-developer** | C# / .NET (.cs) |
+   | **go-developer** | Go (.go) |
+   | **php-developer** | PHP (.php) — Laravel, Symfony, vanilla |
+   | **typescript-developer** | TypeScript / JavaScript (.ts / .tsx / .js / .jsx) — React, Next.js, Node |
+
+   - For cross-language orchestration, design, or unclear scope, handle inline rather than delegating.
+
+3. **Code Review**
    - Use **code-reviewer** agent immediately after writing code
+   - Pair with the matching language reviewer (e.g. `typescript-reviewer` after `typescript-developer`)
    - Address CRITICAL and HIGH issues
    - Fix MEDIUM issues when possible
 
-3. **Commit & Push**
+4. **Commit & Push**
    - Detailed commit messages
    - Follow conventional commits format
 
-4. **Pre-Review Checks**
+5. **Pre-Review Checks**
    - Verify all automated checks (CI/CD) are passing
    - Resolve any merge conflicts
    - Ensure branch is up to date with target branch
