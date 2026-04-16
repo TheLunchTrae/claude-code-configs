@@ -15,8 +15,12 @@ sessions/
 shell-snapshots/
 tasks/
 
-# Plugins (all reinstallable; enabled plugins are captured in settings.json)
-plugins/
+# Claude Code plugins cache (root-level only — reinstallable; enabled plugins are captured in settings.json).
+# Scoped so it does NOT match authored OpenCode plugins under opencode/plugins/.
+/plugins/
+
+# Node module installs (e.g. opencode/ runs `bun install` for authored TS plugins)
+node_modules/
 
 # MCP auth cache
 mcp-needs-auth-cache.json

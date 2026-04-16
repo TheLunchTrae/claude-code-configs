@@ -20,6 +20,8 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/security.md` | `opencode/instructions/security.md` | Cross-agent content. Same. |
 | `rules/accuracy.md` | `opencode/instructions/accuracy.md` | Cross-agent content. Same. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
+| _(none — OpenCode-only)_ | `opencode/plugins/*.ts` | Authored OpenCode plugins. Auto-discovered at session start. No Claude Code equivalent — CC's plugin system is npm-package-based and unrelated. |
+| _(none — OpenCode-only)_ | `opencode/package.json`, `opencode/tsconfig.json` | Manifest + tsconfig so `bun install` resolves plugin SDK + types at the OC config root. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: code-reviewer` + `subtask: true` for user invocation with context isolation. |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
@@ -121,7 +123,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 | Claude Code feature | Status in OpenCode | Impact |
 |--------------------|-------------------|--------|
 | `allowed-tools` per-skill | No inline allowlist on commands. Approximate via agent-level `permission` in `opencode.jsonc`. | Tool scope is less granular — applies to the agent globally, not per-invocation. |
-| Official plugins (`frontend-design`, `superpowers`, `playwright`) | Claude Code-specific packages. | No OpenCode equivalent. Lost. |
+| Official Claude Code plugins (`frontend-design`, `superpowers`, `playwright`) | CC-specific packages with no OC equivalent. | Lost on the OC side. Authored OC plugins live in `opencode/plugins/` but are not a substitute. |
 
 ## When adding a new agent
 

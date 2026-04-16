@@ -57,3 +57,29 @@ OpenCode commands that write persistent artifacts use:
 - `<project>` is the git remote repo name, local repo directory name, or working directory name (in that priority order)
 - `<command>` matches the command directory name under `opencode/commands/`
 - Single file per command per project, overwritten on each run (no append/history)
+
+# Plugins
+
+Authored OpenCode plugins live in `opencode/plugins/`. They are TypeScript modules auto-discovered by OpenCode at session start. `opencode/package.json` + `opencode/tsconfig.json` exist so `bun install` at the config root resolves the plugin SDK (`@opencode-ai/plugin`) and types (`@types/bun`, `typescript`) for editor tooling.
+
+Keep runtime dependencies minimal. Prefer Node/Bun built-ins; pull in an npm runtime dep only if the value clearly outweighs the install surface.
+
+## Registry
+
+### `plugins/artifacts.ts` — ArtifactsPlugin
+
+- **`shell.env` hook** — injects `OPENCODE_ARTIFACT_DIR` and `OPENCODE_PROJECT` so shell commands can reference the resolved artifact path without re-deriving it.
+- **Custom tools** — registers `artifact_read`, `artifact_write`, and `artifact_list`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Artifact storage convention".
+
+### `plugins/block-secrets.ts` — BlockSecretsPlugin
+
+- **`tool.execute.before` hook** — blocks reads of sensitive files (`.env`, `.env.*` except `*.example/sample/template/defaults/dist`, `*.pem`, SSH private keys, `*.key`, `credentials.json`, `.netrc`, `secrets.{json,yaml,yml}`, `*.p12`, `*.pfx`, `.aws/credentials`, anything under `.ssh/`).
+- Applies to `read`, `glob`, `edit`, `write` tool calls (by inspecting their path argument) and to `bash` (by token-scanning the command for blocked paths).
+- Safe-read exceptions live in `ALLOWED_BASENAMES` inside the plugin; extend the set if a legitimate template trips the block.
+
+## When adding a new plugin
+
+1. Create the TS file under `opencode/plugins/`.
+2. If it needs a new npm dep, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
+3. Add the plugin to the `## Registry` above and to the `### Plugins` section of `opencode/.opencode/commands/sync-configs.md` so it propagates on `/sync-configs`.
+4. No change to `opencode.jsonc` is needed — plugins are auto-discovered from `plugins/`.
