@@ -41,7 +41,7 @@ When adding something new, decide whether it is useful when working inside this 
 
 # Config changes: Claude Code first, then OpenCode
 
-By default, all config changes target the **Claude Code** configs (`rules/`, `agents/`, `skills/`, `settings.json`). After making changes to the Claude Code configs, sync them to the corresponding OpenCode equivalents in `opencode/` in the same commit (see `/opencode-sync` for the mapping).
+By default, all config changes target the **Claude Code** configs (`rules/`, `agents/`, `skills/`, `settings.json`). After making changes to the Claude Code configs, mirror them to the corresponding OpenCode equivalents in `opencode/` in the same commit (see `/opencode-mirror` for the mapping, including categories that are intentionally not mirrored).
 
 Only skip the Claude Code side and work directly in `opencode/` if explicitly told that changes are OpenCode-only.
 

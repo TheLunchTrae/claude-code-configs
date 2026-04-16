@@ -1,16 +1,30 @@
 ---
-description: "Reference guide for keeping Claude Code and OpenCode configs in sync"
+description: "Reference guide for selective Claude Code ↔ OpenCode config mirroring in this repo"
 ---
 
-# OpenCode Sync Reference
+# OpenCode Mirror Reference
 
 OpenCode docs: https://opencode.ai/docs
 
-This skill documents the mapping between Claude Code configs in this repo and their OpenCode equivalents in `opencode/`. Use this as a reference when creating or modifying any config file. Consult the OpenCode docs link above when the mapping is unclear or a feature needs verification.
+This skill documents the mapping between Claude Code configs in this repo and their OpenCode equivalents in `opencode/`. Use this as a reference when creating or modifying any config file in the CC side and deciding what (if anything) to mirror on the OC side. Consult the OpenCode docs link above when a mapping is unclear or a feature needs verification.
 
-## Rule: Keep configs in sync
+## Scope — this is a selective mirror, not a clone
 
-When any config file is created or modified, the corresponding OpenCode equivalent in `opencode/` must be updated in the same commit. See the mapping table below.
+This skill is about **selective** CC↔OC parity inside this repo. It is not a 1:1 copy of the CC side onto OC. Some CC-side configs intentionally have no OC counterpart because they are not useful in the author's OpenCode environment:
+
+- **Language agents for languages that aren't used at work.** When a CC-side language developer/reviewer doesn't apply to the environments OC is used in, the matching OC agent is simply not created.
+- **Advanced agentic features that aren't supported or wanted in OC.** Memories and similar CC-only behaviors have no OC port.
+- **Skills or plugins that depend on a CC-only runtime.** If the CC skill relies on the CC harness specifically, skip the OC side.
+
+When a CC config change lands in a category that *is* mirrored, the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
+
+### Not to be confused with `/sync-configs`
+
+`/sync-configs` (`opencode/.opencode/commands/sync-configs.md`) is a completely different tool. It is an OC-side command the user runs at a work machine where `git clone` is unavailable; it webfetches every listed OC file from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` into the local install with diff/merge for local customizations. That manifest must be comprehensive — every file under `opencode/` that OC reads at runtime appears in it. Do not use this skill's selective rules as a reason to leave anything out of that manifest.
+
+## Rule: keep mirrored categories in sync
+
+When any config file in a mirrored category is created or modified, the corresponding OpenCode equivalent in `opencode/` must be updated in the same commit. See the mapping table below.
 
 ## Directory mapping
 

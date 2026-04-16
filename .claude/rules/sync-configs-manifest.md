@@ -1,5 +1,7 @@
 # Sync-configs Manifest
 
+This rule governs `opencode/.opencode/commands/sync-configs.md` — the **OC distribution command** `/sync-configs`, which webfetches OC configs from GitHub onto user machines where `git clone` is unavailable. It is **not** the same as the CC-side `/opencode-mirror` skill, which is a selective within-repo mirror used while authoring configs; see `.claude/skills/opencode-mirror/SKILL.md`. The two differ in scope: `/opencode-mirror` deliberately excludes categories that aren't useful in the author's OC environment, while `/sync-configs` must list every OC file verbatim so nothing is missed on fetch.
+
 `opencode/.opencode/commands/sync-configs.md` lists every file the `/sync-configs` command propagates from this repo to a user's local OpenCode install. The manifest must mirror the current OC file tree — newly added files won't ship without an entry, and removed files cause 404s during sync.
 
 ## When to update
