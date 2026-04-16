@@ -1,1 +1,0 @@
-../../rules/coding-style.md
