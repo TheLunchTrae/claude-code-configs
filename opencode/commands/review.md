@@ -1,6 +1,6 @@
 ---
 description: "Review code and present findings"
-agent: reviewer
+agent: code-reviewer
 subtask: true
 ---
 

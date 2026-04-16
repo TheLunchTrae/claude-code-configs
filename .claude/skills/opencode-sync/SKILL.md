@@ -20,10 +20,9 @@ When any config file is created or modified, the corresponding OpenCode equivale
 | `rules/security.md` | `opencode/instructions/security.md` | Cross-agent content. Same. |
 | `rules/accuracy.md` | `opencode/instructions/accuracy.md` | Cross-agent content. Same. |
 | `rules/git-workflow.md` | `opencode/instructions/git-workflow.md` | Cross-agent content. Same. |
-| `rules/complex-tasks.md` | `opencode/agents/lead.md` (body) | Orchestration behavior. Goes into lead agent — see Lead Agent section below. |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
-| `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: reviewer` + `subtask: true` for user invocation with context isolation. |
+| `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: code-reviewer` + `subtask: true` for user invocation with context isolation. |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
 | `skills/commit/SKILL.md` | `opencode/commands/commit.md` | `disable-model-invocation` maps to OC command (see Skill Categories below). |
 | `skills/summarize-branch/SKILL.md` | `opencode/commands/summarize-branch.md` | Same. |
@@ -34,7 +33,7 @@ When any config file is created or modified, the corresponding OpenCode equivale
 Claude Code supports a `rules/` directory (mirrors `~/.claude/rules/`) as an alternative to putting everything in `CLAUDE.md`. Rules are loaded automatically at session start, same as `CLAUDE.md`, but allow content to be split by topic.
 
 **This repo's convention:**
-- `rules/` — user-level rules loaded globally across all projects (general.md, security.md, complex-tasks.md)
+- `rules/` — user-level rules loaded globally across all projects (general.md, security.md, etc.)
 - `CLAUDE.md` — minimal pointer to `rules/`
 - `.claude/rules/` — repo-specific rules (e.g. config-sync.md), committed via `.gitignore` exception
 
@@ -46,10 +45,10 @@ OpenCode has no implicit primary agent equivalent to Claude Code's default behav
 
 **The split:**
 - `opencode/instructions/` — rules that apply to **all** agents. Loaded globally via the `instructions` array in `opencode.jsonc`. `opencode/AGENTS.md` is a minimal pointer only.
-- `opencode/agents/lead.md` — content specific to the **primary orchestrating agent** (complex task methodology, when to delegate to subagents). This is where `rules/complex-tasks.md` content lives in OC.
+- `opencode/agents/lead.md` — workflow behavior specific to the **primary orchestrating agent**.
 
 **When adding a new rule, decide:**
-- Does it apply to every agent (developer, reviewer, lead)? → create `opencode/instructions/<topic>.md` and add it to the `instructions` array in `opencode.jsonc`
+- Does it apply to every agent? → create `opencode/instructions/<topic>.md` and add it to the `instructions` array in `opencode.jsonc`
 - Does it describe how the primary agent should orchestrate or approach work? → `opencode/agents/lead.md`
 
 ## Skill categories and their OC equivalents
