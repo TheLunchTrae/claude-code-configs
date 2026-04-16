@@ -10,17 +10,34 @@ This skill documents the mapping between Claude Code configs in this repo and th
 
 ## Scope — this is a selective mirror, not a clone
 
-This skill is about **selective** CC↔OC parity inside this repo. It is not a 1:1 copy of the CC side onto OC. Some CC-side configs intentionally have no OC counterpart because they are not useful in the author's OpenCode environment:
+This skill is about **selective** CC↔OC parity inside this repo. It is not a 1:1 copy of the CC side onto OC. The files below are the hardcoded exclusions — CC-side items that must **not** be mirrored to `opencode/`. Keep this list authoritative: if a new CC file should not have an OC counterpart, add it here.
 
-- **Language agents for languages that aren't used at work.** When a CC-side language developer/reviewer doesn't apply to the environments OC is used in, the matching OC agent is simply not created.
-- **Advanced agentic features that aren't supported or wanted in OC.** Memories and similar CC-only behaviors have no OC port.
-- **Skills or plugins that depend on a CC-only runtime.** If the CC skill relies on the CC harness specifically, skip the OC side.
+### Intentional exclusions (do not mirror to OC)
 
-When a CC config change lands in a category that *is* mirrored, the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
+**Agents** (`agents/*.md` with no corresponding `opencode/agents/*.md`):
+- `agents/cpp-developer.md`, `agents/cpp-reviewer.md`
+- `agents/java-developer.md`, `agents/java-reviewer.md`
+- `agents/python-developer.md`, `agents/python-reviewer.md`
+- `agents/rust-developer.md`, `agents/rust-reviewer.md`
+
+**Rules** (`.claude/rules/*.md` with no `opencode/instructions/*.md` counterpart — these are repo-local rules for authoring in this repo, not general-purpose CC rules):
+- `.claude/rules/agent-registration.md`
+- `.claude/rules/config-sync.md`
+- `.claude/rules/frontmatter-description.md`
+- `.claude/rules/sync-configs-manifest.md`
+
+**Skills** (CC-side skills with no `opencode/skills/` or `opencode/commands/` counterpart):
+- `.claude/skills/opencode-mirror/` — this skill itself. It exists to support authoring inside this repo; an OC session on a downstream install has no use for it.
+
+**Hooks** — not versioned on either side. No hook entries exist here and no `opencode/.claude/CLAUDE.md` hook entries exist on the OC side. Do not add any.
+
+**Plugins** — OC plugins (`opencode/plugins/*.ts`) have no CC counterpart because CC's plugin system is npm-package-based and unrelated. This is a deliberate asymmetry, not an omission.
+
+When a CC config change lands in a category that *is* mirrored (anything not in the list above), the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
 
 ### Not to be confused with `/sync-configs`
 
-`/sync-configs` (`opencode/.opencode/commands/sync-configs.md`) is a completely different tool. It is an OC-side command the user runs at a work machine where `git clone` is unavailable; it webfetches every listed OC file from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` into the local install with diff/merge for local customizations. That manifest must be comprehensive — every file under `opencode/` that OC reads at runtime appears in it. Do not use this skill's selective rules as a reason to leave anything out of that manifest.
+`/sync-configs` (`opencode/.opencode/commands/sync-configs.md`) is a completely different tool. It is an OC-side command that webfetches every listed OC file from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` into a downstream install with diff/merge for local customizations. Its manifest must be comprehensive — every file under `opencode/` that OC reads at runtime appears in it. Do not use this skill's hardcoded exclusion list as a reason to leave anything out of that manifest.
 
 ## Rule: keep mirrored categories in sync
 
