@@ -46,6 +46,12 @@ Agents may define structured output formats — this is encouraged because it ma
 
 Subagents must not reference other agents by name. A subagent's behavior must be fully self-contained — it should not assume which orchestrator invoked it, which agents may follow, or what role other agents play. Use role descriptions ("the implementer", "whoever follows up") rather than agent names. This keeps subagents composable and independent. Primary/orchestrating agents may reference specific subagents by name when directing work.
 
+# OpenCode configs are standalone
+
+**STRICT RULE:** The `opencode/` directory must be fully self-contained. Every agent, command, or instruction referenced anywhere inside `opencode/` must have a corresponding file within `opencode/`. References to Claude Code-side agents (e.g. `python-reviewer`, `rust-reviewer`, `cpp-reviewer`, `java-reviewer`) or any file that exists only outside `opencode/` are forbidden.
+
+When adding or updating any `opencode/` file that references an agent by name, verify the agent file exists in `opencode/agents/` before committing. If it doesn't exist there, either create it or remove the reference.
+
 # File placement
 
 The root `CLAUDE.md` is the **global user prompt** — it travels with the user across all projects. Keep it general-purpose.
