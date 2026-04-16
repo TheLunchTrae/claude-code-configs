@@ -31,26 +31,30 @@ When any config file is created or modified, the corresponding OpenCode equivale
 
 ## Rules vs CLAUDE.md
 
-Claude Code supports a `rules/` directory (mirrors `~/.claude/rules/`) as an alternative to putting everything in `CLAUDE.md`. Rules are loaded automatically at session start, same as `CLAUDE.md`, but allow content to be split by topic.
+Claude Code supports a `rules/` directory (mirrors `~/.claude/rules/`) as an alternative to putting everything in `CLAUDE.md`. Rules are loaded automatically at session start from `rules/*.md`, so no root `CLAUDE.md` pointer is required.
 
 **This repo's convention:**
 - `rules/` — user-level rules loaded globally across all projects (general.md, security.md, etc.)
-- `CLAUDE.md` — minimal pointer to `rules/`
 - `.claude/rules/` — repo-specific rules (e.g. config-sync.md), committed via `.gitignore` exception
+- No root `CLAUDE.md` — content is split across `rules/*.md` files by topic
 
-When adding a new user-level rule, create a new file in `rules/` rather than expanding `CLAUDE.md`.
+When adding a new user-level rule, create a new file in `rules/`.
 
 ## Lead Agent (OpenCode)
 
 OpenCode has no implicit primary agent equivalent to Claude Code's default behavior. The lead agent fills this role.
 
 **The split:**
-- `opencode/instructions/` — rules that apply to **all** agents. Loaded globally via the `instructions` array in `opencode.jsonc`. `opencode/AGENTS.md` is a minimal pointer only.
-- `opencode/agents/lead.md` — workflow behavior specific to the **primary orchestrating agent**.
+- `opencode/instructions/` — rules that apply to **all** agents. Loaded globally via the `instructions` array in `opencode.jsonc`. There is no `opencode/AGENTS.md`; cross-agent content goes in `instructions/` and is wired up through the `instructions` array.
+- `opencode/agents/lead.md` — workflow behavior and the subagent registry (which agents exist and when to invoke them). Only the primary agent reads this file, so the registry does not leak into subagent contexts.
 
 **When adding a new rule, decide:**
 - Does it apply to every agent? → create `opencode/instructions/<topic>.md` and add it to the `instructions` array in `opencode.jsonc`
-- Does it describe how the primary agent should orchestrate or approach work? → `opencode/agents/lead.md`
+- Does it describe how the primary agent should orchestrate or approach work, or which subagents to invoke? → `opencode/agents/lead.md`
+
+### OC-only content (no Claude Code analog)
+
+Claude Code's main session auto-discovers agents via their YAML `description` fields, so no explicit registry is needed on the CC side. `opencode/agents/lead.md` has no Claude Code counterpart — changes to the registry or orchestration in `lead.md` do NOT sync to a CC file. This is an OC-only concern.
 
 ## Skill categories and their OC equivalents
 
