@@ -65,10 +65,14 @@ Use these agents for code review:
 |-------|---------|
 | **code-reviewer** | General code quality, patterns, best practices |
 | **security-reviewer** | Security vulnerabilities, OWASP Top 10 |
-| **typescript-reviewer** | TypeScript/JavaScript specific issues |
-| **python-reviewer** | Python specific issues |
+| **cpp-reviewer** | C++ specific issues |
+| **csharp-reviewer** | C#/.NET specific issues |
 | **go-reviewer** | Go specific issues |
+| **java-reviewer** | Java specific issues |
+| **php-reviewer** | PHP specific issues |
+| **python-reviewer** | Python specific issues |
 | **rust-reviewer** | Rust specific issues |
+| **typescript-reviewer** | TypeScript/JavaScript specific issues |
 
 ## Review Workflow
 
