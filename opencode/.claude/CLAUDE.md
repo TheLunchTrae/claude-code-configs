@@ -17,11 +17,15 @@ Do not hardcode GitLab URLs or tokens in any config file.
 
 # opencode.jsonc — permission notes
 
-The `permission.bash` block uses last-matching-pattern semantics — more specific rules must appear after broader ones to take precedence. Rules are grouped by verdict (ask rules first, deny rules last) and sorted alphabetically within each group. This keeps the file readable while preserving correct precedence.
+The `permission.bash` block is matched top-down with last-matching-pattern semantics, so denies must sit at the bottom to take precedence over broader allows or asks. The canonical order is **`allow` rules → `ask` rules → `deny` rules**, and each group is sorted alphabetically. Keep rules grouped and alphabetised on every edit.
 
 The `permission.edit` is set to `"ask"` globally.
 
 This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `AGENTS.md`, `opencode.jsonc`, and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
+
+# Hooks are out of scope
+
+Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-sync mapping reflects that — no hook entries exist. Do not add any.
 
 # OpenCode-exclusive commands
 

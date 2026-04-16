@@ -19,7 +19,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `instructions/general.md` | `instructions/general.md` |
 | `instructions/security.md` | `instructions/security.md` |
 | `instructions/accuracy.md` | `instructions/accuracy.md` |
-| `instructions/git-workflow.md` | `instructions/git-workflow.md` |
 | `instructions/code-review.md` | `instructions/code-review.md` |
 | `instructions/coding-style.md` | `instructions/coding-style.md` |
 | `instructions/development-workflow.md` | `instructions/development-workflow.md` |

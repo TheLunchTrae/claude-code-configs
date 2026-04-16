@@ -21,7 +21,7 @@ Key ECC paths to reference:
 
 # Symlinking into .claude/
 
-Every file added to `agents/`, `rules/`, or `skills/` in this repo must have a corresponding relative symlink created inside `.claude/` in the same operation — unless explicitly told not to. Symlinking individual files (not directories) means individual files can be excluded if needed.
+Items under `agents/`, `rules/`, and `skills/` are symlinked into `.claude/` **only when they are useful for working inside this repo.** This is a config-only repo with no source code, so anything focused on writing, reviewing, or testing application code is intentionally excluded.
 
 ```
 ln -sf ../../<dir>/<file> .claude/<dir>/<file>        # agents/ and rules/
@@ -30,7 +30,13 @@ ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
 
 Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
 
-**Not all agents are symlinked here.** This is a config-only repo with no source code, so language-specific reviewers and code-quality agents are intentionally excluded from `.claude/agents/`. Only 3 agents are symlinked: `architect`, `planner`, `security-reviewer`. When adding new agents to the repo, follow the same standard — only symlink agents that are relevant to working in a config repo. Do not symlink language-specific, code-review, or implementation-focused agents.
+**What is intentionally NOT symlinked** (present in the repo for distribution, excluded from the active `.claude/` surface):
+
+- **Agents** — all language reviewers (`python-reviewer`, `typescript-reviewer`, etc.), `code-reviewer`, `build-error-resolver`, `code-simplifier`, `refactor-cleaner`, `doc-updater`. Only `architect`, `planner`, and `security-reviewer` are symlinked.
+- **Rules** — `coding-style`, `development-workflow`, `patterns`, `performance`, `testing`. Only `accuracy`, `code-review`, `general`, and `security` are symlinked (plus the real `config-sync.md` that lives directly in `.claude/rules/`).
+- **Skills** — `quality-gate` (runs formatters/linters on application code). All other skills are symlinked.
+
+When adding something new, decide whether it is useful when working inside this repo and follow the same pattern.
 
 # Config changes: Claude Code first, then OpenCode
 
@@ -56,4 +62,6 @@ When adding or updating any `opencode/` file that references an agent by name, v
 
 The root `CLAUDE.md` is the **global user prompt** — it travels with the user across all projects. Keep it general-purpose.
 
-This `.claude/` directory is for **repo-specific Claude functionality**: skills, hooks, or instructions that apply only when working inside this repository. When adding or modifying Claude features that are specific to managing this repo (e.g. the OpenCode sync skill), place them here in `.claude/`, not in the root `skills/` or `agents/` directories.
+This `.claude/` directory is for **repo-specific Claude functionality**: skills or instructions that apply only when working inside this repository. When adding or modifying Claude features that are specific to managing this repo (e.g. the OpenCode sync skill), place them here in `.claude/`, not in the root `skills/` or `agents/` directories.
+
+Hooks are intentionally out of scope for this repo — they are not versioned here and not copied across machines.
