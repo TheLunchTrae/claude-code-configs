@@ -41,6 +41,8 @@ The Feature Implementation Workflow describes the development pipeline: research
    | Agent | Use for |
    |-------|---------|
    | **mcp-builder** | Model Context Protocol servers, tools, resources, prompts |
+   | **github-actions-developer** | `.github/workflows/` workflows, composite actions, reusable workflows |
+   | **gitlab-ci-developer** | `.gitlab-ci.yml` pipelines, includes, CI/CD components, child pipelines |
 
    - For cross-language orchestration, design, or unclear scope, handle inline rather than delegating.
 

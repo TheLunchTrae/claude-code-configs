@@ -77,6 +77,8 @@ When a task needs specialized knowledge or a focused pass over the code, delegat
 | doc-updater | Documentation and codemaps | Public API changes, README drift, or docstring gaps. |
 | docs-lookup | External library/framework docs via Context7 | Behavior questions where the answer lives in third-party docs, not in this repo. |
 | mcp-builder | MCP server development | Building Model Context Protocol servers — tools, resources, prompts, transports. Cross-stack. |
+| github-actions-developer | GitHub Actions workflows | Authoring or fixing workflows under `.github/workflows/`, composite actions, reusable workflows. Cross-stack. |
+| gitlab-ci-developer | GitLab CI/CD pipelines | Authoring or fixing `.gitlab-ci.yml`, CI/CD components, child pipelines. Cross-stack. |
 | typescript-developer | TypeScript/JavaScript implementation | Any TypeScript or JavaScript implementation task. Pair with `typescript-reviewer` afterward. |
 | react-developer | React / Next.js / Remix implementation | Components, hooks, or framework-specific work. Layers on `typescript-developer`; pair with `typescript-reviewer` afterward. |
 | go-developer | Go implementation | Any Go implementation task. Pair with `go-reviewer` afterward. |
