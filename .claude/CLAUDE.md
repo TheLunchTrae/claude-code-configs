@@ -18,6 +18,8 @@ ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
 
 Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
 
+**Not all agents are symlinked here.** This is a config-only repo with no source code, so language-specific code reviewers (`code-reviewer`, `cpp-reviewer`, `csharp-reviewer`, `go-reviewer`, `java-reviewer`, `php-reviewer`, `python-reviewer`, `rust-reviewer`, `typescript-reviewer`) are intentionally excluded from `.claude/agents/`. Only the 5 config-management agents are symlinked: `architect`, `developer`, `planner`, `reviewer`, `security-reviewer`.
+
 # Config changes: Claude Code first, then OpenCode
 
 By default, all config changes target the **Claude Code** configs (`rules/`, `agents/`, `skills/`, `settings.json`). After making changes to the Claude Code configs, sync them to the corresponding OpenCode equivalents in `opencode/` in the same commit (see `/opencode-sync` for the mapping).
