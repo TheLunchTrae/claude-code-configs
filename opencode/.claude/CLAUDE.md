@@ -51,7 +51,7 @@ Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two posi
 
 OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
 
-### /sync-configs — `opencode/commands/sync-configs.md`
+### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
 Fetches each file in a manifest from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/`, compares to the local copy under `~/.claude/`, and merges changes (prefer remote, preserve clear local-only customizations, ask user when intent is ambiguous or diffs are large). Reports updated, unchanged, and failed files.
 
