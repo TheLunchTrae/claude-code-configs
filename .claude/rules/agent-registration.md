@@ -1,0 +1,19 @@
+# Agent Registration
+
+When adding, renaming, or removing an agent in this repo, update every instruction file and registry that references agents so the change is discoverable. A new agent that isn't in the registries won't be picked by the router.
+
+## Claude Code
+
+- `rules/development-workflow.md` — add a row to the Implement step's table. Language-specific developers go in the language-developer table; cross-stack utilities (e.g. `mcp-builder`, `github-actions-developer`) go in the Cross-stack specialists table; framework developers go in the Framework table alongside their base language-developer.
+- `rules/code-review.md` — add a row to the Agent Usage table when the new agent is a reviewer.
+
+## OpenCode
+
+- `opencode/instructions/development-workflow.md` — mirror the Claude Code change for any agent that also exists on the OpenCode side.
+- `opencode/instructions/code-review.md` — mirror the Agent Usage table change.
+- `opencode/agents/lead.md` — add a row to the Available subagents registry, grouped near related agents (language reviewers together, developers together, cross-stack utilities together).
+- `opencode/.opencode/commands/sync-configs.md` — add a manifest row **only for cross-stack agents** (architect, planner, code-reviewer, mcp-builder, the CI developers, etc.). Language-specific and framework agents stay out of the manifest per existing convention.
+
+## Verify before committing
+
+Confirm the new agent name appears in the development-workflow table on every side it exists, and in `lead.md` if it exists on the OpenCode side.

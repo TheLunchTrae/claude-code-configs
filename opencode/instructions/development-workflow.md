@@ -27,6 +27,23 @@ The Feature Implementation Workflow describes the development pipeline: research
    | **php-developer** | PHP (.php) — Laravel, Symfony, vanilla |
    | **typescript-developer** | TypeScript / JavaScript (.ts / .tsx / .js / .jsx) — React, Next.js, Node |
 
+   - For framework-specific work, chain the framework agent on top of the matching language agent. Framework agents assume the base language-developer's rules already apply; they add framework-specific idioms and anti-patterns.
+
+   | Agent | Use for | Base agent |
+   |-------|---------|------------|
+   | **react-developer** | React / Next.js / Remix components, hooks, routing | typescript-developer |
+   | **efcore-developer** | Entity Framework Core models, migrations, queries | csharp-developer |
+   | **laminas-developer** | Laminas MVC / Mezzio modules, middleware, forms | php-developer |
+   | **doctrine-developer** | Doctrine ORM entities, DQL, migrations | php-developer |
+
+   Cross-stack specialists (no base language pairing):
+
+   | Agent | Use for |
+   |-------|---------|
+   | **mcp-builder** | Model Context Protocol servers, tools, resources, prompts |
+   | **github-actions-developer** | `.github/workflows/` workflows, composite actions, reusable workflows |
+   | **gitlab-ci-developer** | `.gitlab-ci.yml` pipelines, includes, CI/CD components, child pipelines |
+
    - For cross-language orchestration, design, or unclear scope, handle inline rather than delegating.
 
 3. **Code Review**

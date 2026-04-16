@@ -1,4 +1,5 @@
 ---
+description: Senior C#/.NET developer for implementing features, fixing bugs, and modifying .cs code. Writes idiomatic C# with async/await discipline, nullable reference handling, and LINQ. Use for any C# or .NET implementation task.
 mode: subagent
 temperature: 0.1
 color: "#9B4F96"

@@ -10,7 +10,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 ### Config
 | Remote | Local |
 |--------|-------|
-| `AGENTS.md` | `AGENTS.md` |
 | `opencode.jsonc` | `opencode.jsonc` |
 
 ### Instructions
@@ -37,6 +36,10 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `agents/code-simplifier.md` | `agents/code-simplifier.md` |
 | `agents/refactor-cleaner.md` | `agents/refactor-cleaner.md` |
 | `agents/doc-updater.md` | `agents/doc-updater.md` |
+| `agents/mcp-builder.md` | `agents/mcp-builder.md` |
+| `agents/github-actions-developer.md` | `agents/github-actions-developer.md` |
+| `agents/gitlab-ci-developer.md` | `agents/gitlab-ci-developer.md` |
+| `agents/performance-optimizer.md` | `agents/performance-optimizer.md` |
 
 ### Commands
 | Remote | Local |

@@ -1,4 +1,5 @@
 ---
+description: Produce a detailed phased implementation plan for the current task, with file paths, risks, and dependencies — no code written. Waits for confirmation before implementation begins.
 agent: planner
 subtask: true
 ---

@@ -1,4 +1,5 @@
 ---
+description: Senior PHP developer for implementing features, fixing bugs, and modifying .php code. Writes modern PHP 8.x with strict types, typed properties, and Composer-managed dependencies. Works across Laravel, Symfony, and vanilla PHP. Use for any PHP implementation task.
 mode: subagent
 temperature: 0.1
 color: "#777BB4"
