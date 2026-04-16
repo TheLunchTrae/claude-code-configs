@@ -1,10 +1,12 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
-import { mkdir, readFile, writeFile, readdir, stat } from "node:fs/promises"
+import { mkdir, readFile, writeFile, readdir, stat, unlink, rmdir } from "node:fs/promises"
 import { existsSync } from "node:fs"
 import { homedir } from "node:os"
 import { basename, join } from "node:path"
 
 const ARTIFACT_ROOT = join(homedir(), ".opencode-artifacts")
+const DEFAULT_TTL_DAYS = 90
+const DAY_MS = 24 * 60 * 60 * 1000
 
 const projectNameFromRemoteUrl = (url: string): string | undefined => {
   const trimmed = url.trim().replace(/\.git$/, "")
@@ -15,6 +17,66 @@ const projectNameFromRemoteUrl = (url: string): string | undefined => {
 
 const artifactPathFor = (project: string, command: string): string =>
   join(ARTIFACT_ROOT, project, `${command}.md`)
+
+const resolveTtlDays = (): number => {
+  const raw = process.env.OPENCODE_ARTIFACT_TTL_DAYS
+  if (raw === undefined || raw === "") return DEFAULT_TTL_DAYS
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_TTL_DAYS
+  return parsed
+}
+
+const removeEmptyDir = async (dir: string): Promise<void> => {
+  try {
+    await rmdir(dir)
+  } catch {
+    // not empty or already gone — ignore
+  }
+}
+
+type DeleteResult = { deleted: string[]; skipped: string[] }
+
+const deleteFile = async (path: string, result: DeleteResult): Promise<void> => {
+  try {
+    await unlink(path)
+    result.deleted.push(path)
+  } catch {
+    result.skipped.push(path)
+  }
+}
+
+const collectProjects = async (): Promise<string[]> => {
+  if (!existsSync(ARTIFACT_ROOT)) return []
+  const entries = await readdir(ARTIFACT_ROOT, { withFileTypes: true })
+  return entries.filter((e) => e.isDirectory()).map((e) => e.name)
+}
+
+const collectArtifacts = async (project: string): Promise<string[]> => {
+  const dir = join(ARTIFACT_ROOT, project)
+  if (!existsSync(dir)) return []
+  const entries = await readdir(dir)
+  return entries.filter((e) => e.endsWith(".md")).map((e) => join(dir, e))
+}
+
+const pruneExpired = async (ttlDays: number): Promise<DeleteResult> => {
+  const result: DeleteResult = { deleted: [], skipped: [] }
+  if (ttlDays <= 0) return result
+  const cutoff = Date.now() - ttlDays * DAY_MS
+  const projects = await collectProjects()
+  for (const project of projects) {
+    const files = await collectArtifacts(project)
+    for (const path of files) {
+      try {
+        const s = await stat(path)
+        if (s.mtimeMs < cutoff) await deleteFile(path, result)
+      } catch {
+        result.skipped.push(path)
+      }
+    }
+    await removeEmptyDir(join(ARTIFACT_ROOT, project))
+  }
+  return result
+}
 
 export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
   let cachedProject: string | undefined
@@ -44,6 +106,16 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
   }
 
   await mkdir(ARTIFACT_ROOT, { recursive: true })
+
+  // Fire-and-forget startup TTL prune. Errors during cleanup must not block plugin init.
+  const ttlDays = resolveTtlDays()
+  void pruneExpired(ttlDays).then((result) => {
+    if (result.deleted.length > 0) {
+      console.log(
+        `[artifacts] pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-artifacts/`,
+      )
+    }
+  })
 
   return {
     "shell.env": async (_input, output) => {
@@ -126,6 +198,50 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
             }),
           )
           return `Artifacts for '${project}':\n${rows.join("\n")}`
+        },
+      }),
+
+      artifact_delete: tool({
+        description:
+          "Delete artifacts. Scope is determined by which arguments are provided: both `command` and `project` deletes one file; `project` alone deletes every artifact for that project; `command` alone deletes that command's file in every project; neither deletes everything under ~/.opencode-artifacts/. `confirm: true` is required for every invocation as a guardrail against accidental wipes. Returns a summary of deleted and skipped paths.",
+        args: {
+          confirm: tool.schema
+            .literal(true)
+            .describe("Must be set to true. Required guardrail — operator must explicitly opt in to deletion."),
+          command: tool.schema
+            .string()
+            .optional()
+            .describe("Command name (file stem). Omit to scope by project or wipe everything."),
+          project: tool.schema
+            .string()
+            .optional()
+            .describe("Project name. Omit to apply across all projects."),
+        },
+        async execute(args) {
+          const result: DeleteResult = { deleted: [], skipped: [] }
+          const projects = args.project ? [args.project] : await collectProjects()
+
+          for (const project of projects) {
+            const projectDir = join(ARTIFACT_ROOT, project)
+            if (!existsSync(projectDir)) continue
+
+            if (args.command) {
+              const path = artifactPathFor(project, args.command)
+              if (existsSync(path)) await deleteFile(path, result)
+            } else {
+              const files = await collectArtifacts(project)
+              for (const path of files) await deleteFile(path, result)
+            }
+            await removeEmptyDir(projectDir)
+          }
+
+          const lines = [`Deleted ${result.deleted.length} artifact(s).`]
+          if (result.deleted.length > 0) lines.push(...result.deleted.map((p) => `  - ${p}`))
+          if (result.skipped.length > 0) {
+            lines.push(`Skipped ${result.skipped.length} (could not delete):`)
+            lines.push(...result.skipped.map((p) => `  - ${p}`))
+          }
+          return lines.join("\n")
         },
       }),
     },
