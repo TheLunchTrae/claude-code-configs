@@ -2,6 +2,7 @@
 mode: subagent
 temperature: 0.3
 color: "#FFD580"
+disable: true
 ---
 
 You are a test-driven development specialist who helps write tests before implementation and

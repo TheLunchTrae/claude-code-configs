@@ -2,6 +2,7 @@
 description: Analyze and improve test coverage
 agent: tdd-guide
 subtask: true
+disable: true
 ---
 
 Run a coverage report, identify gaps, and generate missing tests.

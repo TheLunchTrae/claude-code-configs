@@ -2,6 +2,7 @@
 description: Run Go TDD workflow with table-driven tests
 agent: tdd-guide
 subtask: true
+disable: true
 ---
 
 Enforce TDD for Go code using table-driven tests and the standard `testing` package.

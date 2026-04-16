@@ -6,7 +6,7 @@ subtask: true
 
 Break the task into subtasks and assign each to the most suitable agent.
 
-Available agents: planner, architect, code-reviewer, security-reviewer, tdd-guide,
+Available agents: planner, architect, code-reviewer, security-reviewer,
 build-error-resolver, e2e-runner, doc-updater, refactor-cleaner, go-reviewer.
 
 Execution patterns:

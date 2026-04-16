@@ -2,6 +2,7 @@
 description: Rust TDD workflow with unit and property tests
 agent: tdd-guide
 subtask: true
+disable: true
 ---
 
 Enforce TDD for Rust using unit tests, integration tests, and property-based tests.

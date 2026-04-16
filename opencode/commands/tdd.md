@@ -2,6 +2,7 @@
 description: Enforce TDD workflow with 80%+ coverage
 agent: tdd-guide
 subtask: true
+disable: true
 ---
 
 Enforce a strict RED → GREEN → REFACTOR → REPEAT cycle.
