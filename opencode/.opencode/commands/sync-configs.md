@@ -40,6 +40,19 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `agents/github-actions-developer.md` | `agents/github-actions-developer.md` |
 | `agents/gitlab-ci-developer.md` | `agents/gitlab-ci-developer.md` |
 | `agents/performance-optimizer.md` | `agents/performance-optimizer.md` |
+| `agents/e2e-runner.md` | `agents/e2e-runner.md` |
+| `agents/csharp-developer.md` | `agents/csharp-developer.md` |
+| `agents/csharp-reviewer.md` | `agents/csharp-reviewer.md` |
+| `agents/go-developer.md` | `agents/go-developer.md` |
+| `agents/go-reviewer.md` | `agents/go-reviewer.md` |
+| `agents/php-developer.md` | `agents/php-developer.md` |
+| `agents/php-reviewer.md` | `agents/php-reviewer.md` |
+| `agents/typescript-developer.md` | `agents/typescript-developer.md` |
+| `agents/typescript-reviewer.md` | `agents/typescript-reviewer.md` |
+| `agents/doctrine-developer.md` | `agents/doctrine-developer.md` |
+| `agents/efcore-developer.md` | `agents/efcore-developer.md` |
+| `agents/laminas-developer.md` | `agents/laminas-developer.md` |
+| `agents/react-developer.md` | `agents/react-developer.md` |
 
 ### Commands
 | Remote | Local |
