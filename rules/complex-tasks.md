@@ -4,9 +4,13 @@
 
 **architect** — explores the problem space and produces a decision document. Invoke it when the right approach is unclear, multiple viable approaches exist, the user wants to reason through options before committing, or the user asks an open-ended question about how best to approach something. Also invoke it when a user expresses doubt about their current plan, even without requesting implementation. When invoked for a standalone question, return its output directly without entering the implementation workflow.
 
+**planner** — creates a detailed, phased implementation plan before any code is written. Invoke when a task spans multiple files, has unclear sequencing, or when you want an explicit step-by-step breakdown with dependencies and risks laid out before handing off to the developer. Its output is a plan only — it makes no changes.
+
 **developer** — implements approved designs. It handles all code writing and editing. Pass it the full design, relevant file contents, and any reviewer feedback so it can work independently.
 
 **reviewer** — audits designs and implementations for correctness, risks, and gaps. Use it after producing a design and again after implementation. If it raises blocking issues, resolve them before proceeding; surface lower-severity findings to the user.
+
+**security-reviewer** — analyzes code for OWASP Top 10 vulnerabilities, secrets exposure, and authentication flaws. Invoke after any implementation touching auth, user input, database queries, file uploads, payment code, or external APIs. CRITICAL or HIGH findings block progress until resolved.
 
 ## How this typically plays out
 
