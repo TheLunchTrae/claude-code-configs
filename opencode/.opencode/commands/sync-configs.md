@@ -65,6 +65,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/go-build.md` | `commands/go-build.md` |
 | `commands/go-review.md` | `commands/go-review.md` |
 | `commands/rust-build.md` | `commands/rust-build.md` |
+| `.opencode/commands/sync-configs.md` | `.opencode/commands/sync-configs.md` |
 
 ### Skills
 | Remote | Local |
@@ -113,5 +114,4 @@ Omit the failures section if there were none.
 
 ## Notes
 
-- `.opencode/commands/sync-configs.md` (this file) is intentionally excluded from the manifest — it is project-local and should not be overwritten by a sync.
 - `opencode.jsonc` contains local permission customizations. Treat any change to the `permission` block as potentially significant and ask the user before applying it.
