@@ -1,17 +1,4 @@
 {
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/stop-hook-git-check.sh"
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [],
     "deny": [
