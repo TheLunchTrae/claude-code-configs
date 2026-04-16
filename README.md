@@ -11,6 +11,10 @@ This repository is a versioned backup of a personal `~/.claude` directory for [C
    ```
 3. Reinstall any plugins listed as enabled in `settings.json` — they are excluded from the repo (see `.gitignore`) but the enabled set is captured there.
 
+## Attribution
+
+These configs are based heavily on the work in [everything-claude-code](https://github.com/affaan-m/everything-claude-code/tree/main/.opencode) by affaan-m.
+
 ## OpenCode configurations
 
 The `opencode/` directory contains OpenCode equivalents of the Claude Code configurations in this repo. They are kept as close as possible to their Claude Code counterparts, but are not 1-1 due to functionality differences and limitations between the two tools.
