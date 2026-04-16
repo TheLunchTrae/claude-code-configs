@@ -1,5 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "instructions/general.md",
+    "instructions/security.md",
+    "instructions/accuracy.md",
+    "instructions/git-workflow.md"
+  ],
   "permission": {
     "bash": {
       "git commit*": "ask",

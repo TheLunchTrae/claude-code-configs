@@ -7,6 +7,18 @@ and `skills/` (user-invocable slash commands).
 
 Do not treat the absence of source code as a problem to fix.
 
+# Reference: everything-claude-code (ECC)
+
+These configs are based on [everything-claude-code](https://github.com/affaan-m/everything-claude-code) by affaan-m. When working in this repo and needing to reference ECC, clone it locally:
+
+```sh
+git clone https://github.com/affaan-m/everything-claude-code.git /tmp/ecc
+```
+
+Key ECC paths to reference:
+- `/tmp/ecc/rules/common/` — common rules across languages
+- `/tmp/ecc/.opencode/` — ECC's OpenCode configuration (uses `instructions` array + `instructions/` folder)
+
 # Symlinking into .claude/
 
 Every file added to `agents/`, `rules/`, or `skills/` in this repo must have a corresponding relative symlink created inside `.claude/` in the same operation — unless explicitly told not to. Symlinking individual files (not directories) means individual files can be excluded if needed.
