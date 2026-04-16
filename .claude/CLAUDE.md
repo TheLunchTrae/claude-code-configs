@@ -30,6 +30,17 @@ ln -sf ../../../skills/<name>/<file> .claude/skills/<name>/<file>  # skills/
 
 Create the target directory first with `mkdir -p` if it doesn't exist. When removing a file from the repo, remove its symlink from `.claude/` in the same operation.
 
+## Hook scripts
+
+Hook scripts live in `hooks/` in this repo and must be symlinked into `~/.claude/` so that `settings.json` can reference them by their `~/.claude/<script>` path. Use an absolute symlink:
+
+```
+ln -sf /path/to/repo/hooks/<script>.sh ~/.claude/<script>.sh
+chmod +x hooks/<script>.sh
+```
+
+When adding a new hook script: add the file to `hooks/`, create the symlink above, and register the hook in `settings.json`.
+
 **Not all agents are symlinked here.** This is a config-only repo with no source code, so language-specific reviewers and code-quality agents are intentionally excluded from `.claude/agents/`. Only 3 agents are symlinked: `architect`, `planner`, `security-reviewer`. When adding new agents to the repo, follow the same standard — only symlink agents that are relevant to working in a config repo. Do not symlink language-specific, code-review, or implementation-focused agents.
 
 # Config changes: Claude Code first, then OpenCode
