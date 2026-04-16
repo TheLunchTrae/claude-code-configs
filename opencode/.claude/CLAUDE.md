@@ -10,13 +10,13 @@ This directory contains OpenCode-specific configuration. It is not a Claude Code
 
 # Hooks are out of scope
 
-Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-sync mapping reflects that — no hook entries exist. Do not add any.
+Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-mirror mapping reflects that — no hook entries exist. Do not add any.
 
 # OpenCode-exclusive commands
 
 Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They exist only in OpenCode because they rely on patterns or conventions (like `~/.opencode-artifacts/`) that belong to OpenCode sessions.
 
-Do not create a matching `skills/<name>/SKILL.md` for any command listed here. Do not add them to the opencode-sync mapping.
+Do not create a matching `skills/<name>/SKILL.md` for any command listed here. Do not add them to the opencode-mirror mapping.
 
 **If you add, rename, or remove an OpenCode-exclusive command, update this file in the same commit.**
 
