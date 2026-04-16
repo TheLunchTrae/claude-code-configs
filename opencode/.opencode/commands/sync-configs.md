@@ -40,7 +40,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `agents/github-actions-developer.md` | `agents/github-actions-developer.md` |
 | `agents/gitlab-ci-developer.md` | `agents/gitlab-ci-developer.md` |
 | `agents/performance-optimizer.md` | `agents/performance-optimizer.md` |
-| `agents/e2e-runner.md` | `agents/e2e-runner.md` |
 | `agents/csharp-developer.md` | `agents/csharp-developer.md` |
 | `agents/csharp-reviewer.md` | `agents/csharp-reviewer.md` |
 | `agents/go-developer.md` | `agents/go-developer.md` |
@@ -74,7 +73,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/verify.md` | `commands/verify.md` |
 | `commands/orchestrate.md` | `commands/orchestrate.md` |
 | `commands/refactor-clean.md` | `commands/refactor-clean.md` |
-| `commands/e2e.md` | `commands/e2e.md` |
 | `commands/go-review.md` | `commands/go-review.md` |
 | `.opencode/commands/sync-configs.md` | `.opencode/commands/sync-configs.md` |
 
