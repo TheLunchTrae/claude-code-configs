@@ -1,1 +1,0 @@
-../../agents/php-reviewer.md
