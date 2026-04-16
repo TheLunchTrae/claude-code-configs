@@ -35,7 +35,6 @@ Create the target directory first with `mkdir -p` if it doesn't exist. When remo
 
 - **Agents** — all language reviewers (`python-reviewer`, `typescript-reviewer`, etc.), `code-reviewer`, `code-simplifier`, `refactor-cleaner`, `doc-updater`. Only `architect`, `planner`, and `security-reviewer` are symlinked.
 - **Rules** — `coding-style`, `development-workflow`, `patterns`, `performance`, `testing`. Only `accuracy`, `code-review`, `general`, and `security` are symlinked (plus the real `config-sync.md` that lives directly in `.claude/rules/`).
-- **Skills** — `quality-gate` (runs formatters/linters on application code). All other skills are symlinked.
 
 When adding something new, decide whether it is useful when working inside this repo and follow the same pattern.
 

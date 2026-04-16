@@ -7,7 +7,7 @@ subtask: true
 Break the task into subtasks and assign each to the most suitable agent.
 
 Available agents: planner, architect, code-reviewer, security-reviewer,
-e2e-runner, doc-updater, refactor-cleaner, go-reviewer.
+doc-updater, refactor-cleaner, go-reviewer.
 
 Execution patterns:
 - Sequential: when later work depends on earlier results
