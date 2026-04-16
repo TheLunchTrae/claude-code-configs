@@ -63,8 +63,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/review.md` | `commands/review.md` |
 | `commands/security.md` | `commands/security.md` |
 | `commands/summarize-branch.md` | `commands/summarize-branch.md` |
-| `commands/checkpoint.md` | `commands/checkpoint.md` |
-| `commands/quality-gate.md` | `commands/quality-gate.md` |
 | `commands/handoff.md` | `commands/handoff.md` |
 | `commands/catchup.md` | `commands/catchup.md` |
 | `commands/cleanup-artifacts.md` | `commands/cleanup-artifacts.md` |

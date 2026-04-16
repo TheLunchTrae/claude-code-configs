@@ -1,1 +1,0 @@
-../../../skills/checkpoint/SKILL.md
