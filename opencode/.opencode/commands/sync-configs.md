@@ -87,6 +87,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 |--------|-------|
 | `plugins/artifacts.ts` | `plugins/artifacts.ts` |
 | `plugins/block-secrets.ts` | `plugins/block-secrets.ts` |
+| `plugins/designs.ts` | `plugins/designs.ts` |
 | `package.json` | `package.json` |
 | `tsconfig.json` | `tsconfig.json` |
 
