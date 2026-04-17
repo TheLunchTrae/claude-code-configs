@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Cross-agent instructions for this OpenCode install. Coalesces what used to live in `opencode/instructions/*.md`. Plugin-specific guidance (designs, memory) lives in the plugin tool descriptions themselves — see `plugins/designs.ts` and `plugins/memory.ts`.
+Cross-agent instructions for this OpenCode install. Coalesces what used to live in `opencode/instructions/*.md`. Plugin-specific guidance (memory) lives in the plugin tool descriptions themselves — see `plugins/memory.ts`.
 
 ---
 

@@ -151,7 +151,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
 
       artifact_write: tool({
         description:
-          "Write/overwrite an artifact (session handoff). One file per command per project, no history. Keep content terse — artifacts are re-read on every /catchup. For multi-paragraph rationale use design_write.",
+          "Write/overwrite an artifact (session handoff). One file per command per project, no history. Keep content terse — artifacts are re-read on every /catchup.",
         args: {
           command: tool.schema
             .string()

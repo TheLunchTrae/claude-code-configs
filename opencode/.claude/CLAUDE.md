@@ -87,12 +87,6 @@ Reads `~/.opencode-artifacts/<project>/handoff.md` and orients the agent at the 
 
 OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
 
-### /design — `opencode/commands/design.md`
-
-Writes or updates an architectural design record at `~/.opencode-artifacts/<project>/designs/<topic>.md`. One file per topic, overwritten on each write; rationale history is preserved in-file via an appended "Decision log" section. Paired with the `designs` plugin's tools — when/how to call `design_list` / `design_read` / `design_write` is documented inside the plugin tool descriptions in `plugins/designs.ts`, which include the full template and the update protocol.
-
-OpenCode-exclusive because: writes to `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
-
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
 Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
@@ -143,21 +137,14 @@ Verify hook signatures and the return shape against the source before adding a n
 - **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Artifact storage convention". `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe everything).
 - **Startup TTL prune** — on plugin init, fires a fire-and-forget pass that deletes any artifact whose `mtime` is older than `OPENCODE_ARTIFACT_TTL_DAYS` (default `90`). Set the env var to `0` to disable. Errors during the prune do not block plugin init; deletions are logged via `console.log` when any occur.
 
-### `plugins/designs.ts` — DesignsPlugin
-
-- **`shell.env` hook** — injects `OPENCODE_DESIGN_DIR` (the current project's `designs/` directory) alongside the `OPENCODE_PROJECT` / `OPENCODE_ARTIFACT_DIR` already set by the artifacts plugin.
-- **Custom tools** — registers `design_read`, `design_write`, `design_list`, and `design_delete`. Designs live at `~/.opencode-artifacts/<project>/designs/<topic>.md` — long-lived architectural memory, one file per topic, overwritten on write. Each tool accepts an optional `project` argument; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain as the artifacts plugin. Topic slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$` after whitespace/casing normalization. `design_delete` requires `confirm: true` on every call; scope follows the same pattern as `artifact_delete` but is confined to the `designs/` subdirectory (will not touch artifacts).
-- **No TTL prune** — designs are durable, not session-scoped. Pruning is manual via `design_delete` or `/cleanup-artifacts`.
-- **Update protocol** — agents updating an existing design must `design_read` first and preserve every prior "Decision log" entry verbatim, then append a new entry. The tool description carries the full protocol inline so the constraint is visible at tool-call time.
-
 ### `plugins/memory.ts` — MemoryPlugin
 
 - **`shell.env` hook** — injects `OPENCODE_MEMORY_DIR` (the current project's `memory/` directory) alongside the other plugin-set env vars.
-- **Custom tools** — registers `memory_read`, `memory_write`, `memory_list`, and `memory_delete`. Entries live at `~/.opencode-artifacts/<project>/memory/<slug>.yaml` — flat YAML files holding a one-sentence `note` plus optional `domain`, `trigger`, `confidence`, `source`. Presence of `trigger` promotes an entry from a plain memory to an instinct-style behavioral rule; both shapes share the same tools and directory. Slugs are validated against the same `^[a-z0-9][a-z0-9-]{0,63}$` rule as designs. `memory_delete` requires `confirm: true`; scope follows the same pattern as `artifact_delete`/`design_delete`, with an additional `domain`-only scope for bulk deletion by category, confined to the `memory/` subdirectory.
-- **No TTL prune** — memory is durable like designs. Pruning is manual via `memory_delete`.
-- **Token-cost discipline** — `memory_list` output is read on every session that calls it. Tool descriptions instruct terse entries (one sentence, hard cap 240 chars) and the list previews truncate notes at 60 chars. Writers needing multi-paragraph rationale should use `design_write` instead. The full when-to-write / when-not-to-write guidance is carried inside the `memory_write` tool description so it is visible at tool-call time.
+- **Custom tools** — registers `memory_read`, `memory_write`, `memory_list`, and `memory_delete`. Entries live at `~/.opencode-artifacts/<project>/memory/<slug>.yaml` — flat YAML files holding a one-sentence `note` plus optional `domain`, `trigger`, `confidence`, `source`. Presence of `trigger` promotes an entry from a plain memory to an instinct-style behavioral rule; both shapes share the same tools and directory. Slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$`. `memory_delete` requires `confirm: true`; scope follows the same pattern as `artifact_delete`, with an additional `domain`-only scope for bulk deletion by category, confined to the `memory/` subdirectory.
+- **No TTL prune** — memory entries are durable, not session-scoped. Pruning is manual via `memory_delete`.
+- **Token-cost discipline** — `memory_list` output is read on every session that calls it. Tool descriptions instruct terse entries (one sentence, hard cap 240 chars) and the list previews truncate notes at 60 chars. Writers needing multi-paragraph rationale should keep it in external notes rather than memory. The full when-to-write / when-not-to-write guidance is carried inside the `memory_write` tool description so it is visible at tool-call time.
 - **No YAML dependency** — the plugin emits a fixed subset of YAML (flat keys, always-single-quoted strings) and parses only what `memory_list` and `memory_delete --domain` need. Primary reader is the LLM, which handles raw YAML natively via `memory_read`.
-- **Duplicated helpers** — `projectNameFromRemoteUrl`, `removeEmptyDir`, `deleteFile`, `DeleteResult`, and the `resolveProject` closure are copies of the versions in `artifacts.ts` and `designs.ts`. Keep the four in sync when editing any of them; a shared helpers module is a pending follow-up.
+- **Duplicated helpers** — `projectNameFromRemoteUrl`, `removeEmptyDir`, `deleteFile`, `DeleteResult`, and the `resolveProject` closure are copies of the versions in `artifacts.ts`. Keep the two in sync when editing either of them; a shared helpers module is a pending follow-up.
 
 ### `plugins/block-secrets.ts` — BlockSecretsPlugin
 

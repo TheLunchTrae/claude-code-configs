@@ -1,5 +1,5 @@
 // Memory plugin — unified store for loose facts and instinct-style behavioral
-// rules. Sibling to artifacts.ts and designs.ts.
+// rules. Sibling to artifacts.ts.
 //
 // Storage: ~/.opencode-artifacts/<project>/memory/<slug>.yaml — one compact
 // YAML file per entry. Durable (no TTL). Entries hold a short `note` plus
@@ -10,10 +10,9 @@
 // kept terse by design: flat YAML with always-quoted string values (no parser
 // library needed) and a truncated table on list.
 //
-// The following helpers are duplicated from plugins/artifacts.ts and
-// plugins/designs.ts and must be kept in sync if edited in any of them:
-// projectNameFromRemoteUrl, removeEmptyDir, deleteFile, DeleteResult, and the
-// resolveProject closure.
+// The following helpers are duplicated from plugins/artifacts.ts and must be
+// kept in sync if edited in either of them: projectNameFromRemoteUrl,
+// removeEmptyDir, deleteFile, DeleteResult, and the resolveProject closure.
 
 import { type Plugin, tool } from "@opencode-ai/plugin"
 import { mkdir, readFile, writeFile, readdir, unlink, rmdir } from "node:fs/promises"
@@ -229,7 +228,6 @@ Write when:
 
 Do NOT write for:
 - Session context — use /handoff (ephemeral).
-- Architectural decisions with rationale or alternatives — use design_write (durable but verbose).
 - One-off observations whose cost exceeds the value of remembering.
 
 Instinct vs plain memory is purely the presence of \`trigger\`. Both shapes share the same directory and tools.`,

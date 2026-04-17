@@ -63,6 +63,5 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 ## Plugins
 - plugins/artifacts.ts
 - plugins/block-secrets.ts
-- plugins/designs.ts
 - plugins/memory.ts
 - tsconfig.json
