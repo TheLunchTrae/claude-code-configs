@@ -6,9 +6,9 @@ Write or update a design record for the given topic so the architectural rationa
 
 1. Parse the topic slug from `$ARGUMENTS`. If empty, ask the user for a kebab-case topic slug (e.g. `auth-flow`) before proceeding.
 
-2. Call `design_list` to see whether a design for this topic already exists. If it does, call `design_read({ topic: "<slug>" })` first — you must preserve the existing "Decision log" entries when updating (see `instructions/designs.md`).
+2. Call `design_list` to see whether a design for this topic already exists. If it does, call `design_read({ topic: "<slug>" })` first — you must preserve the existing "Decision log" entries when updating (the `design_write` tool description has the full update protocol).
 
-3. Compose the updated design following the template in `instructions/designs.md`. On update, APPEND a new entry to the "Decision log" describing what changed and why. Never truncate or overwrite prior log entries. Update "Context", "Decision", "Alternatives considered", and "Consequences" to reflect the current state.
+3. Compose the updated design following the template in the `design_write` tool description. On update, APPEND a new entry to the "Decision log" describing what changed and why. Never truncate or overwrite prior log entries. Update "Context", "Decision", "Alternatives considered", and "Consequences" to reflect the current state.
 
 4. Save via `design_write({ topic: "<slug>", content: <full markdown> })`. The plugin handles project resolution, directory creation, and topic validation. The file lands at `~/.opencode-artifacts/<project>/designs/<slug>.md`.
 

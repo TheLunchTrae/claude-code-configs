@@ -18,8 +18,7 @@ The manifest must include **every file under `opencode/`** that OpenCode reads a
 
 | Section | Location | Includes |
 |---------|----------|----------|
-| Config | `opencode/` root | `opencode.jsonc` and any future top-level config files |
-| Instructions | `opencode/instructions/` | every `*.md` |
+| Config | `opencode/` root | `opencode.jsonc`, `AGENTS.md`, and any future top-level config files |
 | Agents | `opencode/agents/` | every `*.md` — meta agents, reviewers, language developers, framework developers, specialists |
 | Commands | `opencode/commands/` + `opencode/.opencode/commands/` | every `*.md` (including `sync-configs.md` itself) |
 | Skills | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |

@@ -6,18 +6,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 
 ## Config
 - opencode.jsonc
-
-## Instructions
-- instructions/general.md
-- instructions/security.md
-- instructions/accuracy.md
-- instructions/code-review.md
-- instructions/coding-style.md
-- instructions/agents.md
-- instructions/testing.md
-- instructions/patterns.md
-- instructions/designs.md
-- instructions/memory.md
+- AGENTS.md
 
 ## Agents
 - agents/lead.md
