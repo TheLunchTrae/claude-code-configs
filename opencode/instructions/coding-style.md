@@ -2,89 +2,37 @@
 
 ## Immutability (CRITICAL)
 
-ALWAYS create new objects, NEVER mutate existing ones:
-
-```
-// Pseudocode
-WRONG:  modify(original, field, value) → changes original in-place
-CORRECT: update(original, field, value) → returns new copy with change
-```
-
-Rationale: Immutable data prevents hidden side effects, makes debugging easier, and enables safe concurrency.
+Create new objects; never mutate existing ones. Immutable data prevents hidden side effects, makes debugging easier, and enables safe concurrency.
 
 ## Core Principles
 
-### KISS (Keep It Simple)
-
-- Prefer the simplest solution that actually works
-- Avoid premature optimization
-- Optimize for clarity over cleverness
-
-### DRY (Don't Repeat Yourself)
-
-- Extract repeated logic into shared functions or utilities
-- Avoid copy-paste implementation drift
-- Introduce abstractions when repetition is real, not speculative
-
-### YAGNI (You Aren't Gonna Need It)
-
-- Do not build features or abstractions before they are needed
-- Avoid speculative generality
-- Start simple, then refactor when the pressure is real
+- **KISS** — prefer the simplest solution that works; optimize for clarity over cleverness.
+- **DRY** — extract repeated logic once the repetition is real, not speculative.
+- **YAGNI** — don't build abstractions before they're needed. Start simple; refactor under real pressure.
 
 ## File Organization
 
-MANY SMALL FILES > FEW LARGE FILES:
-- High cohesion, low coupling
-- 200-400 lines typical, 800 max
-- Extract utilities from large modules
-- Organize by feature/domain, not by type
+Many small files over few large ones. High cohesion, low coupling. 200–400 lines typical, 800 max. Organize by feature/domain, not by type.
 
 ## Error Handling
 
-ALWAYS handle errors comprehensively:
-- Handle errors explicitly at every level
-- Provide user-friendly error messages in UI-facing code
-- Log detailed error context on the server side
-- Never silently swallow errors
+Handle errors explicitly at every level. User-friendly messages in UI-facing code, detailed context in server logs. Never silently swallow errors.
 
 ## Input Validation
 
-ALWAYS validate at system boundaries:
-- Validate all user input before processing
-- Use schema-based validation where available
-- Fail fast with clear error messages
-- Never trust external data (API responses, user input, file content)
+Validate at system boundaries. Use schema-based validation where available. Fail fast with clear messages. Never trust external data (user input, API responses, file content).
 
 ## Naming Conventions
 
 - Variables and functions: `camelCase` with descriptive names
-- Booleans: prefer `is`, `has`, `should`, or `can` prefixes
-- Interfaces, types, and components: `PascalCase`
+- Booleans: `is`, `has`, `should`, or `can` prefixes
+- Types, interfaces, components: `PascalCase`
 - Constants: `UPPER_SNAKE_CASE`
-- Custom hooks: `camelCase` with a `use` prefix
+- React hooks: `use` prefix
 
-## Code Smells to Avoid
+## Smells to Avoid
 
-### Deep Nesting
-
-Prefer early returns over nested conditionals once the logic starts stacking.
-
-### Magic Numbers
-
-Use named constants for meaningful thresholds, delays, and limits.
-
-### Long Functions
-
-Split large functions into focused pieces with clear responsibilities.
-
-## Code Quality Checklist
-
-Before marking work complete:
-- [ ] Code is readable and well-named
-- [ ] Functions are small (<50 lines)
-- [ ] Files are focused (<800 lines)
-- [ ] No deep nesting (>4 levels)
-- [ ] Proper error handling
-- [ ] No hardcoded values (use constants or config)
-- [ ] No mutation (immutable patterns used)
+- Deep nesting — use early returns once logic stacks past 3–4 levels
+- Magic numbers — name meaningful thresholds, delays, limits
+- Long functions (>50 lines) — split into focused pieces
+- Large files (>800 lines) — extract modules

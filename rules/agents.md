@@ -4,7 +4,7 @@ How to pick a subagent and how the implementation workflow uses them.
 
 ## Available subagents
 
-When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently. When a language-specific reviewer surfaces a CRITICAL security finding, invoke `security-reviewer` next for a focused vulnerability pass before merging.
+When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback. When a language-specific reviewer surfaces a CRITICAL security finding, invoke `security-reviewer` next before merging.
 
 | Agent | Purpose | When to invoke |
 |-------|---------|----------------|
@@ -41,66 +41,9 @@ When a task needs specialized knowledge or a focused pass over the code, delegat
 
 ## Implementation workflow
 
-The Feature Implementation Workflow describes the development pipeline: research, planning, code review, and committing to git.
-
-0. **Research & Reuse** _(mandatory before any new implementation)_
-   - **Scan the codebase first:** Search for existing implementations, utilities, and patterns that can be reused or adapted before writing anything new.
-   - **Read related files:** Understand how adjacent code is structured, what interfaces exist, and how dependencies are wired.
-   - **Library docs:** Use primary vendor docs to confirm API behavior, package usage, and version-specific details before implementing.
-   - Prefer adopting or adapting a proven existing approach over writing net-new code.
-
-1. **Plan First**
-   - Use **planner** agent to create implementation plan
-   - Generate planning docs before coding: PRD, architecture, system_design, tech_doc, task_list
-   - Identify dependencies and risks
-   - Break down into phases
-
-2. **Implement**
-   - For language-specific work, delegate to the matching developer agent. Each one knows its language's idioms, tooling, and anti-patterns, and will run the project's type checker / linter / tests before reporting done.
-   - Available developer agents:
-
-   | Agent | Use for |
-   |-------|---------|
-   | **cpp-developer** | C++ (.cpp / .hpp / .cc / .h) |
-   | **csharp-developer** | C# / .NET (.cs) |
-   | **go-developer** | Go (.go) |
-   | **java-developer** | Java (.java) |
-   | **php-developer** | PHP (.php) — Laravel, Symfony, vanilla |
-   | **python-developer** | Python (.py) — Django, Flask, FastAPI, plain |
-   | **rust-developer** | Rust (.rs) |
-   | **typescript-developer** | TypeScript / JavaScript (.ts / .tsx / .js / .jsx) — React, Next.js, Node |
-
-   - For framework-specific work, chain the framework agent on top of the matching language agent. Framework agents assume the base language-developer's rules already apply; they add framework-specific idioms and anti-patterns.
-
-   | Agent | Use for | Base agent |
-   |-------|---------|------------|
-   | **react-developer** | React / Next.js / Remix components, hooks, routing | typescript-developer |
-   | **efcore-developer** | Entity Framework Core models, migrations, queries | csharp-developer |
-   | **laminas-developer** | Laminas MVC / Mezzio modules, middleware, forms | php-developer |
-   | **doctrine-developer** | Doctrine ORM entities, DQL, migrations | php-developer |
-
-   Cross-stack specialists (no base language pairing):
-
-   | Agent | Use for |
-   |-------|---------|
-   | **mcp-builder** | Model Context Protocol servers, tools, resources, prompts |
-   | **github-actions-developer** | `.github/workflows/` workflows, composite actions, reusable workflows |
-   | **gitlab-ci-developer** | `.gitlab-ci.yml` pipelines, includes, CI/CD components, child pipelines |
-
-   - For cross-language orchestration, design, or unclear scope, handle inline rather than delegating.
-
-3. **Code Review**
-   - Use **code-reviewer** agent immediately after writing code
-   - Pair with the matching language reviewer (e.g. `typescript-reviewer` after `typescript-developer`)
-   - Address CRITICAL and HIGH issues
-   - Fix MEDIUM issues when possible
-
-4. **Commit & Push**
-   - Detailed commit messages
-   - Follow conventional commits format
-
-5. **Pre-Review Checks**
-   - Verify all automated checks (CI/CD) are passing
-   - Resolve any merge conflicts
-   - Ensure branch is up to date with target branch
-   - Only request review after these checks pass
+0. **Research & reuse** _(mandatory before any new implementation)_ — scan the codebase for existing implementations, utilities, and patterns to reuse or adapt; read adjacent code to understand interfaces and wiring; confirm library APIs against primary vendor docs for the installed version.
+1. **Plan** — invoke `planner` for anything non-trivial. Output phases, dependencies, and risks before coding.
+2. **Implement** — delegate to the matching language-developer. Chain a framework-developer on top for framework-specific work (it assumes the base language rules). Handle cross-language orchestration or unclear scope inline.
+3. **Review** — invoke `code-reviewer` immediately after implementing, plus the matching language reviewer. Address CRITICAL and HIGH findings; fix MEDIUM when possible.
+4. **Commit & push** — conventional-commits format, descriptive messages.
+5. **Pre-review checks** — CI/CD green, no merge conflicts, branch up to date with target.
