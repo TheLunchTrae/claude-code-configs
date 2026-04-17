@@ -128,39 +128,39 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
     tool: {
       artifact_read: tool({
         description:
-          "Read an artifact written by another OpenCode session for this (or another) project. Returns the artifact contents, or a not-found message. Artifacts live at ~/.opencode-artifacts/<project>/<command>.md.",
+          "Read an artifact (session handoff note). Returns file contents or a not-found message. Path: ~/.opencode-artifacts/<project>/<command>.md.",
         args: {
           command: tool.schema
             .string()
-            .describe("The command name (matches the file stem, e.g. 'handoff')."),
+            .describe("Command name / file stem (e.g. 'handoff')."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
         },
         async execute(args) {
           const project = args.project ?? (await resolveProject())
           const path = artifactPathFor(project, args.command)
           if (!existsSync(path)) {
-            return `No artifact found at ${path}.`
+            return `No artifact at ${path}.`
           }
           const content = await readFile(path, "utf8")
-          return `Artifact ${project}/${args.command}.md:\n\n${content}`
+          return `${project}/${args.command}.md:\n${content}`
         },
       }),
 
       artifact_write: tool({
         description:
-          "Write an artifact for this (or another) project, overwriting any previous content. Artifacts are single-file-per-command per-project with no history.",
+          "Write/overwrite an artifact (session handoff). One file per command per project, no history. Keep content terse — artifacts are re-read on every /catchup. For multi-paragraph rationale use design_write.",
         args: {
           command: tool.schema
             .string()
-            .describe("The command name (used as the file stem, e.g. 'handoff')."),
-          content: tool.schema.string().describe("The full artifact content to write (markdown)."),
+            .describe("Command name / file stem (e.g. 'handoff')."),
+          content: tool.schema.string().describe("Full artifact content (markdown)."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const project = args.project ?? (await resolveProject())
@@ -172,46 +172,45 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
       }),
 
       artifact_list: tool({
-        description:
-          "List artifacts for this (or another) project. Returns each artifact's command name, size, and modification time.",
+        description: "List artifacts: command | size | date.",
         args: {
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const project = args.project ?? (await resolveProject())
           const dir = join(ARTIFACT_ROOT, project)
           if (!existsSync(dir)) {
-            return `No artifacts directory for project '${project}' (would be at ${dir}).`
+            return `No artifacts for '${project}'.`
           }
           const entries = await readdir(dir)
           const md = entries.filter((e) => e.endsWith(".md"))
           if (md.length === 0) {
-            return `No artifacts for project '${project}'.`
+            return `No artifacts for '${project}'.`
           }
           const rows = await Promise.all(
             md.map(async (name) => {
               const s = await stat(join(dir, name))
-              return `- ${name.replace(/\.md$/, "")}  (${s.size}B, modified ${s.mtime.toISOString()})`
+              return `- ${name.replace(/\.md$/, "")} ${s.size}B ${s.mtime.toISOString().slice(0, 10)}`
             }),
           )
-          return `Artifacts for '${project}':\n${rows.join("\n")}`
+          return `Artifacts (${project}):\n${rows.join("\n")}`
         },
       }),
 
       artifact_delete: tool({
         description:
-          "Delete artifacts. Scope is determined by which arguments are provided: both `command` and `project` deletes one file; `project` alone deletes every artifact for that project; `command` alone deletes that command's file in every project; neither deletes everything under ~/.opencode-artifacts/. `confirm: true` is required for every invocation as a guardrail against accidental wipes. Returns a summary of deleted and skipped paths.",
+          "Delete artifacts. Scope by args: `command`+`project` → one file; `project` only → all artifacts in that project; `command` only → that file across every project; neither → wipe all artifacts. `confirm: true` required. Returns deleted/skipped paths.",
         args: {
           confirm: tool.schema
             .literal(true)
-            .describe("Must be set to true. Required guardrail — operator must explicitly opt in to deletion."),
+            .describe("Must be true. Guardrail."),
           command: tool.schema
             .string()
             .optional()
-            .describe("Command name (file stem). Omit to scope by project or wipe everything."),
+            .describe("Command name (file stem). Omit to scope by project or wipe all."),
           project: tool.schema
             .string()
             .optional()
