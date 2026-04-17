@@ -18,7 +18,6 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - instructions/patterns.md
 - instructions/designs.md
 - instructions/memory.md
-- instructions/performance.md
 
 ## Agents
 - agents/lead.md

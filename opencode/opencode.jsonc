@@ -10,8 +10,7 @@
     "instructions/testing.md",
     "instructions/patterns.md",
     "instructions/designs.md",
-    "instructions/memory.md",
-    "instructions/performance.md"
+    "instructions/memory.md"
   ],
   "permission": {
     "bash": {
