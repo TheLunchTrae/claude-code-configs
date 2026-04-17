@@ -34,6 +34,12 @@ Reads `~/.opencode-artifacts/<project>/handoff.md` and orients the agent at the 
 
 OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
 
+### /design — `opencode/commands/design.md`
+
+Writes or updates an architectural design record at `~/.opencode-artifacts/<project>/designs/<topic>.md`. One file per topic, overwritten on each write; rationale history is preserved in-file via an appended "Decision log" section. Paired with the `designs` plugin's tools and with `instructions/designs.md`, which tells agents when to call `design_list` / `design_read` / `design_write`.
+
+OpenCode-exclusive because: writes to `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
 Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.

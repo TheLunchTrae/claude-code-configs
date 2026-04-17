@@ -66,6 +66,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/summarize-branch.md` | `commands/summarize-branch.md` |
 | `commands/handoff.md` | `commands/handoff.md` |
 | `commands/catchup.md` | `commands/catchup.md` |
+| `commands/design.md` | `commands/design.md` |
 | `commands/cleanup-artifacts.md` | `commands/cleanup-artifacts.md` |
 | `commands/code-review.md` | `commands/code-review.md` |
 | `commands/update-docs.md` | `commands/update-docs.md` |
