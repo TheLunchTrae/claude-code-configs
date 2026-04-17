@@ -46,6 +46,10 @@ Only skip the Claude Code side and work directly in `opencode/` if explicitly to
 
 The `opencode/` directory has its own `opencode/.claude/CLAUDE.md` documenting OpenCode-exclusive commands and conventions (including the `~/.opencode-artifacts/` storage pattern). Check it before modifying anything in `opencode/`.
 
+# Project-conventions file: CLAUDE.md vs AGENTS.md
+
+When a prompt on either side tells an agent to "check project-specific conventions", use the filename that matches the tool reading it. Claude Code reads `CLAUDE.md`; OpenCode reads `AGENTS.md`. Keep the Claude Code-side copies (`rules/`, `agents/`, `skills/`) pointing at `CLAUDE.md` and the OpenCode-side copies (`opencode/`) pointing at `AGENTS.md`. Do not blanket-mirror this token when syncing changes between the two sides.
+
 # Agent I/O design principle
 
 Agents may define structured output formats — this is encouraged because it makes interactions predictable. No agent should ever expect or assume specific structured input. Every agent must handle whatever context it receives and adapt accordingly. When editing agent files, enforce this: remove any language that gates behavior on expected input shapes, section names, or artifacts from other agents.
