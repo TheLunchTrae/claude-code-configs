@@ -47,6 +47,6 @@ Omit the failures section if there were none.
 
 - `opencode.jsonc` contains local permission customizations. Treat any change to the `permission` block as potentially significant and ask the user before applying it.
 - After any change under `plugins/` or to `tsconfig.json`, prompt the user to run `bun install` in the OpenCode config root so plugin dependencies (`@opencode-ai/plugin`, types) are resolved before the next session.
-- The manifest file itself (`.opencode/sync-configs-manifest.md`) and this command file (`.opencode/commands/sync-configs.md`) are listed in the manifest, so their local copies are also refreshed on every run.
+- This command file (`.opencode/commands/sync-configs.md`) is listed in the manifest, so its local copy is refreshed on every run. The manifest file itself (`.opencode/sync-configs-manifest.md`) is not listed — the command always fetches it fresh from upstream before reading entries, so the local copy is never consulted.
 
 $ARGUMENTS
