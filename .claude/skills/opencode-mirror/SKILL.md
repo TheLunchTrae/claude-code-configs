@@ -157,6 +157,19 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 | `hidden` | bool | Hide this agent from the TUI autocomplete menu. |
 | `mode` | string | Set to `"subagent"` to restrict the agent to invocation by other agents only — not selectable as a primary agent by the user. |
 | `disable` | bool | Disable the agent entirely without deleting the file. |
+| `permission` | map | Nested `edit` / `bash` / `webfetch` / `task` keys set to `allow` / `ask` / `deny`. Overrides the global permission block in `opencode.jsonc`. |
+
+## Claude Code-only agent frontmatter keys (strip when mirroring)
+
+These keys exist on the CC side and are **not** valid OpenCode frontmatter. They must be removed (or translated) when copying an agent into `opencode/agents/`:
+
+| CC key | OC translation |
+|--------|----------------|
+| `tools: ["Read", "Grep", "Glob"]` (read-only) | `permission: { edit: deny, bash: deny }` |
+| `tools: ["Read", "Grep", "Glob", "Bash"]` (read + bash) | `permission: { edit: deny }` |
+| `tools: [Read, Write, Edit, Bash, Grep, Glob]` (full access) | drop entirely — no OC override needed |
+
+OpenCode silently ignores unknown keys, so leaving `tools:` in place will not raise an error but will cause tool-restriction intent to be lost — the agent runs with whatever the global `opencode.jsonc` permission block allows. Always translate. See `opencode/.claude/CLAUDE.md` → "Frontmatter schema for agents, commands, and skills" for the full OC schema.
 
 ## Known gaps (features with no OpenCode equivalent)
 
@@ -168,7 +181,7 @@ These keys are available on OC agents (`opencode/agents/<name>.md`) with no CC e
 ## When adding a new agent
 
 1. Create `agents/<name>.md` (Claude Code)
-2. Copy to `opencode/agents/<name>.md` (same content, same frontmatter)
+2. Copy the body into `opencode/agents/<name>.md`. The **body** is identical; the **frontmatter is not** — strip CC-only keys (`tools:`) and translate to the OC equivalent (`permission:`) per the "Claude Code-only agent frontmatter keys" table above. Consult `opencode/.claude/CLAUDE.md` → "Frontmatter schema for agents, commands, and skills" for the full list of valid OC keys before committing.
 
 ## When adding a new skill
 
