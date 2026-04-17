@@ -34,6 +34,12 @@ Reads `~/.opencode-artifacts/<project>/handoff.md` and orients the agent at the 
 
 OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
 
+### /design — `opencode/commands/design.md`
+
+Writes or updates an architectural design record at `~/.opencode-artifacts/<project>/designs/<topic>.md`. One file per topic, overwritten on each write; rationale history is preserved in-file via an appended "Decision log" section. Paired with the `designs` plugin's tools and with `instructions/designs.md`, which tells agents when to call `design_list` / `design_read` / `design_write`.
+
+OpenCode-exclusive because: writes to `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
 Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
@@ -81,6 +87,13 @@ Verify hook signatures and the return shape against the source before adding a n
 - **`shell.env` hook** — injects `OPENCODE_ARTIFACT_DIR` and `OPENCODE_PROJECT` so shell commands can reference the resolved artifact path without re-deriving it.
 - **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Artifact storage convention". `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe everything).
 - **Startup TTL prune** — on plugin init, fires a fire-and-forget pass that deletes any artifact whose `mtime` is older than `OPENCODE_ARTIFACT_TTL_DAYS` (default `90`). Set the env var to `0` to disable. Errors during the prune do not block plugin init; deletions are logged via `console.log` when any occur.
+
+### `plugins/designs.ts` — DesignsPlugin
+
+- **`shell.env` hook** — injects `OPENCODE_DESIGN_DIR` (the current project's `designs/` directory) alongside the `OPENCODE_PROJECT` / `OPENCODE_ARTIFACT_DIR` already set by the artifacts plugin.
+- **Custom tools** — registers `design_read`, `design_write`, `design_list`, and `design_delete`. Designs live at `~/.opencode-artifacts/<project>/designs/<topic>.md` — long-lived architectural memory, one file per topic, overwritten on write. Each tool accepts an optional `project` argument; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain as the artifacts plugin. Topic slugs are validated against `^[a-z0-9][a-z0-9-]{0,63}$` after whitespace/casing normalization. `design_delete` requires `confirm: true` on every call; scope follows the same pattern as `artifact_delete` but is confined to the `designs/` subdirectory (will not touch artifacts).
+- **No TTL prune** — designs are durable, not session-scoped. Pruning is manual via `design_delete` or `/cleanup-artifacts`.
+- **Update protocol** — agents updating an existing design must `design_read` first and preserve every prior "Decision log" entry verbatim, then append a new entry. The tool description repeats this rule so the constraint is visible even without reading `instructions/designs.md`.
 
 ### `plugins/block-secrets.ts` — BlockSecretsPlugin
 

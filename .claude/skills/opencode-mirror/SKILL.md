@@ -36,6 +36,8 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 
 **Plugins** — OC plugins (`opencode/plugins/*.ts`) have no CC counterpart because CC's plugin system is npm-package-based and unrelated. This is a deliberate asymmetry, not an omission.
 
+**OC-only instructions** — `opencode/instructions/designs.md` has no CC counterpart because it documents OC plugin tools (`design_read`, `design_write`, `design_list`, `design_delete`) that exist only on the OC side. Same asymmetry as plugins: if an OC instruction's entire purpose is to guide usage of OC-exclusive tooling (plugin tools or the `~/.opencode-artifacts/` convention), it has no CC equivalent and does not mirror.
+
 When a CC config change lands in a category that *is* mirrored (anything not in the list above), the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
 
 ### Not to be confused with `/sync-configs`
