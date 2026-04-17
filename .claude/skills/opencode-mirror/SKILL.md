@@ -79,7 +79,7 @@ When adding a new user-level rule, create a new file in `rules/`.
 OpenCode has no implicit primary agent equivalent to Claude Code's default behavior. The lead agent fills this role.
 
 **The split:**
-- `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.) and the file coalesces what used to live in `opencode/instructions/*.md`.
+- `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.).
 - `opencode/agents/lead.md` — workflow behavior and the subagent registry (which agents exist and when to invoke them). Only the primary agent reads this file, so the registry does not leak into subagent contexts.
 
 **When adding a new rule, decide:**
