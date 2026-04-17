@@ -7,6 +7,8 @@ allowed-tools: Read, Grep, Glob
 
 Invoke the planner agent to produce a structured implementation plan.
 
+Extra context: $ARGUMENTS
+
 ## Process
 
 1. Determine what is being built or changed from the user's request and current context

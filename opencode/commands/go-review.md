@@ -20,3 +20,5 @@ receiver types chosen based on struct size.
 
 Supplement with `go vet` and `staticcheck`. Report findings by severity with file, line, and
 specific improvement suggestions.
+
+$ARGUMENTS

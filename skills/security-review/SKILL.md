@@ -7,6 +7,8 @@ allowed-tools: Bash(git diff*), Bash(git log*), Bash(git status*), Bash(git grep
 
 Invoke the security-reviewer agent to analyze code for vulnerabilities.
 
+Extra context: $ARGUMENTS
+
 ## Process
 
 1. Determine the review target:

@@ -131,3 +131,5 @@ Omit the failures section if there were none.
 ## Notes
 
 - `opencode.jsonc` contains local permission customizations. Treat any change to the `permission` block as potentially significant and ask the user before applying it.
+
+$ARGUMENTS
