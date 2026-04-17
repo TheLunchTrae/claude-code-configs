@@ -92,8 +92,9 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `plugins/block-secrets.ts` | `plugins/block-secrets.ts` |
 | `plugins/designs.ts` | `plugins/designs.ts` |
 | `plugins/memory.ts` | `plugins/memory.ts` |
-| `package.json` | `package.json` |
 | `tsconfig.json` | `tsconfig.json` |
+
+`package.json` is intentionally excluded — OpenCode generates one automatically at runtime, so syncing the repo copy would clobber the user's install.
 
 After any change to the Plugins section, prompt the user to run `bun install` in the OpenCode config root so plugin dependencies (`@opencode-ai/plugin`, types) are resolved before the next session.
 
