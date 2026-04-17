@@ -64,7 +64,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Exposing the filesystem, process control, or arbitrary HTTP fetch as a tool
 - Rate-limiting or abuse-prevention logic against upstream services
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 

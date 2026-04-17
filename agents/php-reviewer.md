@@ -28,7 +28,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Hardcoded secrets** — API keys, passwords, tokens in source
 - **Insecure deserialization** — `unserialize()` on untrusted user data
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Silenced errors** — `@function_call()` suppressing errors

@@ -28,7 +28,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **PII in logs** — Logging sensitive data near authentication code
 - **Missing CSRF protection** — State-changing endpoints without `[ValidateAntiForgeryToken]`
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Empty catch blocks** — Swallowed exceptions with no logging or re-throw

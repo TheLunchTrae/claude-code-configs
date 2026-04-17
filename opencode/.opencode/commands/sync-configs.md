@@ -61,7 +61,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `commands/push.md` | `commands/push.md` |
 | `commands/plan.md` | `commands/plan.md` |
 | `commands/review.md` | `commands/review.md` |
-| `commands/security.md` | `commands/security.md` |
+| `commands/security-review.md` | `commands/security-review.md` |
 | `commands/summarize-branch.md` | `commands/summarize-branch.md` |
 | `commands/handoff.md` | `commands/handoff.md` |
 | `commands/catchup.md` | `commands/catchup.md` |
@@ -77,11 +77,10 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 ### Skills
 | Remote | Local |
 |--------|-------|
-| `skills/commit/SKILL.md` | `skills/commit/SKILL.md` |
-| `skills/commit-push/SKILL.md` | `skills/commit-push/SKILL.md` |
-| `skills/push/SKILL.md` | `skills/push/SKILL.md` |
+| `skills/plan/SKILL.md` | `skills/plan/SKILL.md` |
 | `skills/review/SKILL.md` | `skills/review/SKILL.md` |
 | `skills/review/template.md` | `skills/review/template.md` |
+| `skills/security-review/SKILL.md` | `skills/security-review/SKILL.md` |
 
 ### Plugins
 | Remote | Local |
