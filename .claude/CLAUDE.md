@@ -33,7 +33,7 @@ Create the target directory first with `mkdir -p` if it doesn't exist. When remo
 
 **What is intentionally NOT symlinked** (present in the repo for distribution, excluded from the active `.claude/` surface):
 
-- **Agents** — all language reviewers (`python-reviewer`, `typescript-reviewer`, etc.), `code-reviewer`, `code-simplifier`, `refactor-cleaner`, `doc-updater`. Only `architect`, `planner`, and `security-reviewer` are symlinked.
+- **Agents** — all language reviewers (`python-reviewer`, `typescript-reviewer`, etc.), `code-simplifier`, `refactor-cleaner`, `doc-updater`. Only `architect`, `code-reviewer`, `planner`, and `security-reviewer` are symlinked.
 - **Rules** — `coding-style`, `development-workflow`, `patterns`, `performance`, `testing`. Only `accuracy`, `code-review`, `general`, and `security` are symlinked (plus the real `config-sync.md` that lives directly in `.claude/rules/`).
 
 When adding something new, decide whether it is useful when working inside this repo and follow the same pattern.
