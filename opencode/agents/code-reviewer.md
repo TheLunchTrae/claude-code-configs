@@ -1,5 +1,4 @@
 ---
-name: code-reviewer
 description: Expert code review specialist. Proactively reviews code for quality, security, and maintainability. Use immediately after writing or modifying code.
 tools: ["Read", "Grep", "Glob", "Bash"]
 ---
