@@ -36,7 +36,7 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 
 **Plugins** — OC plugins (`opencode/plugins/*.ts`) have no CC counterpart because CC's plugin system is npm-package-based and unrelated. This is a deliberate asymmetry, not an omission.
 
-**Plugin-specific guidance lives in plugin tool descriptions, not AGENTS.md** — the `designs` and `memory` plugins (`opencode/plugins/designs.ts`, `opencode/plugins/memory.ts`) carry their when-to-write / when-not-to-write rules, the designs template, and the update protocol inside the `design_write` and `memory_write` tool descriptions. There is no corresponding section in `opencode/AGENTS.md` for these, and no CC-side rule to mirror — the model picks up the guidance from the tool schema at call time.
+**Plugin-specific guidance lives in plugin tool descriptions, not AGENTS.md** — the `memory` plugin (`opencode/plugins/memory.ts`) carries its when-to-write / when-not-to-write rules inside the `memory_write` tool description. There is no corresponding section in `opencode/AGENTS.md`, and no CC-side rule to mirror — the model picks up the guidance from the tool schema at call time.
 
 When a CC config change lands in a category that *is* mirrored (anything not in the list above), the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
 
@@ -79,7 +79,7 @@ When adding a new user-level rule, create a new file in `rules/`.
 OpenCode has no implicit primary agent equivalent to Claude Code's default behavior. The lead agent fills this role.
 
 **The split:**
-- `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.) and the file coalesces what used to live in `opencode/instructions/*.md`.
+- `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.).
 - `opencode/agents/lead.md` — workflow behavior and the subagent registry (which agents exist and when to invoke them). Only the primary agent reads this file, so the registry does not leak into subagent contexts.
 
 **When adding a new rule, decide:**

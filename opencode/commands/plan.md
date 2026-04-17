@@ -10,6 +10,4 @@ Restate the requirements clearly, identify risks and dependencies, then produce 
 with explicit file paths and step-by-step actions. Do not write any code — output the plan only.
 Wait for user confirmation before implementation begins.
 
-If the plan captures non-obvious architectural tradeoffs or a multi-phase approach that future sessions may need to resume, ask the user once — after the plan is presented, before implementation — whether to persist it via `/design <topic-slug>`. Do not persist automatically; only on explicit confirmation.
-
 $ARGUMENTS
