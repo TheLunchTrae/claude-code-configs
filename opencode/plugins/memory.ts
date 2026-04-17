@@ -211,8 +211,28 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
       }),
 
       memory_write: tool({
-        description:
-          "Write/overwrite a memory entry. `note` must be a single short sentence — state the fact directly, no prose. Supply `trigger` for instinct-style rules (activated by a condition); omit for plain facts. For multi-paragraph rationale use design_write.",
+        description: `Write/overwrite a durable per-project memory entry — one YAML file at ~/.opencode-artifacts/<project>/memory/<slug>.yaml.
+
+Memory captures facts and instinct-style behavioral rules so future sessions recall them without rediscovery. It is the terse counterpart to designs: designs are multi-paragraph architectural records with history; memory is one-sentence facts with metadata.
+
+Entry shape:
+- note (required): one short sentence, aim ≤120 chars, hard cap 240. State the fact directly, no prose, no "the user said…" framing.
+- domain (optional): category tag ('git', 'style', 'testing', 'repo-conventions').
+- trigger (optional): condition that activates the entry ('when committing'). Presence promotes it to an **instinct** (situational behavioral rule).
+- confidence (optional): 0-1.
+- source (optional): 'user-told', 'observed', 'repo-curation'.
+
+Write when:
+- The user states a preference the current session won't remember next time.
+- A repo convention surfaces that isn't in any rule file and would slow a future session to rediscover.
+- A conditional behavioral rule fits a clear trigger (= instinct).
+
+Do NOT write for:
+- Session context — use /handoff (ephemeral).
+- Architectural decisions with rationale or alternatives — use design_write (durable but verbose).
+- One-off observations whose cost exceeds the value of remembering.
+
+Instinct vs plain memory is purely the presence of \`trigger\`. Both shapes share the same directory and tools.`,
         args: {
           slug: tool.schema
             .string()
@@ -267,7 +287,7 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
 
       memory_list: tool({
         description:
-          "List memory entries: slug | domain | trigger | note (truncated at 60 chars). Call at task start to surface relevant facts and instincts. Filter by `domain` to narrow output.",
+          "List memory entries: slug | domain | trigger | note (truncated at 60 chars). Call at task start to surface relevant facts and instincts for the current project — filter by `domain` when the category is known. Use memory_read only when the truncated preview is insufficient.",
         args: {
           domain: tool.schema
             .string()

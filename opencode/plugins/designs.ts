@@ -143,8 +143,54 @@ export const DesignsPlugin: Plugin = async ({ $, directory }) => {
       }),
 
       design_write: tool({
-        description:
-          "Write/overwrite a design record. CRITICAL on updates: design_read first, preserve every prior 'Decision log' entry verbatim, then append a new entry — never truncate the log (it is the only history). See instructions/designs.md for the template.",
+        description: `Write/overwrite a design record — long-lived per-project architectural memory at ~/.opencode-artifacts/<project>/designs/<topic>.md.
+
+Designs capture non-obvious architectural decisions and complex implementation plans so future sessions recover *why* choices were made, not just *what* exists. They are the durable counterpart to /handoff: handoffs are ephemeral session context, designs are permanent record.
+
+Write when:
+- An architectural decision has non-obvious tradeoffs (storage layout, protocol choice, DI strategy).
+- A complex multi-phase implementation plan that future sessions may resume.
+- A rejected alternative worth remembering so future sessions don't re-propose it.
+- A pattern you established that other code is expected to follow.
+
+Do NOT write for:
+- Routine code changes or bug fixes whose rationale is obvious from the diff.
+- Session-level context (use /handoff instead).
+- One-off TODOs or scratch notes.
+
+Required template — every design file must follow this structure:
+
+  # <Topic Title>
+
+  _Last updated: <YYYY-MM-DD>_
+
+  ## Context
+  Why this decision was needed. What problem it solves.
+
+  ## Decision
+  The current chosen approach — one or two paragraphs.
+
+  ## Alternatives considered
+  - **<Option A>** — why rejected.
+  - **<Option B>** — why rejected.
+
+  ## Consequences
+  Tradeoffs accepted. What becomes harder. What becomes easier.
+
+  ## Decision log
+  Chronological record of how the decision evolved. APPEND on every update — never overwrite or remove entries.
+
+  - **<YYYY-MM-DD>** — initial decision: <summary>. Rationale: <...>.
+  - **<YYYY-MM-DD>** — revised to <new decision>. Reason for change: <...>. Prior decision preserved above.
+
+Update protocol (file is OVERWRITTEN on every write, so history only survives if you preserve it):
+1. design_read the existing file first.
+2. Keep every prior Decision log entry intact, verbatim.
+3. Append a new Decision log entry describing what changed and why.
+4. Update Context, Decision, Alternatives considered, and Consequences to reflect the current state.
+5. design_write the full merged document.
+
+Never truncate the Decision log. It is the only history — there are no timestamped backups.`,
         args: {
           topic: tool.schema
             .string()
@@ -170,7 +216,7 @@ export const DesignsPlugin: Plugin = async ({ $, directory }) => {
 
       design_list: tool({
         description:
-          "List designs (topic | size | date). Call at the start of planning or architectural work to surface prior decisions.",
+          "List designs (topic | size | date). Call at the start of planning or architectural work to surface prior decisions; if any listed topic is clearly relevant, design_read it before proposing new direction — prior rationale often constrains or informs new work.",
         args: {
           project: tool.schema
             .string()
