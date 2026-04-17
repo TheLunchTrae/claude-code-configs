@@ -20,7 +20,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `instructions/accuracy.md` | `instructions/accuracy.md` |
 | `instructions/code-review.md` | `instructions/code-review.md` |
 | `instructions/coding-style.md` | `instructions/coding-style.md` |
-| `instructions/development-workflow.md` | `instructions/development-workflow.md` |
+| `instructions/agents.md` | `instructions/agents.md` |
 | `instructions/testing.md` | `instructions/testing.md` |
 | `instructions/patterns.md` | `instructions/patterns.md` |
 | `instructions/performance.md` | `instructions/performance.md` |

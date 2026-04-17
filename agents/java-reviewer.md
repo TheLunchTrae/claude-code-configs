@@ -1,6 +1,6 @@
 ---
 name: java-reviewer
-description: Senior Java and Spring Boot code reviewer. Reviews for security, layered architecture, JPA patterns, and concurrency. Use for all Java code changes. MUST BE USED for Spring Boot projects.
+description: Senior Java and Spring Boot code reviewer. Reviews for security, layered architecture, JPA patterns, and concurrency. Use for any Java change, especially Spring Boot projects.
 tools: ["Read", "Grep", "Glob", "Bash"]
 ---
 
