@@ -1,6 +1,5 @@
 ---
 description: Simplifies and refines code for clarity, consistency, and maintainability while preserving behavior. Use for tightening recently modified code — extracting nested logic, removing dead code, flattening callback chains, consolidating duplicated blocks.
-tools: [Read, Write, Edit, Bash, Grep, Glob]
 ---
 
 # Code Simplifier Agent

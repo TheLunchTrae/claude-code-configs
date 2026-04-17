@@ -12,6 +12,59 @@ This directory contains OpenCode-specific configuration. It is not a Claude Code
 
 Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-mirror mapping reflects that — no hook entries exist. Do not add any.
 
+# Frontmatter schema for agents, commands, and skills
+
+Every file under `opencode/agents/`, `opencode/commands/`, and `opencode/skills/*/SKILL.md` has YAML frontmatter. Only the keys listed below are recognised by OpenCode — unknown keys are silently ignored, so unrecognised keys are not a runtime error but they signal configuration drift (usually leftover Claude Code keys from a lazy port). Authoritative source: <https://opencode.ai/docs/agents/>, <https://opencode.ai/docs/commands/>, <https://opencode.ai/docs/skills/>.
+
+## Agents (`opencode/agents/*.md`)
+
+| Key | Required | Notes |
+|-----|----------|-------|
+| `description` | yes | Trigger phrase used for agent discovery. |
+| `mode` | no | `primary` / `subagent` / `all` (default `all`). |
+| `model` | no | Override default LLM for this agent. |
+| `temperature` | no | 0.0–1.0. |
+| `top_p` | no | Alternative randomness control. |
+| `steps` | no | Max agentic iterations. |
+| `prompt` | no | Path to custom system prompt file. |
+| `permission` | no | Nested map with `edit` / `bash` / `webfetch` / `task` keys set to `allow` / `ask` / `deny`. Overrides the global block in `opencode.jsonc`. |
+| `color` | no | Hex (`"#8AF793"`) or theme colour name. |
+| `disable` | no | `true` to disable without deleting. |
+| `hidden` | no | `true` to hide from `@` autocomplete. |
+
+## Commands (`opencode/commands/*.md`)
+
+| Key | Required | Notes |
+|-----|----------|-------|
+| `description` | yes | Shown in TUI. |
+| `agent` | no | Name of the delegating agent (must match a file in `opencode/agents/`). |
+| `subtask` | no | `true` forces subagent invocation even when `agent` is `mode: primary`. |
+| `model` | no | Override default LLM for this command. |
+
+## Skills (`opencode/skills/<name>/SKILL.md`)
+
+| Key | Required | Notes |
+|-----|----------|-------|
+| `name` | yes | Must match the containing directory name. |
+| `description` | yes | Skill purpose. |
+| `license`, `compatibility`, `metadata` | no | Rarely used; see docs. |
+
+## Claude Code-only keys — strip when porting
+
+These keys exist on the CC side and are **not** valid OpenCode frontmatter. They must be removed (or translated) when porting an agent / command / skill from `agents/` / `skills/` to `opencode/`:
+
+- `tools:` on agents — deprecated in OpenCode. Translate to a `permission` block when the CC side restricts tools (e.g. a CC agent with `tools: ["Read", "Grep", "Glob"]` maps to `permission: { edit: deny, bash: deny }` on the OC side). Drop entirely when the CC side grants full access.
+- `agent:`, `context:`, `allowed-tools:` on skills — CC skill-invocation keys with no OC skill analog. The OC equivalents live on the command wrapper (`agent:` + `subtask: true`), not on the skill.
+- `disable-model-invocation:` on skills — CC-only. Pure-automation skills port to an OC command instead of an OC skill.
+
+## Pre-commit checklist
+
+Before committing any change to `opencode/agents/`, `opencode/commands/`, or `opencode/skills/`:
+
+1. Open the file and confirm the frontmatter contains only keys from the tables above.
+2. Confirm `tools:` is not present on any agent. `rg '^tools:' opencode/agents/` must return nothing.
+3. If a `permission:` block is added or modified, confirm it sits inside the `---` frontmatter fence and is indented with two spaces for nested keys.
+
 # OpenCode-exclusive commands
 
 Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They exist only in OpenCode because they rely on patterns or conventions (like `~/.opencode-artifacts/`) that belong to OpenCode sessions.

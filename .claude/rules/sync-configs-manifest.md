@@ -22,12 +22,12 @@ The manifest must include **every file under `opencode/`** that OpenCode reads a
 | Instructions | `opencode/instructions/` | every `*.md` |
 | Agents | `opencode/agents/` | every `*.md` — meta agents, reviewers, language developers, framework developers, specialists |
 | Commands | `opencode/commands/` + `opencode/.opencode/commands/` | every `*.md` (including `sync-configs.md` itself) |
-| Manifest | `opencode/.opencode/` | `sync-configs-manifest.md` — the manifest must list itself so local copies refresh on every run |
 | Skills | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
 | Plugins | `opencode/plugins/` + root | every `plugins/*.ts` plus `tsconfig.json` |
 
 ## Excluded by design
 
+- `opencode/.opencode/sync-configs-manifest.md` — the manifest itself. `/sync-configs` always fetches the manifest directly from upstream before reading any entries, so listing it in the manifest would be redundant; the local copy is never consulted.
 - `opencode/.claude/CLAUDE.md` — read only by Claude Code agents working inside this config repo, not part of a user-level OpenCode install.
 - `opencode/package.json` — OpenCode generates one automatically at runtime on a user's install, so syncing the repo copy would clobber it. The committed file stays in the repo only so contributors can run `bun install` locally for plugin-authoring IDE support.
 - Build artifacts and lockfiles under `opencode/`.
