@@ -61,7 +61,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - `Process.Start` with user-influenced arguments
 - Deserializing untrusted data (`BinaryFormatter`, unsafe `TypeNameHandling` in JSON.NET)
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 

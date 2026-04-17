@@ -31,7 +31,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Format string vulnerabilities** — User-controlled format string in `printf`-family calls
 - **Hardcoded secrets** — API keys, passwords in source
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### HIGH — Concurrency
 - **Data races** — Shared mutable state accessed from multiple threads without synchronization

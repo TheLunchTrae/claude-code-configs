@@ -29,7 +29,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Prototype pollution** — Unsafe object merges from user input
 - **Unsafe `child_process`** — User-controlled input in shell commands
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### HIGH — Type Safety
 - **Excessive `any`** — `any` casts that bypass type checking without justification

@@ -60,7 +60,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Deserializing untrusted data (`ObjectInputStream`, unsafe Jackson polymorphic types)
 - Reflection or `setAccessible(true)` against non-project classes
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 

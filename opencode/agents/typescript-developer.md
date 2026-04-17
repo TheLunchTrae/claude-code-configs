@@ -64,7 +64,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Constructing SQL / shell commands / file paths from untrusted input
 - `eval` / `new Function` / dynamic `require` on non-constant input
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 

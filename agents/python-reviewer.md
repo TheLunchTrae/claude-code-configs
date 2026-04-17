@@ -26,7 +26,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Unsafe deserialization** — `pickle.loads()` on untrusted data
 - **Hardcoded secrets** — API keys, tokens, passwords in source code
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Bare `except`** — `except:` or `except Exception:` without logging or re-raising

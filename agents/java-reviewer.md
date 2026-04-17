@@ -27,7 +27,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Missing `@Valid`** — Raw `@RequestBody` without Bean Validation
 - **CSRF disabled without justification** — Stateless JWT APIs may disable it but must document why
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Swallowed exceptions** — Empty catch blocks

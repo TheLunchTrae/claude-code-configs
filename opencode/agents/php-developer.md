@@ -64,7 +64,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - File uploads, `unserialize()` on untrusted data, or `include`/`require` with dynamic paths
 - Outputting user-controlled data into HTML, JS, or headers without framework-native escaping
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 

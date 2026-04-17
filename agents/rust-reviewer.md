@@ -26,7 +26,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Hardcoded secrets** — API keys, tokens, passwords in source
 - **Unsafe pointer manipulation** — Raw pointer arithmetic without clear safety invariants
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Suppressed errors** — `let _ = result_that_could_fail;`

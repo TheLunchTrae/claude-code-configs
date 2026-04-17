@@ -27,7 +27,7 @@ You DO NOT refactor or rewrite code — you report findings only.
 - **Hardcoded credentials** — API keys, tokens, passwords in source
 - **Insecure TLS** — `InsecureSkipVerify: true`
 
-If any CRITICAL security issue is found, stop and escalate to `security-reviewer`.
+If any CRITICAL security issue is found, stop and escalate to a security specialist.
 
 ### CRITICAL — Error Handling
 - **Swallowed errors** — `err` returned but not checked

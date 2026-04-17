@@ -70,7 +70,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Exposing `GITHUB_TOKEN` or any `secrets.*` value to a third-party action not pinned by SHA
 - Approving-on-behalf-of-users patterns (`gh pr review --approve`) from a bot account
 
-For these, defer to `security-reviewer` before committing the workflow.
+For these, defer to a security review before committing the workflow.
 
 ## Delivery Standard
 

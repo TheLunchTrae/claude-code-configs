@@ -62,7 +62,7 @@ Send the implementation to the **code-reviewer** subagent. If issues are raised,
 
 ## Available subagents
 
-When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently. Language-specific reviewers escalate CRITICAL findings to the `security-reviewer` on their own.
+When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently. When a language-specific reviewer surfaces a CRITICAL security finding, invoke `security-reviewer` next for a focused vulnerability pass before merging.
 
 | Agent | Purpose | When to invoke |
 |-------|---------|----------------|

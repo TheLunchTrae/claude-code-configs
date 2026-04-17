@@ -74,7 +74,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Self-hosted runners without `tags:` isolation between trust levels
 - Storing long-lived cloud credentials in masked variables when `id_tokens:` OIDC is available
 
-For these, defer to `security-reviewer` before committing the pipeline.
+For these, defer to a security review before committing the pipeline.
 
 ## Delivery Standard
 

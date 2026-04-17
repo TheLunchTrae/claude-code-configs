@@ -61,7 +61,7 @@ Stop and flag to the user (do not silently implement) if the task requires:
 - Writing or extending code that relies on UB, type punning, or manual memory layout
 - Parsing untrusted input formats without a bounded parser
 
-For these, defer to `security-reviewer` before committing code.
+For these, defer to a security review before committing code.
 
 ## Delivery Standard
 
