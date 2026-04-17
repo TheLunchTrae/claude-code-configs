@@ -24,7 +24,6 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `instructions/testing.md` | `instructions/testing.md` |
 | `instructions/patterns.md` | `instructions/patterns.md` |
 | `instructions/designs.md` | `instructions/designs.md` |
-| `instructions/performance.md` | `instructions/performance.md` |
 
 ### Agents
 | Remote | Local |
