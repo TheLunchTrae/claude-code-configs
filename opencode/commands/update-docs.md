@@ -18,3 +18,5 @@ Scope:
 Standards: keep content current and accurate; use plain language; include working
 examples; handle edge cases. Documentation should be updated alongside code, not
 as an afterthought.
+
+$ARGUMENTS

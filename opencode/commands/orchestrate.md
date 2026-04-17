@@ -19,3 +19,5 @@ maintain clear boundaries with single ownership per artifact.
 
 Simple tasks should use a single agent directly. Reserve orchestration for genuinely
 complex, multi-domain work.
+
+$ARGUMENTS
