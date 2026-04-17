@@ -26,6 +26,9 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 - `.claude/rules/frontmatter-description.md`
 - `.claude/rules/sync-configs-manifest.md`
 
+**Rules** (`rules/*.md` that are CC-only — behavior described has no OpenCode analog):
+- `rules/git-claude-code.md` — Claude Code's session-link commit trailer; OpenCode does not emit this.
+
 **Skills** (CC-side skills with no `opencode/skills/` or `opencode/commands/` counterpart):
 - `.claude/skills/opencode-mirror/` — this skill itself. It exists to support authoring inside this repo; an OC session on a downstream install has no use for it.
 
