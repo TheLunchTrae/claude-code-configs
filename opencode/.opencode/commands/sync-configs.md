@@ -24,6 +24,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `instructions/testing.md` | `instructions/testing.md` |
 | `instructions/patterns.md` | `instructions/patterns.md` |
 | `instructions/designs.md` | `instructions/designs.md` |
+| `instructions/memory.md` | `instructions/memory.md` |
 
 ### Agents
 | Remote | Local |
@@ -89,6 +90,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 | `plugins/artifacts.ts` | `plugins/artifacts.ts` |
 | `plugins/block-secrets.ts` | `plugins/block-secrets.ts` |
 | `plugins/designs.ts` | `plugins/designs.ts` |
+| `plugins/memory.ts` | `plugins/memory.ts` |
 | `tsconfig.json` | `tsconfig.json` |
 
 `package.json` is intentionally excluded — OpenCode generates one automatically at runtime, so syncing the repo copy would clobber the user's install.

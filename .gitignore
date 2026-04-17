@@ -22,6 +22,10 @@ tasks/
 # Node module installs (e.g. opencode/ runs `bun install` for authored TS plugins)
 node_modules/
 
+# Bun lockfile for the opencode/ plugin workspace — local-install-only, not a
+# shipped package. See rules/security.md for the carve-out.
+opencode/bun.lock
+
 # MCP auth cache
 mcp-needs-auth-cache.json
 
