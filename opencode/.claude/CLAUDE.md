@@ -48,7 +48,7 @@ OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention t
 
 ### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
-Fetches each file in a manifest from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/`, compares to the local copy under `~/.claude/`, and merges changes (prefer remote, preserve clear local-only customizations, ask user when intent is ambiguous or diffs are large). Reports updated, unchanged, and failed files.
+Fetches the manifest at `opencode/.opencode/sync-configs-manifest.md` from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` on every run (the local manifest is never consulted). If the manifest fetch fails, the command aborts immediately and touches no local files. Otherwise, for each path in the manifest, fetches the remote copy, compares it to the local copy under `~/.claude/`, and merges changes (prefer remote, preserve clear local-only customizations, ask user when intent is ambiguous or diffs are large). Reports updated, unchanged, and failed files.
 
 OpenCode-exclusive because: it writes directly to `~/.claude/` config files and is designed for syncing the global OpenCode config setup, not for use within individual projects.
 
@@ -116,5 +116,5 @@ Verify hook signatures and the return shape against the source before adding a n
 
 1. Create the TS file under `opencode/plugins/`.
 2. If it needs a new npm dep, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
-3. Add the plugin to the `## Registry` above and to the `### Plugins` section of `opencode/.opencode/commands/sync-configs.md` so it propagates on `/sync-configs`.
+3. Add the plugin to the `## Registry` above and to the `## Plugins` section of `opencode/.opencode/sync-configs-manifest.md` so it propagates on `/sync-configs`.
 4. No change to `opencode.jsonc` is needed — plugins are auto-discovered from `plugins/`.

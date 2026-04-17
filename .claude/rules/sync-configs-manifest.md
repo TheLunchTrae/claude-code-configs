@@ -1,16 +1,16 @@
 # Sync-configs Manifest
 
-This rule governs `opencode/.opencode/commands/sync-configs.md` — the **OC distribution command** `/sync-configs`, which webfetches OC configs from GitHub into a downstream install (for environments where cloning the repo isn't an option). It is **not** the same as the CC-side `/opencode-mirror` skill, which is a selective within-repo mirror used while authoring configs; see `.claude/skills/opencode-mirror/SKILL.md` for the hardcoded CC↔OC exclusion list. `/sync-configs` must list every OC file verbatim so nothing is missed on fetch.
+This rule governs `opencode/.opencode/sync-configs-manifest.md` — the manifest used by the **OC distribution command** `/sync-configs`, which webfetches OC configs from GitHub into a downstream install (for environments where cloning the repo isn't an option). It is **not** the same as the CC-side `/opencode-mirror` skill, which is a selective within-repo mirror used while authoring configs; see `.claude/skills/opencode-mirror/SKILL.md` for the hardcoded CC↔OC exclusion list. `/sync-configs` always fetches this manifest from upstream before syncing, so the manifest must list every OC file verbatim — anything missing won't reach the user.
 
-`opencode/.opencode/commands/sync-configs.md` lists every file the `/sync-configs` command propagates from this repo to a user's local OpenCode install. The manifest must mirror the current OC file tree — newly added files won't ship without an entry, and removed files cause 404s during sync.
+`opencode/.opencode/sync-configs-manifest.md` is a pure list of paths under `opencode/`. The command file (`opencode/.opencode/commands/sync-configs.md`) contains only the sync procedure and references this manifest. The manifest must mirror the current OC file tree — newly added files won't ship without an entry, and removed files cause 404s during sync.
 
 ## When to update
 
 Update the manifest in the **same commit** as any of these changes to `opencode/`:
 
-- **Add** — a new file in a tracked location creates an entry under the corresponding section.
+- **Add** — a new file in a tracked location creates a bullet under the corresponding section.
 - **Remove** — a deleted file's entry must be removed in the same commit.
-- **Rename / move** — change the entry's `Remote` and `Local` paths to match the new location.
+- **Rename / move** — change the bullet's path to match the new location.
 
 ## Scope
 
@@ -22,6 +22,7 @@ The manifest must include **every file under `opencode/`** that OpenCode reads a
 | Instructions | `opencode/instructions/` | every `*.md` |
 | Agents | `opencode/agents/` | every `*.md` — meta agents, reviewers, language developers, framework developers, specialists |
 | Commands | `opencode/commands/` + `opencode/.opencode/commands/` | every `*.md` (including `sync-configs.md` itself) |
+| Manifest | `opencode/.opencode/` | `sync-configs-manifest.md` — the manifest must list itself so local copies refresh on every run |
 | Skills | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
 | Plugins | `opencode/plugins/` + root | every `plugins/*.ts` plus `tsconfig.json` |
 
