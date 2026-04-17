@@ -77,10 +77,7 @@ Remote paths below are relative to the `opencode/` directory in the repo; local 
 ### Skills
 | Remote | Local |
 |--------|-------|
-| `skills/commit/SKILL.md` | `skills/commit/SKILL.md` |
-| `skills/commit-push/SKILL.md` | `skills/commit-push/SKILL.md` |
 | `skills/plan/SKILL.md` | `skills/plan/SKILL.md` |
-| `skills/push/SKILL.md` | `skills/push/SKILL.md` |
 | `skills/review/SKILL.md` | `skills/review/SKILL.md` |
 | `skills/review/template.md` | `skills/review/template.md` |
 | `skills/security-review/SKILL.md` | `skills/security-review/SKILL.md` |
