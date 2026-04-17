@@ -79,5 +79,3 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - plugins/designs.ts
 - plugins/memory.ts
 - tsconfig.json
-
-`package.json` is intentionally excluded — OpenCode generates one automatically at runtime, so syncing the repo copy would clobber the user's install.
