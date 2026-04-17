@@ -119,15 +119,15 @@ export const DesignsPlugin: Plugin = async ({ $, directory }) => {
     tool: {
       design_read: tool({
         description:
-          "Read a design record for this (or another) project. Returns the design contents, or a not-found message. Designs live at ~/.opencode-artifacts/<project>/designs/<topic>.md and capture architectural decisions with in-file 'Decision log' history.",
+          "Read a design record (raw markdown). Returns file contents or a not-found message. Designs are durable architectural memory with an in-file Decision log.",
         args: {
           topic: tool.schema
             .string()
-            .describe("Kebab-case topic slug (e.g. 'auth-flow'). Normalized: spaces become hyphens and casing is lowered before validation."),
+            .describe("Kebab-case topic slug (e.g. 'auth-flow'). Spaces → hyphens, lowercased before validation."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
         },
         async execute(args) {
           const v = validateTopic(args.topic)
@@ -135,27 +135,27 @@ export const DesignsPlugin: Plugin = async ({ $, directory }) => {
           const project = args.project ?? (await resolveProject())
           const path = designPathFor(project, v.topic)
           if (!existsSync(path)) {
-            return `No design found at ${path}.`
+            return `No design at ${path}.`
           }
           const content = await readFile(path, "utf8")
-          return `Design ${project}/designs/${v.topic}.md:\n\n${content}`
+          return `${project}/designs/${v.topic}.md:\n${content}`
         },
       }),
 
       design_write: tool({
         description:
-          "Write or update an architectural design record, overwriting any previous content. Designs are long-lived architectural memory (no TTL). CRITICAL: when updating an existing design, you MUST first design_read it and preserve every prior 'Decision log' entry verbatim, then APPEND a new entry describing what changed and why. Never truncate the Decision log — it is the only history. See instructions/designs.md for the full template.",
+          "Write/overwrite a design record. CRITICAL on updates: design_read first, preserve every prior 'Decision log' entry verbatim, then append a new entry — never truncate the log (it is the only history). See instructions/designs.md for the template.",
         args: {
           topic: tool.schema
             .string()
-            .describe("Kebab-case topic slug (e.g. 'auth-flow'). Normalized: spaces become hyphens and casing is lowered before validation."),
+            .describe("Kebab-case topic slug. Spaces → hyphens, lowercased before validation."),
           content: tool.schema
             .string()
-            .describe("Full design document (markdown). Must include a 'Decision log' section that preserves rationale across updates."),
+            .describe("Full design document (markdown). Must include a 'Decision log' section."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const v = validateTopic(args.topic)
@@ -170,45 +170,45 @@ export const DesignsPlugin: Plugin = async ({ $, directory }) => {
 
       design_list: tool({
         description:
-          "List design records for this (or another) project. Returns each design's topic slug, size, and modification time. Call this at the start of planning or architectural tasks to surface prior decisions.",
+          "List designs (topic | size | date). Call at the start of planning or architectural work to surface prior decisions.",
         args: {
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const project = args.project ?? (await resolveProject())
           const dir = designsDirFor(project)
           if (!existsSync(dir)) {
-            return `No designs directory for project '${project}' (would be at ${dir}).`
+            return `No designs for '${project}'.`
           }
           const entries = await readdir(dir)
           const md = entries.filter((e) => e.endsWith(".md"))
           if (md.length === 0) {
-            return `No designs for project '${project}'.`
+            return `No designs for '${project}'.`
           }
           const rows = await Promise.all(
             md.map(async (name) => {
               const s = await stat(join(dir, name))
-              return `- ${name.replace(/\.md$/, "")}  (${s.size}B, modified ${s.mtime.toISOString()})`
+              return `- ${name.replace(/\.md$/, "")} ${s.size}B ${s.mtime.toISOString().slice(0, 10)}`
             }),
           )
-          return `Designs for '${project}':\n${rows.join("\n")}`
+          return `Designs (${project}):\n${rows.join("\n")}`
         },
       }),
 
       design_delete: tool({
         description:
-          "Delete design records. Scoped to the designs/ subdirectory only — will NOT touch artifacts. Scope is determined by which arguments are provided: both `topic` and `project` deletes one file; `project` alone deletes every design for that project; `topic` alone deletes that topic across every project; neither deletes every design under ~/.opencode-artifacts/*/designs/. `confirm: true` is required for every invocation. Returns a summary of deleted and skipped paths.",
+          "Delete design records. Scoped to designs/ only — will NOT touch artifacts. Scope by args: `topic`+`project` → one file; `project` only → all designs in that project; `topic` only → that topic across every project; neither → wipe all designs. `confirm: true` required. Returns deleted/skipped paths.",
         args: {
           confirm: tool.schema
             .literal(true)
-            .describe("Must be set to true. Required guardrail — operator must explicitly opt in to deletion."),
+            .describe("Must be true. Guardrail."),
           topic: tool.schema
             .string()
             .optional()
-            .describe("Topic slug (file stem). Omit to scope by project or wipe everything."),
+            .describe("Topic slug (file stem). Omit to scope by project or wipe all."),
           project: tool.schema
             .string()
             .optional()

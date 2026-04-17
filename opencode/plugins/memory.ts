@@ -187,15 +187,15 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
     tool: {
       memory_read: tool({
         description:
-          "Read a single memory entry (raw YAML). Returns the file contents verbatim or a not-found message. Memory lives at ~/.opencode-artifacts/<project>/memory/<slug>.yaml and holds a one-sentence `note` plus optional `domain`, `trigger`, `confidence`, `source`.",
+          "Read a single memory entry (raw YAML). Returns file contents or a not-found message.",
         args: {
           slug: tool.schema
             .string()
-            .describe("Kebab-case slug (file stem). Normalized before validation (spaces → hyphens, lowercased)."),
+            .describe("Kebab-case slug (file stem). Spaces → hyphens, lowercased before validation."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
         },
         async execute(args) {
           const v = validateSlug(args.slug)
@@ -203,34 +203,34 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
           const project = args.project ?? (await resolveProject())
           const path = memoryPathFor(project, v.slug)
           if (!existsSync(path)) {
-            return `No memory found at ${path}.`
+            return `No memory at ${path}.`
           }
           const content = await readFile(path, "utf8")
-          return `Memory ${project}/memory/${v.slug}.yaml:\n\n${content}`
+          return `${project}/memory/${v.slug}.yaml:\n${content}`
         },
       }),
 
       memory_write: tool({
         description:
-          "Write or overwrite a memory entry for this (or another) project. Entries must be a single short sentence — state the fact or rule directly, no prose, no context, no explanation. Verbose entries cost tokens on every session that lists memory. Supply `trigger` for instinct-style behavioral rules (activated in a specific situation); omit `trigger` for plain facts and preferences. For rationale, alternatives, or multi-paragraph decisions, use design_write instead.",
+          "Write/overwrite a memory entry. `note` must be a single short sentence — state the fact directly, no prose. Supply `trigger` for instinct-style rules (activated by a condition); omit for plain facts. For multi-paragraph rationale use design_write.",
         args: {
           slug: tool.schema
             .string()
-            .describe("Kebab-case slug (file stem, e.g. 'conventional-commits'). Normalized before validation."),
+            .describe("Kebab-case slug (e.g. 'conventional-commits')."),
           note: tool.schema
             .string()
             .max(240)
-            .describe("The memory itself. One short sentence, aim for ≤120 characters. Hard cap 240."),
+            .describe("The memory. One short sentence, aim ≤120 chars. Hard cap 240."),
           domain: tool.schema
             .string()
             .max(40)
             .optional()
-            .describe("Category tag (e.g. 'git', 'style', 'testing'). Used to filter memory_list."),
+            .describe("Category tag (e.g. 'git', 'style'). Filters memory_list."),
           trigger: tool.schema
             .string()
             .max(120)
             .optional()
-            .describe("Natural-language condition that activates this entry (e.g. 'when committing'). Presence makes this an instinct rather than a plain memory."),
+            .describe("Condition that activates this entry (e.g. 'when committing'). Presence makes it an instinct."),
           confidence: tool.schema
             .number()
             .min(0)
@@ -241,11 +241,11 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
             .string()
             .max(40)
             .optional()
-            .describe("Where this came from: 'user-told', 'observed', 'repo-curation'."),
+            .describe("Origin tag: 'user-told', 'observed', 'repo-curation'."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const v = validateSlug(args.slug)
@@ -267,7 +267,7 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
 
       memory_list: tool({
         description:
-          "List memory entries for this (or another) project as a compact table: slug | domain | trigger | note-preview. Call at the start of a task to surface relevant facts and instincts. Filter by `domain` to keep output tight when a project has many entries. Notes are truncated at 60 characters — use memory_read for the full entry when needed.",
+          "List memory entries: slug | domain | trigger | note (truncated at 60 chars). Call at task start to surface relevant facts and instincts. Filter by `domain` to narrow output.",
         args: {
           domain: tool.schema
             .string()
@@ -276,18 +276,18 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to the current project."),
+            .describe("Project name. Defaults to current."),
         },
         async execute(args) {
           const project = args.project ?? (await resolveProject())
           const dir = memoryDirFor(project)
           if (!existsSync(dir)) {
-            return `No memory directory for project '${project}' (would be at ${dir}).`
+            return `No memory for '${project}'.`
           }
           const entries = await readdir(dir)
           const yamls = entries.filter((e) => e.endsWith(".yaml"))
           if (yamls.length === 0) {
-            return `No memory entries for project '${project}'.`
+            return `No memory for '${project}'.`
           }
           const rows = await Promise.all(
             yamls.map(async (name) => {
@@ -305,31 +305,31 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
             ? rows.filter((r) => r.domain === args.domain)
             : rows
           if (filtered.length === 0) {
-            return `No memory entries for project '${project}' in domain '${args.domain}'.`
+            return `No memory for '${project}' in domain '${args.domain}'.`
           }
           const lines = filtered.map(
             (r) =>
               `- ${r.slug} | ${r.domain || "-"} | ${r.trigger || "-"} | ${truncate(r.note, 60)}`,
           )
-          return `Memory for '${project}' (slug | domain | trigger | note):\n${lines.join("\n")}`
+          return `Memory (${project}):\n${lines.join("\n")}`
         },
       }),
 
       memory_delete: tool({
         description:
-          "Delete memory entries. Scoped to the memory/ subdirectory only — will NOT touch artifacts or designs. Scope is determined by which arguments are provided: both `slug` and `project` deletes one file; `project` alone deletes every memory entry for that project; `slug` alone deletes that entry across every project; `domain` alone (no slug) deletes every entry with that domain for the scoped projects; neither deletes every memory entry under ~/.opencode-artifacts/*/memory/. `confirm: true` is required on every invocation. Returns a summary of deleted and skipped paths.",
+          "Delete memory entries. Scoped to memory/ only — will NOT touch artifacts or designs. Scope by args: `slug`+`project` → one file; `project` only → all memory for that project; `slug` only → that entry across every project; `domain` only → all entries with that domain (in scoped projects); neither → wipe all memory. `confirm: true` required. Returns deleted/skipped paths.",
         args: {
           confirm: tool.schema
             .literal(true)
-            .describe("Must be set to true. Required guardrail — operator must explicitly opt in to deletion."),
+            .describe("Must be true. Guardrail."),
           slug: tool.schema
             .string()
             .optional()
-            .describe("Memory slug (file stem). Omit to scope by project, domain, or wipe everything."),
+            .describe("Memory slug (file stem). Omit to scope by project, domain, or wipe all."),
           domain: tool.schema
             .string()
             .optional()
-            .describe("Only delete entries whose `domain` field matches. Ignored when `slug` is also provided."),
+            .describe("Only delete entries whose `domain` matches. Ignored when `slug` is provided."),
           project: tool.schema
             .string()
             .optional()
