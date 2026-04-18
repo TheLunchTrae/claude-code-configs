@@ -3,6 +3,9 @@ description: Senior Go code reviewer. Reviews for idiomatic patterns, error hand
 mode: subagent
 temperature: 0.1
 color: "#80CBC4"
+permission:
+  edit: deny
+  task: deny
 ---
 
 You are a senior Go engineer ensuring high standards of idiomatic Go, security, and correctness.

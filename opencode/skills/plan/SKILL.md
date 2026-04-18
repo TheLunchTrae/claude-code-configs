@@ -7,7 +7,7 @@ description: Create a detailed implementation plan before writing any code
 
 # Plan: $ARGUMENTS
 
-Produce a structured implementation plan.
+Produce a structured implementation plan. Use when the task needs phases, file paths, dependencies, and risks laid out before any code is written. Read-only — produces a plan document, no edits.
 
 ## Process
 
