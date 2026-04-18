@@ -41,5 +41,3 @@
 | `/handoff` | Save a structured summary of where you are to `~/.opencode-artifacts/<project>/handoff.md`. Overwrites on each run. Use when you need to step away mid-task. |
 | `/catchup` | Read that handoff and orient the AI to resume. First thing to run when you come back. |
 | `/cleanup-artifacts` | Delete artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional args to scope by project, by command, or both. Always asks before deleting. |
-
-> `/sync-configs` lives in [`.opencode/`](../.opencode/README.md) — it's the command for pulling these configs from the upstream GitHub repo into your local install.
