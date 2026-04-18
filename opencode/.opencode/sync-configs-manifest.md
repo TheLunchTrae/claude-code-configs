@@ -7,8 +7,10 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 ## Config
 - opencode.jsonc
 - AGENTS.md
+- README.md
 
 ## Agents
+- agents/README.md
 - agents/lead.md
 - agents/architect.md
 - agents/planner.md
@@ -35,6 +37,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - agents/react-developer.md
 
 ## Commands
+- commands/README.md
 - commands/commit.md
 - commands/commit-push.md
 - commands/push.md
@@ -55,12 +58,14 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - .opencode/commands/sync-configs.md
 
 ## Skills
+- skills/README.md
 - skills/plan/SKILL.md
 - skills/review/SKILL.md
 - skills/review/template.md
 - skills/security-review/SKILL.md
 
 ## Plugins
+- plugins/README.md
 - plugins/artifacts.ts
 - plugins/block-secrets.ts
 - plugins/lib/project.ts
