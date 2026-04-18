@@ -12,6 +12,22 @@ This directory contains OpenCode-specific configuration. It is not a Claude Code
 
 Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-mirror mapping reflects that — no hook entries exist. Do not add any.
 
+# READMEs
+
+Each tracked subdirectory has a user-facing `README.md` that must stay in sync with its contents. These READMEs ship to users via `/sync-configs` and are the primary reference for anyone who didn't also clone the upstream repo.
+
+| README | Covers |
+|--------|--------|
+| `opencode/README.md` | Top-level TOC, install instructions, folder map, typical-session walkthrough |
+| `opencode/agents/README.md` | Agent roster tables grouped by category, frontmatter schema, authoring checklist |
+| `opencode/commands/README.md` | Slash-command catalogue grouped by workflow, frontmatter schema, authoring checklist |
+| `opencode/skills/README.md` | Skill inventory, frontmatter schema, commands-vs-skills relationship |
+| `opencode/plugins/README.md` | Per-plugin write-up (memory, artifacts, block-secrets), shared-helpers note, SDK reference |
+
+**When you add, rename, or remove any agent / command / skill / plugin, update the matching README inventory in the same commit.** The "Adding a new …" section at the end of each README enumerates the specific rows/sections to touch.
+
+The READMEs are written from the perspective of an isolated OpenCode install. Do not add language that presumes the reader has the Claude Code configs, the `/opencode-mirror` skill, or any file that doesn't ship via the `/sync-configs` manifest. Keep authoring-from-CC schema notes and upstream-manifest bookkeeping in this `.claude/CLAUDE.md` instead.
+
 # Frontmatter schema for agents, commands, and skills
 
 Every file under `opencode/agents/`, `opencode/commands/`, and `opencode/skills/*/SKILL.md` has YAML frontmatter. Only the keys listed below are recognised by OpenCode — unknown keys are silently ignored, so unrecognised keys are not a runtime error but they signal configuration drift (usually leftover Claude Code keys from a lazy port). Authoritative source: <https://opencode.ai/docs/agents/>, <https://opencode.ai/docs/commands/>, <https://opencode.ai/docs/skills/>.
@@ -166,4 +182,5 @@ Verify hook signatures and the return shape against the source before adding a n
 1. Create the TS file under `opencode/plugins/`.
 2. If it needs a new npm dep, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
 3. Add the plugin to the `## Registry` above and to the `## Plugins` section of `opencode/.opencode/sync-configs-manifest.md` so it propagates on `/sync-configs`.
-4. No change to `opencode.jsonc` is needed — plugins are auto-discovered from `plugins/`.
+4. Add a user-facing write-up for the new plugin to `opencode/plugins/README.md` — what it does, what the user sees, any new tool surface.
+5. No change to `opencode.jsonc` is needed — plugins are auto-discovered from `plugins/`.
