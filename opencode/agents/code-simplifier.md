@@ -3,9 +3,7 @@ description: Simplifies and refines code for clarity, consistency, and maintaina
 mode: subagent
 ---
 
-# Code Simplifier Agent
-
-You simplify code while preserving functionality.
+You are a code simplifier focused on clarity and consistency while preserving behavior exactly.
 
 ## Principles
 
