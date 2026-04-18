@@ -25,10 +25,7 @@ It fetches the list of files from this repo and merges them into `~/.config/open
 
 ### From source
 
-```bash
-git clone https://github.com/TheLunchTrae/claude-code-configs.git
-cp -r claude-code-configs/opencode/* ~/.config/opencode/
-```
+If you'd rather bootstrap by hand, copy the contents of this `opencode/` folder into `~/.config/opencode/`. Everything under this directory is what OpenCode will read.
 
 Optional: `cd ~/.config/opencode && bun install` sets up editor type-checking if you plan to edit plugins. Not needed for normal use.
 
@@ -40,7 +37,7 @@ Optional: `cd ~/.config/opencode && bun install` sets up editor type-checking if
 | [`commands/`](commands/README.md) | Slash commands you trigger from the TUI | The full list, grouped by what you're trying to do |
 | [`skills/`](skills/README.md) | Procedures the AI picks automatically based on your task | When skills fire and which ones ship here |
 | [`plugins/`](plugins/README.md) | Background extensions (memory, secret blocking, session handoffs) | What runs silently behind every session |
-| [`.opencode/`](.opencode/) | Distribution plumbing for `/sync-configs` | Only if you're maintaining this repo |
+| [`.opencode/`](.opencode/) | Wiring for the `/sync-configs` command | You shouldn't need to edit it |
 | `AGENTS.md` | Shared rules every agent follows (style, security, review standards) | If you want to know why the AI is consistent across agents |
 | `opencode.jsonc` | Global settings: permissions, theme, which plugins run | If you want to flip a permission or change the model |
 
@@ -65,6 +62,4 @@ None of this requires configuration from you — the defaults Just Work once the
 
 ## For contributors to this repo
 
-- This folder is mirrored from the Claude Code configs one directory up. The `/opencode-mirror` skill (run from the repo root) propagates changes from the Claude Code side into this folder.
-- Internal authoring notes — frontmatter schemas, distribution-manifest rules, OpenCode-exclusive command registry — live in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) in this folder.
-- Each subdirectory README also has an "Adding a new …" section for contributors.
+Each subdirectory README has an "Adding a new …" section for when you want to write your own agent, command, skill, or plugin. OpenCode auto-discovers any new files you drop in the right folder — no registry to update, no restart required beyond opening a new session.

@@ -91,7 +91,7 @@ The only runtime dependency is `@opencode-ai/plugin`. Prefer Node/Bun built-ins;
 ### Adding a new plugin
 
 1. Create `plugins/<name>.ts` exporting an async `Plugin` function.
-2. If a new runtime dep is required, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
-3. Add the file to `opencode/.opencode/sync-configs-manifest.md` under `## Plugins`.
-4. Add a section above describing what it does for the user.
-5. No change to `opencode.jsonc` is needed — plugins are auto-discovered.
+2. If a new runtime dep is required, add it to `package.json` and note the reason in the plugin's opening comment.
+3. Add a section above describing what it does for the user.
+
+OpenCode auto-discovers the plugin on next session start — no `opencode.jsonc` change required.

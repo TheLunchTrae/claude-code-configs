@@ -106,13 +106,12 @@ Only these keys are recognized by OpenCode. Unknown keys are silently ignored. A
 | `permission` | no | Per-agent override of `edit` / `bash` / `webfetch` / `task` permissions (each `allow` / `ask` / `deny`). |
 | `color`, `disable`, `hidden` | no | UI / toggles. |
 
-**Claude Code keys to strip when porting:** `tools:` (translate to a `permission:` block), `agent:` / `context:` / `allowed-tools:` (CC-only, no OC equivalent), `disable-model-invocation:` (port as an OC command instead).
-
 ### Adding a new agent
 
 1. Create `<name>.md` with frontmatter and a system prompt body. Match an existing file in the same category as a starting point.
 2. Write a strong `description` — the router uses it to decide when to fire this agent.
-3. Add the file to `opencode/.opencode/sync-configs-manifest.md` under `## Agents`.
-4. Add a row to the appropriate roster table above.
-5. Update the **Available subagents** table in `AGENTS.md` with the agent's purpose.
-6. If it's a reviewer, also update the `# Code Review` section of `AGENTS.md`.
+3. Add a row to the appropriate roster table above.
+4. Update the **Available subagents** table in `AGENTS.md` with the agent's purpose.
+5. If it's a reviewer, also update the `# Code Review` section of `AGENTS.md`.
+
+OpenCode auto-discovers the new file on next session start — no registry to touch, no restart beyond opening a fresh session.

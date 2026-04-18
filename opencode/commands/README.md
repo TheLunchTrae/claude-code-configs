@@ -54,9 +54,9 @@ These are where OpenCode earns its keep across multi-day work.
 |---------|--------------|
 | `/sync-configs` | Fetch the latest OpenCode configs from this repo and merge them into your local install. Asks before overwriting anything it's unsure about. |
 
-## OpenCode-only commands
+## Artifact-backed commands
 
-`/handoff`, `/catchup`, `/cleanup-artifacts`, and `/sync-configs` exist only for OpenCode — they rely on OC-specific conventions (`~/.opencode-artifacts/`, the plugin SDK) that don't have Claude Code equivalents.
+`/handoff`, `/catchup`, and `/cleanup-artifacts` all read or write under `~/.opencode-artifacts/`. That's where OpenCode keeps session state between runs — safe to inspect, safe to `rm -rf` if you want a clean slate. `/sync-configs` lives in this bucket too; it writes updates into `~/.config/opencode/` after fetching them.
 
 ## For config authors
 
@@ -78,6 +78,6 @@ Pure documentation commands (like `.opencode/commands/sync-configs.md`) have no 
 ### Adding a new command
 
 1. Create `<name>.md` with frontmatter and, if delegating, set `agent:`.
-2. Add the file to `opencode/.opencode/sync-configs-manifest.md` under `## Commands`.
-3. Add a row to the appropriate table above.
-4. If it relies on OpenCode-exclusive patterns (like `~/.opencode-artifacts/`), document it in the "OpenCode-exclusive commands" section of `opencode/.claude/CLAUDE.md`.
+2. Add a row to the appropriate table above.
+
+OpenCode auto-discovers the new file on next session start — no registry to touch.

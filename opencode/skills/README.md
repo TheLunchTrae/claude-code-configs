@@ -43,12 +43,11 @@ Authoritative docs: <https://opencode.ai/docs/skills/>.
 | `description` | yes | What the AI reads when deciding whether to invoke this skill. Write a trigger phrase: name the role, list key capabilities, end with "Use for …". |
 | `license`, `compatibility`, `metadata` | no | Rarely used. |
 
-**Claude Code keys to strip when porting:** `agent:`, `context:`, `allowed-tools:`, `disable-model-invocation:`. A CC skill with `disable-model-invocation: true` (pure automation, never model-picked) should become an OC *command* instead of an OC skill.
-
 ### Adding a new skill
 
 1. Create `skills/<name>/SKILL.md` with `name:` matching the directory name.
 2. Write a strong `description` — it's how the AI decides to fire this.
-3. Add the `SKILL.md` path (and any companion files like templates) to `opencode/.opencode/sync-configs-manifest.md` under `## Skills`.
-4. Add a row to the table above.
-5. If you want a manual entry point, create a matching `commands/<name>.md` wrapper.
+3. Add a row to the table above.
+4. If you want a manual entry point, create a matching `commands/<name>.md` wrapper.
+
+OpenCode auto-discovers the new skill on next session start.
