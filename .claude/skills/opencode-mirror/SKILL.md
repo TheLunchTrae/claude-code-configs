@@ -21,6 +21,7 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 - `agents/rust-developer.md`, `agents/rust-reviewer.md`
 
 **Rules** (`.claude/rules/*.md` with no `opencode/AGENTS.md` counterpart — these are repo-local rules for authoring in this repo, not general-purpose CC rules):
+- `.claude/rules/agent-prompt-body.md`
 - `.claude/rules/agent-registration.md`
 - `.claude/rules/config-sync.md`
 - `.claude/rules/frontmatter-description.md`
