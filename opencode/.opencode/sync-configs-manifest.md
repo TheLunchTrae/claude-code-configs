@@ -56,6 +56,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - commands/refactor-clean.md
 - commands/go-review.md
 - .opencode/commands/sync-configs.md
+- .opencode/README.md
 
 ## Skills
 - skills/README.md

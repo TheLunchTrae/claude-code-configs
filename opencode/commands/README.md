@@ -42,8 +42,4 @@
 | `/catchup` | Read that handoff and orient the AI to resume. First thing to run when you come back. |
 | `/cleanup-artifacts` | Delete artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional args to scope by project, by command, or both. Always asks before deleting. |
 
-### Distribution
-
-| Command | What it does |
-|---------|--------------|
-| `/sync-configs` | Fetch the latest OpenCode configs from this repo and merge them into your local install. Asks before overwriting anything it's unsure about. |
+> `/sync-configs` lives in [`.opencode/`](../.opencode/README.md) — it's the command for pulling these configs from the upstream GitHub repo into your local install.

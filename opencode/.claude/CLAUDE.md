@@ -23,6 +23,7 @@ Each tracked subdirectory has a user-facing `README.md` that is a **pure TOC** �
 | `opencode/commands/README.md` | Slash-command catalogue grouped by workflow |
 | `opencode/skills/README.md` | Skill inventory (single table) |
 | `opencode/plugins/README.md` | Plugin inventory (single table) |
+| `opencode/.opencode/README.md` | `/sync-configs` usage blurb + files table. The only README that isn't a pure TOC — it documents the one command entry point exposed by this directory. |
 
 **When you add, rename, or remove any agent / command / skill / plugin, update the matching README table in the same commit.** Keep rows terse — one line describing what the item does, following the existing pattern.
 
