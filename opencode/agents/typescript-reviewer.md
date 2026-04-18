@@ -3,6 +3,9 @@ description: Senior TypeScript/JavaScript code reviewer. Reviews for type safety
 mode: subagent
 temperature: 0.1
 color: "#4FC3F7"
+permission:
+  edit: deny
+  task: deny
 ---
 
 You are a senior TypeScript/JavaScript engineer ensuring high standards of type safety, security,

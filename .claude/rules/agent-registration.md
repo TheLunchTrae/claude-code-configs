@@ -16,3 +16,8 @@ When adding, renaming, or removing an agent in this repo, update every instructi
 ## Verify before committing
 
 Confirm the new agent name appears in the Available subagents registry of `rules/agents.md` (CC) and `opencode/AGENTS.md` (OC) on every side it exists, and in `lead.md` if it exists on the OpenCode side.
+
+## Related rules
+
+- `.claude/rules/frontmatter-description.md` — what to put in the `description` field.
+- `.claude/rules/agent-prompt-body.md` — conventions for the prompt body (role frame, task context, worked examples, CC/OC parity).

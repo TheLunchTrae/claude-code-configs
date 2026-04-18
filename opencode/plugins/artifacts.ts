@@ -57,7 +57,7 @@ const pruneExpired = async (ttlDays: number): Promise<DeleteResult> => {
   return result
 }
 
-export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
+export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
   const resolveProject = makeResolveProject({ $, directory })
 
   const ensureProjectDir = async (project: string): Promise<string> => {
@@ -70,11 +70,15 @@ export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
 
   // Fire-and-forget startup TTL prune. Errors during cleanup must not block plugin init.
   const ttlDays = resolveTtlDays()
-  void pruneExpired(ttlDays).then((result) => {
+  void pruneExpired(ttlDays).then(async (result) => {
     if (result.deleted.length > 0) {
-      console.log(
-        `[artifacts] pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-artifacts/`,
-      )
+      await client.app.log({
+        body: {
+          service: "plugin/artifacts",
+          level: "info",
+          message: `pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-artifacts/`,
+        },
+      })
     }
   })
 

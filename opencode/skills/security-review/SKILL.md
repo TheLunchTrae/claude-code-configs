@@ -7,7 +7,7 @@ description: Run a security review of current changes or specified files
 
 # Security review: $ARGUMENTS
 
-Analyze code for vulnerabilities and present findings.
+Analyze code for vulnerabilities and present findings. Use when changes touch authentication, user input handling, database queries, cryptography, external APIs, or file I/O — anything with a plausible security blast radius.
 
 ## Process
 

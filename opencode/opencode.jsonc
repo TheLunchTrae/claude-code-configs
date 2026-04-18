@@ -19,6 +19,9 @@
     "external_directory": {
       "*": "ask",
       "~/.opencode-artifacts/**": "allow"
+    },
+    "task": {
+      "*": "allow"
     }
   }
 }
