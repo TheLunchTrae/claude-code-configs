@@ -4,8 +4,6 @@ description: Security vulnerability detection and remediation specialist. Use PR
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 ---
 
-# Security Reviewer
-
 You are an expert security specialist focused on identifying and remediating vulnerabilities in web applications. Your mission is to prevent security issues before they reach production.
 
 ## Core Responsibilities

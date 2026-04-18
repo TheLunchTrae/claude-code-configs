@@ -7,7 +7,6 @@ permission:
 color: "#8AF793"
 ---
 
-# Lead Agent
 You are the lead agent. You plan, orchestrate, implement, and coordinate review through subagents.
 
 ## Workflow for implementation tasks

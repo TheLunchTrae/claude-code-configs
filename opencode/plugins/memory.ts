@@ -44,6 +44,9 @@ const FORBIDDEN_IN_VALUE = /[|\r\n]/
 // Hard cap on injected rules block — keeps silent context bloat from
 // accumulating as the user adds rules. ~4 chars per token → ~500 tokens.
 const INJECT_MAX_CHARS = 2000
+// Sentinel marker kept at the top of the injected block so repeated turns can
+// detect and replace a prior injection instead of stacking duplicates.
+const INJECT_SENTINEL = "<!-- memory-plugin -->"
 
 const memoryDirFor = (project: string): string =>
   join(ARTIFACT_ROOT, project, MEMORY_SUBDIR)
@@ -154,7 +157,7 @@ const formatInjectedRules = (lines: string[]): string | undefined => {
     })
     .filter((r): r is string => r !== undefined)
   if (rules.length === 0) return undefined
-  const body = `Rules — follow when the "when" fires:\n${rules.join("\n")}`
+  const body = `${INJECT_SENTINEL}\nRules — follow when the "when" fires:\n${rules.join("\n")}`
   return truncateInjected(body)
 }
 
@@ -178,6 +181,9 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
     },
 
     "experimental.chat.system.transform": async (_input, output) => {
+      // Idempotency: strip any prior injection from this plugin before pushing
+      // a fresh one, so re-runs of the hook can't stack duplicates.
+      output.system = output.system.filter((s) => !s.includes(INJECT_SENTINEL))
       const project = await resolveProject()
       // Globals first so project-scoped rules come last — if the model reads
       // top-down and treats later rules as refinements, project wins.
