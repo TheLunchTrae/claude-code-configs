@@ -1,85 +1,118 @@
 # Agents
 
-Markdown files that define specialized subagents OpenCode can delegate to. Each file has YAML frontmatter (config) and a markdown body (system prompt).
+An **agent** is a specialized AI assistant with its own role, tone, and boundaries. Instead of one generalist AI doing everything, OpenCode can hand off to a focused agent — a planner for laying out steps, a reviewer for catching issues, a language specialist for idiomatic code.
 
-## How OpenCode loads them
+Each agent file here (one markdown file per agent) defines:
 
-1. On session start, OpenCode scans `opencode/agents/*.md`.
-2. The filename stem becomes the agent ID (e.g. `code-reviewer.md` → `code-reviewer`).
-3. The frontmatter configures mode, model, temperature, permissions, etc.
-4. The markdown body becomes the agent's system prompt.
+- What the agent is good at
+- What tools/permissions it has
+- The system prompt that shapes its behavior
 
-## Frontmatter schema
+When you ask for something, OpenCode either handles it in the main conversation or delegates to the right agent based on the task. You can also invoke one explicitly by mentioning it (e.g. `@code-reviewer`).
 
-Only the keys below are recognised. Unknown keys are silently ignored — they signal drift (usually stale Claude Code keys). Authoritative source: <https://opencode.ai/docs/agents/>.
+## When you'll notice agents working
+
+- You say *"plan this out"* or run `/plan` → the **planner** drafts a phased implementation plan.
+- You run `/review` or `/code-review` → the **code-reviewer** works through your changes and surfaces findings by severity.
+- You touch auth, user input, or secrets → the **security-reviewer** should get invoked (and is, automatically, when the `/security-review` command runs).
+- You write Go, TypeScript, C#, or PHP → the matching language developer takes over for the implementation, and the matching reviewer checks afterward.
+- You hit something architectural and ambiguous → the **architect** sketches trade-offs before code gets written.
+
+## The roster
+
+### Orchestration and planning
+
+| Agent | What it does |
+|-------|--------------|
+| `lead` | The primary orchestrator. Runs the end-to-end workflow, deciding when to hand off to specialists. |
+| `planner` | Breaks complex work into phases with dependencies and risks. Writes plans, not code. |
+| `architect` | Compares design alternatives, identifies trade-offs. Used when multiple approaches are viable. |
+
+### Review
+
+| Agent | What it does |
+|-------|--------------|
+| `code-reviewer` | Quality, maintainability, and security review across any language. |
+| `security-reviewer` | OWASP Top 10 and common vulnerability detection. Blocks progress on CRITICAL / HIGH findings. |
+| `typescript-reviewer`, `go-reviewer`, `csharp-reviewer`, `php-reviewer` | Language-specific review after the matching developer writes code. |
+
+### Language developers
+
+Write idiomatic code in their target language. Pair each with its reviewer.
+
+| Agent | Stack |
+|-------|-------|
+| `typescript-developer` | TypeScript / JavaScript |
+| `go-developer` | Go |
+| `csharp-developer` | C# / .NET |
+| `php-developer` | PHP |
+
+### Framework developers
+
+Layer on top of a language developer — they inherit the base language rules and add framework-specific conventions.
+
+| Agent | Framework | Base |
+|-------|-----------|------|
+| `react-developer` | React / Next.js / Remix | `typescript-developer` |
+| `efcore-developer` | Entity Framework Core | `csharp-developer` |
+| `doctrine-developer` | Doctrine ORM | `php-developer` |
+| `laminas-developer` | Laminas / Mezzio | `php-developer` |
+
+### Cross-stack specialists
+
+| Agent | When it helps |
+|-------|---------------|
+| `mcp-builder` | Building [Model Context Protocol](https://modelcontextprotocol.io/) servers. |
+| `github-actions-developer` | Authoring or fixing GitHub Actions workflows. |
+| `gitlab-ci-developer` | GitLab CI/CD pipelines, components, child pipelines. |
+| `performance-optimizer` | Slow queries, N+1 patterns, algorithmic hotspots. |
+
+### Maintenance
+
+| Agent | What it does |
+|-------|--------------|
+| `code-simplifier` | Clarifies or consolidates code without changing behavior. |
+| `refactor-cleaner` | Finds and removes dead code, unused imports, duplicated logic. |
+| `doc-updater` | Updates documentation and docstrings after code changes. |
+
+## Shared rules every agent follows
+
+See [`AGENTS.md`](../AGENTS.md) in this folder. It's inserted into every agent's prompt and covers:
+
+- General tone (direct, pragmatic, no fluff)
+- Security basics (validate input, parameterize queries, no secrets in code)
+- Accuracy rules (verify references, state uncertainty explicitly)
+- Coding style (KISS, DRY, YAGNI, naming conventions)
+- Code review standards (severity levels, approval criteria)
+- Testing expectations (coverage, TDD, naming)
+
+## For config authors
+
+Each agent is a markdown file with YAML frontmatter. The filename (minus `.md`) becomes the agent's ID.
+
+### Frontmatter schema
+
+Only these keys are recognized by OpenCode. Unknown keys are silently ignored. Authoritative docs: <https://opencode.ai/docs/agents/>.
 
 | Key | Required | Notes |
 |-----|----------|-------|
-| `description` | yes | Trigger phrase used for agent discovery. |
+| `description` | yes | How the router picks this agent. Name the role and top capabilities; end with "Use when …". |
 | `mode` | no | `primary` / `subagent` / `all` (default `all`). |
 | `model` | no | Override default LLM for this agent. |
 | `temperature` | no | 0.0–1.0. |
 | `top_p` | no | Alternative randomness control. |
 | `steps` | no | Max agentic iterations. |
-| `prompt` | no | Path to custom system prompt file. |
-| `permission` | no | Nested map with `edit` / `bash` / `webfetch` / `task` keys set to `allow` / `ask` / `deny`. Overrides the global block in `opencode.jsonc`. |
-| `color` | no | Hex (`"#8AF793"`) or theme colour name. |
-| `disable` | no | `true` to disable without deleting. |
-| `hidden` | no | `true` to hide from `@` autocomplete. |
+| `prompt` | no | Path to a custom system prompt file. |
+| `permission` | no | Per-agent override of `edit` / `bash` / `webfetch` / `task` permissions (each `allow` / `ask` / `deny`). |
+| `color`, `disable`, `hidden` | no | UI / toggles. |
 
-**Claude Code-only keys to strip when porting:** `tools:` (deprecated in OpenCode — translate to a `permission` block), `agent:` / `context:` / `allowed-tools:` (CC skill keys with no OC equivalent), `disable-model-invocation:` (CC-only).
+**Claude Code keys to strip when porting:** `tools:` (translate to a `permission:` block), `agent:` / `context:` / `allowed-tools:` (CC-only, no OC equivalent), `disable-model-invocation:` (port as an OC command instead).
 
-## Cross-agent instructions
+### Adding a new agent
 
-Shared rules every agent inherits live in `opencode/AGENTS.md` (general, security, accuracy, coding style, code review, testing, patterns). The **Available subagents** table at the bottom of AGENTS.md is the authoritative index of when to invoke each agent, with the implementation workflow that ties them together.
-
-The inventory below is a mechanical listing of files in this directory for navigation. For *when to pick* each agent, consult AGENTS.md.
-
-## Inventory
-
-### Orchestration and planning
-
-- `lead.md` — primary orchestrator that sequences other agents through the implementation workflow.
-- `planner.md` — decomposes complex work into phased plans with dependencies and risks.
-- `architect.md` — system design and tradeoff analysis for ambiguous problems.
-
-### Review
-
-- `code-reviewer.md` — general-purpose quality, security, and maintainability review.
-- `security-reviewer.md` — OWASP Top 10 and vulnerability detection for security-sensitive changes.
-- `csharp-reviewer.md`, `go-reviewer.md`, `php-reviewer.md`, `typescript-reviewer.md` — language-specific reviewers.
-
-### Cross-stack developers
-
-- `mcp-builder.md` — Model Context Protocol server authoring.
-- `github-actions-developer.md` — GitHub Actions workflows, composite actions, reusable workflows.
-- `gitlab-ci-developer.md` — GitLab CI/CD pipelines, components, child pipelines.
-- `performance-optimizer.md` — bottleneck analysis across queries, algorithms, memory.
-
-### Language developers
-
-- `csharp-developer.md`, `go-developer.md`, `php-developer.md`, `typescript-developer.md` — base language implementers. Pair with the matching reviewer afterward.
-
-### Framework developers
-
-Layer on top of a language-developer; inherit its base rules.
-
-- `react-developer.md` — React / Next.js / Remix (on top of `typescript-developer`).
-- `efcore-developer.md` — Entity Framework Core (on top of `csharp-developer`).
-- `doctrine-developer.md` — Doctrine ORM (on top of `php-developer`).
-- `laminas-developer.md` — Laminas / Mezzio (on top of `php-developer`).
-
-### Maintenance
-
-- `code-simplifier.md` — clarify or consolidate without changing behavior.
-- `refactor-cleaner.md` — remove dead code and duplicates.
-- `doc-updater.md` — documentation drift, codemaps, docstring gaps.
-
-## Adding a new agent
-
-1. Create `<name>.md` with frontmatter and system prompt. Match the style of an existing file in the same category.
-2. Confirm `description` is a trigger phrase the router can match on — role + top 2-3 capabilities + "Use when …".
-3. Add the file path to `opencode/.opencode/sync-configs-manifest.md` under `## Agents`.
-4. Update the **Available subagents** table in `opencode/AGENTS.md` with the agent's purpose and when-to-invoke phrasing.
-5. Add a bullet to the inventory above.
-6. If the new agent is a reviewer, also update the `# Code Review` section of `AGENTS.md`.
+1. Create `<name>.md` with frontmatter and a system prompt body. Match an existing file in the same category as a starting point.
+2. Write a strong `description` — the router uses it to decide when to fire this agent.
+3. Add the file to `opencode/.opencode/sync-configs-manifest.md` under `## Agents`.
+4. Add a row to the appropriate roster table above.
+5. Update the **Available subagents** table in `AGENTS.md` with the agent's purpose.
+6. If it's a reviewer, also update the `# Code Review` section of `AGENTS.md`.

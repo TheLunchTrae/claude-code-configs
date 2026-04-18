@@ -1,75 +1,70 @@
 # OpenCode configs
 
-User-level [OpenCode](https://opencode.ai/) configuration — agents, commands, skills, plugins, and permissions. Mirrors (and in places diverges from) the Claude Code configs one directory up.
+This folder is a complete [OpenCode](https://opencode.ai/) setup — the agents, slash commands, skills, and background plugins that shape how OpenCode behaves in your terminal. Drop it at `~/.config/opencode/` (or keep it here and link it) and OpenCode will pick up everything automatically on next launch.
 
-OpenCode reads this directory as-is when it's placed at `~/.config/opencode/` (or linked there). Everything here is user-facing config; nothing is generated.
+## What you get
 
-## What's in here
+- **A roster of specialized agents** — a planner, reviewers (general, security, language-specific), and language/framework developers — that OpenCode can delegate to instead of doing everything in one stream.
+- **Slash commands** for the things you do dozens of times a day: `/plan`, `/commit`, `/review`, `/handoff`, `/catchup`, plus language- and security-specific reviews.
+- **Durable memory** that carries rules and facts across sessions so you don't repeat yourself. Rules are auto-loaded every time you start a session.
+- **Secret-read protection** that blocks the AI from reading `.env` files, private keys, and other sensitive paths.
+- **Session handoffs** so you can stop mid-task, come back later, and run `/catchup` to resume.
+- **A one-command sync** (`/sync-configs`) that pulls the latest version of these configs from GitHub without cloning the whole repo.
 
-| Path | Purpose | Docs |
-|------|---------|------|
-| [`AGENTS.md`](AGENTS.md) | Cross-agent instructions every agent inherits (general style, security, code review, testing, patterns, subagent index). Read first by every agent. | — |
-| [`opencode.jsonc`](opencode.jsonc) | Global config: permission rules, plugin list, model, theme. `permission.bash` is matched top-down with last-match-wins, so denies sit at the bottom. | — |
-| [`agents/`](agents/README.md) | Specialized subagents (planner, reviewers, language developers, cross-stack utilities). | [docs](https://opencode.ai/docs/agents/) |
-| [`commands/`](commands/README.md) | Slash commands the user triggers from the TUI (`/plan`, `/commit`, `/handoff`, …). | [docs](https://opencode.ai/docs/commands/) |
-| [`skills/`](skills/README.md) | Model-invocable procedures selected automatically from trigger-phrase descriptions. | [docs](https://opencode.ai/docs/skills/) |
-| [`plugins/`](plugins/README.md) | TypeScript modules that register tools and subscribe to lifecycle hooks (auto-injected rules, secret blocking, artifact storage). | [docs](https://opencode.ai/docs/plugins/) |
-| [`.opencode/`](.opencode/) | Distribution infrastructure — `sync-configs` command and its manifest. Users installing from upstream use `/sync-configs` to pull latest. | — |
+## Installing
 
-## Getting started
+### If you already use OpenCode
 
-### Install from upstream
+Inside an OpenCode session, run:
 
-If you already have OpenCode running and want these configs:
-
-```bash
-# Run inside an OpenCode session:
+```
 /sync-configs
 ```
 
-That command fetches the manifest from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/sync-configs-manifest.md`, pulls each file listed there, and merges them into `~/.config/opencode/`.
+It fetches the list of files from this repo and merges them into `~/.config/opencode/`, asking before touching anything it's unsure about.
 
-### Install from source
+### From source
 
 ```bash
 git clone https://github.com/TheLunchTrae/claude-code-configs.git
 cp -r claude-code-configs/opencode/* ~/.config/opencode/
-cd ~/.config/opencode && bun install  # for plugin type-checking; optional
 ```
 
-## What happens in a session
+Optional: `cd ~/.config/opencode && bun install` sets up editor type-checking if you plan to edit plugins. Not needed for normal use.
 
-1. OpenCode reads `opencode.jsonc` (permissions, plugin list, theme).
-2. OpenCode reads `AGENTS.md` — its contents join the system prompt for every agent.
-3. OpenCode scans `agents/*.md`, `commands/**/*.md`, `skills/*/SKILL.md`, `plugins/*.ts` and registers each.
-4. Each plugin's `Plugin` function runs, setting up tools and lifecycle hooks.
-5. The user's first message arrives. The [memory plugin](plugins/README.md#memoryts--memoryplugin) appends auto-injected rules (project + global) to the system prompt before the LLM sees it.
-6. The model works. Any slash command, agent delegation, or tool call routes through the configured entries.
-7. On session end, [block-secrets](plugins/README.md#block-secretsts--blocksecretsplugin) has been gating sensitive file reads throughout; [artifacts](plugins/README.md#artifactsts--artifactsplugin) has persisted any `/handoff` calls.
+## What's in each folder
 
-## Authoring quickstart
+| Folder | What's in it | Read this for |
+|--------|--------------|---------------|
+| [`agents/`](agents/README.md) | Specialized assistants OpenCode delegates to for focused work | An overview of who's available and what each is good at |
+| [`commands/`](commands/README.md) | Slash commands you trigger from the TUI | The full list, grouped by what you're trying to do |
+| [`skills/`](skills/README.md) | Procedures the AI picks automatically based on your task | When skills fire and which ones ship here |
+| [`plugins/`](plugins/README.md) | Background extensions (memory, secret blocking, session handoffs) | What runs silently behind every session |
+| [`.opencode/`](.opencode/) | Distribution plumbing for `/sync-configs` | Only if you're maintaining this repo |
+| `AGENTS.md` | Shared rules every agent follows (style, security, review standards) | If you want to know why the AI is consistent across agents |
+| `opencode.jsonc` | Global settings: permissions, theme, which plugins run | If you want to flip a permission or change the model |
 
-- **Add an agent** — new file in `agents/`, frontmatter per the [schema](agents/README.md#frontmatter-schema), update the subagents index in `AGENTS.md`, add to the sync manifest.
-- **Add a command** — new file in `commands/`, frontmatter with `description:` (and `agent:` if delegating), add to the sync manifest.
-- **Add a skill** — new directory `skills/<name>/SKILL.md` with `name:` matching the directory, strong trigger-phrase `description:`, add to the sync manifest.
-- **Add a plugin** — new `plugins/<name>.ts` exporting an async `Plugin` function, add to the sync manifest. Verify hook signatures against the [plugin SDK source](https://github.com/anomalyco/opencode/tree/dev/packages/plugin) before wiring new events.
+## A typical session, step by step
 
-Each subdirectory README has the full checklist.
+1. You open OpenCode in a project directory.
+2. The memory plugin loads your rules (project-specific + global) and inserts them into the AI's system prompt. You don't see this happen.
+3. You type something — say, *"let's add a new GitHub Actions workflow for the release job"*.
+4. OpenCode decides whether a skill matches (e.g. if you said "plan this out"), or whether to route to an agent (e.g. `github-actions-developer`).
+5. As the AI works, the secret-blocking plugin quietly rejects any attempt to read `.env` or SSH keys.
+6. You hit a stopping point and run `/handoff`. A summary lands at `~/.opencode-artifacts/<project>/handoff.md`.
+7. Next session, `/catchup` reads that handoff and orients the AI to where you left off.
 
-## Permissions
+None of this requires configuration from you — the defaults Just Work once the configs are in place.
 
-`opencode.jsonc` sets global permission defaults. Per-agent overrides live in each agent file's frontmatter under a `permission:` block. The canonical ordering inside a permission block is **`allow` → `ask` → `deny`**, grouped and alphabetised, because `permission.bash` is last-match-wins.
+## Day-one things worth knowing
 
-Globally, `permission.edit` is `"ask"` — every edit prompts before it runs unless an agent explicitly overrides.
+- **Permissions default to asking.** Any file edit prompts for confirmation before it runs. You can loosen this per-agent in each agent's frontmatter, or globally in `opencode.jsonc`.
+- **Everything written to disk beyond your project lives at `~/.opencode-artifacts/`.** Handoffs, memory files, whatever. Safe to `rm -rf` if you want to reset.
+- **Nothing phones home.** All memory and artifacts are local files. No external services, no embeddings APIs.
+- **You can teach it.** When you catch yourself saying *"remember that in this repo we…"*, ask it to `memory_write` that. Future sessions will start already knowing.
 
-## Conventions used throughout
+## For contributors to this repo
 
-- **Artifact storage**: `~/.opencode-artifacts/<project>/<command>.md`. `<project>` resolves from git remote → repo basename → cwd basename. Used by `/handoff`, `/catchup`, memory, and the artifacts plugin.
-- **Memory storage**: pipe-delimited files under `~/.opencode-artifacts/<project>/memory/` (and `_global/memory/` for global scope). See the [plugins README](plugins/README.md#memoryts--memoryplugin).
-- **Commit messages**: imperative mood, lowercase, no type prefix. No Claude Code session-link trailers.
-- **File length**: 200–400 lines typical, 800 max. Extract once a file exceeds that.
-
-## Related
-
-- This repo also maintains parallel Claude Code configs at the root (`rules/`, `agents/`, `skills/`, `settings.json`). Changes start on the Claude Code side and mirror here via the `/opencode-mirror` skill — see [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) in the repo root for the full mapping.
-- For internal contributor notes specific to this directory (frontmatter schema tables, OpenCode-exclusive commands registry, distribution manifest rules), see [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
+- This folder is mirrored from the Claude Code configs one directory up. The `/opencode-mirror` skill (run from the repo root) propagates changes from the Claude Code side into this folder.
+- Internal authoring notes — frontmatter schemas, distribution-manifest rules, OpenCode-exclusive command registry — live in [`.claude/CLAUDE.md`](.claude/CLAUDE.md) in this folder.
+- Each subdirectory README also has an "Adding a new …" section for contributors.

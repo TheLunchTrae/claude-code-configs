@@ -1,75 +1,97 @@
 # Plugins
 
-TypeScript modules auto-discovered by OpenCode at session start. Each plugin can register tools the model calls, subscribe to lifecycle hooks (session start, every chat message, every tool call, etc.), and inject environment variables into shell commands the model runs.
+Plugins are small TypeScript files that run in the background on every session and quietly extend what OpenCode can do. You don't invoke them directly — they wire themselves into OpenCode's lifecycle and surface extra capabilities through tools, system-prompt additions, or guardrails.
 
-## How OpenCode loads them
+The three plugins shipped here give you:
 
-1. On session start, OpenCode scans `opencode/plugins/*.ts`.
-2. Each module's default export should be an async function matching the `Plugin` type from `@opencode-ai/plugin`.
-3. The function receives `{ $, directory, project, client, … }` and returns a `Hooks` object.
-4. `tool: { … }` entries on the returned object become tools the model can call (e.g. `memory_write`).
-5. Named hooks on the returned object (`"shell.env"`, `"experimental.chat.system.transform"`, `"tool.execute.before"`, …) fire on OpenCode lifecycle events.
+1. **Memory that persists across sessions.** You can have the AI remember rules and facts about a repo once, and future sessions start already knowing.
+2. **Session handoffs.** Stop mid-task, come back tomorrow, pick up where you left off.
+3. **Secret-read protection.** The AI can't read `.env` files, SSH keys, or credentials files by accident.
 
-## Authoring reference
+## Memory
 
-- OpenCode docs: <https://opencode.ai/docs/plugins/>
-- Plugin SDK source (authoritative for type signatures): <https://github.com/anomalyco/opencode/tree/dev/packages/plugin>
-  - `src/index.ts` — `PluginInput`, `Plugin`, `Hooks`.
-  - `src/tool.ts` — `tool()` helper; `tool.schema` is a re-export of zod.
+File: `memory.ts`. Storage: `~/.opencode-artifacts/<project>/memory/` and `~/.opencode-artifacts/_global/memory/`.
 
-The `Hooks` interface in `src/index.ts` is the ground truth for which events exist and what their input/output shapes are. Verify against source before adding a new handler — the docs page lags the interface.
+The memory plugin maintains two kinds of entries:
 
-## Dependencies
+- **Rules** — short behavioral directives tied to a trigger condition. Example: *"when committing: use conventional commits with scope prefix"*. Rules are **auto-injected into every session's system prompt**, so the AI always follows them without being reminded.
+- **Facts** — short contextual notes tied to a category. Example: *"domain: testing — run pnpm test:unit --runInBand for DB tests"*. Facts are **not** auto-loaded; the AI pulls them only when it asks for them.
 
-Runtime deps stay minimal. Prefer Node/Bun built-ins; pull in an npm dep only when the value clearly outweighs the install surface. The only current runtime dep is `@opencode-ai/plugin`. `bun install` at `opencode/` sets up local types for editor tooling but those packages don't ship to users.
+Both come in two **scopes**:
 
-## Inventory
+- **Project scope** (default) — applies only to the current repo.
+- **Global scope** — applies to every project. Good for universally-true preferences (security posture, git hygiene, code style you hold everywhere).
 
-### `artifacts.ts` — ArtifactsPlugin
+### How you use it
 
-Durable session-handoff storage under `~/.opencode-artifacts/<project>/<command>.md`. One file per command per project, overwritten on each run (no history).
+Day-to-day, you just… talk. When you catch yourself saying *"remember that in this repo we always…"*, ask the AI to write it down. It will call `memory_write` with a rule or a fact. Next session you open here, the rule is already loaded.
 
-- Hook: `shell.env` injects `OPENCODE_PROJECT` and `OPENCODE_ARTIFACT_DIR`.
-- Tools: `artifact_read`, `artifact_write`, `artifact_list`, `artifact_delete`.
-- Startup TTL prune: deletes artifacts older than `OPENCODE_ARTIFACT_TTL_DAYS` (default 90). Set to `0` to disable.
-- Powers the `/handoff`, `/catchup`, and `/cleanup-artifacts` commands.
+To see what's stored, ask the AI to run `memory_list`. To remove something, `memory_delete`.
 
-### `memory.ts` — MemoryPlugin
+### What gets auto-loaded
 
-Durable store for manually-authored **rules** (behavioral directives; auto-injected) and **facts** (tool-gated context). Scoped per-project or globally.
+Only rules, and only their condition and directive — slugs and scope labels are stripped to save tokens. The AI never sees the file format on disk, just a clean "Rules — follow when the 'when' fires:" block:
 
-- Hook: `shell.env` injects `OPENCODE_MEMORY_DIR`.
-- Hook: `experimental.chat.system.transform` appends a merged `Rules — follow when the "when" fires:` block to every system prompt (globals first, project last). Hard 2000-char cap with truncation footer.
-- Tools: `memory_list`, `memory_write`, `memory_delete`.
-- Storage: pipe-delimited `slug|trigger|note` (rules) and `slug|domain|note` (facts) at `~/.opencode-artifacts/{<project>,_global}/memory/{rules,facts}.txt`.
-- Atomic writes via tmp + rename; no TTL.
-- `memory/instincts.txt` is **reserved** for a future observer-derived store (ECC-style) — no current tool reads or writes it.
+```
+Rules — follow when the "when" fires:
+before git push: Never force-push shared branches
+when committing: Use conventional commits with scope prefix
+```
 
-See the tool descriptions inside `memory.ts` for when-to-write guidance; it surfaces at tool-call time.
+The injected block is hard-capped at ~500 tokens; past that, it truncates with a pointer to `memory_list` for the full set.
 
-### `block-secrets.ts` — BlockSecretsPlugin
+### Reserved: instincts
 
-Hook `tool.execute.before` blocks reads of sensitive files (`.env`, `.env.*` except common templates, `*.pem`, SSH private keys, `*.key`, `credentials.json`, `.netrc`, `secrets.{json,yaml,yml}`, `*.p12`, `*.pfx`, `.aws/credentials`, anything under `.ssh/`).
+`memory/instincts.txt` is **reserved** for a future observer-derived store. The idea: a background agent watches session traces, extracts patterns, and files them with confidence scores — ECC-style continuous learning. That doesn't exist yet. No current tool reads or writes that file.
 
-Applies to `read`, `glob`, `edit`, `write` (by inspecting path args) and `bash` (by token-scanning the command). Safe-read allowlist in `ALLOWED_BASENAMES` inside the plugin — extend there if a legitimate template trips the block.
+## Artifacts (session handoffs)
 
-### `lib/project.ts` — shared helpers
+File: `artifacts.ts`. Storage: `~/.opencode-artifacts/<project>/<command>.md`.
 
-Not a plugin; imported by `artifacts.ts` and `memory.ts`. Exports:
+When you run `/handoff`, the artifacts plugin saves a structured summary of your session (what you were working on, what's done, what's next, which files changed) to a markdown file keyed by project and command name. Next time you open OpenCode in the same project, `/catchup` reads that file and orients the AI.
 
-- `ARTIFACT_ROOT` — `~/.opencode-artifacts`.
-- `projectNameFromRemoteUrl(url)` — git remote URL → project name.
-- `makeResolveProject({ $, directory })` — factory returning a cached `() => Promise<string>` that resolves the current project via git remote → repo basename → cwd basename.
-- `removeEmptyDir(dir)` — no-throw `rmdir` that ignores non-empty errors.
-- `deleteFile(path, result)` — no-throw `unlink` that accumulates into a `DeleteResult`.
-- `DeleteResult` type — `{ deleted: string[]; skipped: string[] }`.
+You can list, read, and delete artifacts with the corresponding `artifact_*` tools, but usually you'll just use the slash commands.
 
-Edit here, not in copies.
+Artifacts older than 90 days are pruned automatically on session start. Set `OPENCODE_ARTIFACT_TTL_DAYS=0` in your environment to disable pruning, or to any other number to change the window.
 
-## Adding a new plugin
+## Block-secrets
 
-1. Create the `.ts` file under `plugins/`. Export an async `Plugin` function as the default or a named export OpenCode can pick up.
-2. If a new npm runtime dep is needed, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
-3. Add the plugin file path to the `## Plugins` section of `opencode/.opencode/sync-configs-manifest.md` so it propagates on `/sync-configs`.
-4. Add a bullet to the inventory above.
+File: `block-secrets.ts`.
+
+Silently blocks the AI from reading sensitive files no matter which tool it tries to use:
+
+- `.env` and `.env.*` (except common templates like `.env.example`, `.env.sample`)
+- `*.pem`, `*.key`, SSH private keys, anything under `.ssh/`
+- `credentials.json`, `.netrc`, `secrets.{json,yaml,yml}`, `.aws/credentials`
+- `*.p12`, `*.pfx` keystores
+
+This applies to read, glob, edit, and write operations (by checking the path argument) and to bash commands (by scanning the command line for blocked paths). If a legitimate template file matches a blocked pattern, add its basename to the `ALLOWED_BASENAMES` list inside the plugin.
+
+## For plugin authors
+
+Plugins are TypeScript files auto-discovered from this directory. Each exports an async function typed as `Plugin` from `@opencode-ai/plugin`. The function runs once at session start, receives `{ $, directory, project, client, … }`, and returns an object of hook handlers and tool definitions.
+
+### Key references
+
+- OpenCode plugin docs: <https://opencode.ai/docs/plugins/>
+- Plugin SDK source (authoritative type signatures): <https://github.com/anomalyco/opencode/tree/dev/packages/plugin>
+  - `src/index.ts` — the `Hooks` interface lists every lifecycle event (session start, each chat message, each tool call, system-prompt transform, etc.) with exact input/output types.
+  - `src/tool.ts` — the `tool()` helper and `tool.schema` (a re-export of zod) for defining model-callable tools.
+
+The docs page lags the SDK source. When in doubt, read `src/index.ts`.
+
+### What's in `lib/`
+
+`lib/project.ts` holds helpers shared between `artifacts.ts` and `memory.ts` — project-name resolution (git remote → repo basename → cwd basename), empty-directory cleanup, and delete result accumulation. Edit here rather than copying into individual plugins.
+
+### Dependencies
+
+The only runtime dependency is `@opencode-ai/plugin`. Prefer Node/Bun built-ins; only add an npm runtime dep when the value clearly outweighs the install surface. `bun install` at `opencode/` is only for local editor type-checking — those dev deps don't ship to users.
+
+### Adding a new plugin
+
+1. Create `plugins/<name>.ts` exporting an async `Plugin` function.
+2. If a new runtime dep is required, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
+3. Add the file to `opencode/.opencode/sync-configs-manifest.md` under `## Plugins`.
+4. Add a section above describing what it does for the user.
 5. No change to `opencode.jsonc` is needed — plugins are auto-discovered.

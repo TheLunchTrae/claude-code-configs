@@ -1,44 +1,54 @@
 # Skills
 
-Model-invocable procedures. A skill is a directory under `opencode/skills/<name>/` containing a `SKILL.md` file (and any companion files the skill references). The model invokes a skill when its `description` matches the task.
+A **skill** is a procedure the AI picks on its own when your request matches it. You don't trigger skills directly — the AI reads each skill's description and fires whichever one fits.
 
-## How OpenCode loads them
+Skills are useful for things you want to happen *consistently every time*, even when you don't remember to ask for them. Example: whenever a task clearly needs planning before code, the `plan` skill fires and the AI produces a plan first instead of diving in.
 
-1. On session start, OpenCode scans `opencode/skills/*/SKILL.md`.
-2. The directory name is the skill ID and must match the `name:` field in frontmatter.
-3. The `description` drives model-side selection — write it as a trigger phrase, not marketing.
-4. The body is the skill procedure.
+## When you'll see skills fire
 
-OpenCode docs: <https://opencode.ai/docs/skills/>.
+- You describe a non-trivial feature → the `plan` skill fires and a plan shows up before any code.
+- You finish a change and ask for a second look → the `review` skill runs a structured review using the report template.
+- You make changes in auth / input-handling / crypto code → the `security-review` skill runs the checklist.
 
-## Frontmatter schema
+If a skill overreaches (fires when you don't want it), just say so — the AI will skip it. You can also trigger the matching slash command (`/plan`, `/review`, `/security-review`) to invoke the same procedure explicitly.
+
+## What's here
+
+| Skill | What it does |
+|-------|--------------|
+| `plan` | Draft a detailed implementation plan (phases, file paths, risks) before any code is written. Matches the `/plan` command. |
+| `review` | Review code and present findings using a standard template. Matches the `/review` / `/code-review` commands. The template lives in `review/template.md`. |
+| `security-review` | Security-focused review of current changes or specified files. Matches the `/security-review` command. |
+
+## Commands vs skills
+
+The line blurs. Rough rule:
+
+- **Skill** — something the AI should do automatically when a task fits.
+- **Command** — something you type to run the same procedure on demand.
+
+Every skill here has a matching slash command, so you can always force the procedure if the AI doesn't pick it up on its own.
+
+## For config authors
+
+Each skill lives in its own directory under `skills/` with a required `SKILL.md` file. The directory name is the skill ID.
+
+### Frontmatter schema
+
+Authoritative docs: <https://opencode.ai/docs/skills/>.
 
 | Key | Required | Notes |
 |-----|----------|-------|
 | `name` | yes | Must match the containing directory name. |
-| `description` | yes | Trigger phrase. Name the role, list file types / protocols / capabilities, end with "Use for …" or "Use when …". |
-| `license`, `compatibility`, `metadata` | no | Rarely used; see OpenCode docs. |
+| `description` | yes | What the AI reads when deciding whether to invoke this skill. Write a trigger phrase: name the role, list key capabilities, end with "Use for …". |
+| `license`, `compatibility`, `metadata` | no | Rarely used. |
 
-**Claude Code-only keys to strip when porting:** `agent:`, `context:`, `allowed-tools:`, `disable-model-invocation:`. CC's `disable-model-invocation: true` skills should become an OC **command** instead of an OC skill.
+**Claude Code keys to strip when porting:** `agent:`, `context:`, `allowed-tools:`, `disable-model-invocation:`. A CC skill with `disable-model-invocation: true` (pure automation, never model-picked) should become an OC *command* instead of an OC skill.
 
-## Commands vs skills
+### Adding a new skill
 
-The lines blur. Current convention in this repo:
-
-- **Skill** — procedure the model chooses to invoke because the description fits.
-- **Command** — procedure the user triggers with a slash (`/plan`), usually via a wrapper that sets `agent:` + `subtask: true` and passes the skill.
-
-Several skills here (`plan`, `review`, `security-review`) have matching commands that invoke them.
-
-## Inventory
-
-- `plan/SKILL.md` — create a detailed implementation plan before writing any code. Paired with the `/plan` command.
-- `review/SKILL.md` — review code and present findings. Paired with `/review` / `/code-review`. Includes `template.md` (the report template the skill fills in).
-- `security-review/SKILL.md` — security review of current changes or specified files. Paired with `/security-review`.
-
-## Adding a new skill
-
-1. Create `opencode/skills/<name>/SKILL.md` with `name:` matching the directory name and a strong trigger-phrase `description`.
-2. Add the `SKILL.md` path (and any companion files like `template.md`) to the `## Skills` section of `opencode/.opencode/sync-configs-manifest.md`.
-3. Add a bullet to the inventory above.
-4. If the skill needs a slash-command entry point, create a wrapper under `opencode/commands/` with `agent:` + `subtask: true` in the frontmatter.
+1. Create `skills/<name>/SKILL.md` with `name:` matching the directory name.
+2. Write a strong `description` — it's how the AI decides to fire this.
+3. Add the `SKILL.md` path (and any companion files like templates) to `opencode/.opencode/sync-configs-manifest.md` under `## Skills`.
+4. Add a row to the table above.
+5. If you want a manual entry point, create a matching `commands/<name>.md` wrapper.
