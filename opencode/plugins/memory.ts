@@ -1,14 +1,26 @@
-// Memory plugin — durable per-project store for facts and instinct-style
-// behavioral rules. Sibling to artifacts.ts.
+// Memory plugin — durable store for manually-authored rules and facts,
+// scoped to the current project or global. Sibling to artifacts.ts.
 //
-// Storage: two pipe-delimited files per project, no field names on disk.
-//   ~/.opencode-artifacts/<project>/memory/instincts.txt   slug|trigger|note
-//   ~/.opencode-artifacts/<project>/memory/facts.txt       slug|domain|note
+// Storage: two pipe-delimited files per scope, no field names on disk.
+//   ~/.opencode-artifacts/<project>/memory/rules.txt   slug|trigger|note
+//   ~/.opencode-artifacts/<project>/memory/facts.txt   slug|domain|note
+//   ~/.opencode-artifacts/_global/memory/rules.txt     (global scope)
+//   ~/.opencode-artifacts/_global/memory/facts.txt     (global scope)
 //
-// Instincts are auto-injected into the system prompt via the
-// experimental.chat.system.transform hook on every message, so the model
-// always carries them without needing a tool call. Facts stay tool-gated
-// (memory_list kind:"facts") so they only cost tokens when explicitly queried.
+// Rules (both scopes merged, globals first) are auto-injected into the system
+// prompt via the experimental.chat.system.transform hook on every message,
+// so the model always carries them without needing a tool call. Facts stay
+// tool-gated (memory_list kind:"facts") so they only cost tokens when
+// explicitly queried.
+//
+// "_global" is a reserved project name; a project literally named "_global"
+// will share storage with the global scope.
+//
+// RESERVED: memory/instincts.txt is reserved for a future observer-derived
+// store (ECC-style: hooks capture traces → background agent extracts
+// instincts with confidence/evidence). The current tool surface does NOT
+// write instincts — they come only from observation. Until that ships, no
+// tool here reads or writes that file.
 //
 // Shared project-resolution and delete helpers live in ./lib/project.
 
@@ -24,27 +36,28 @@ import {
 } from "./lib/project"
 
 const MEMORY_SUBDIR = "memory"
-const INSTINCTS_FILE = "instincts.txt"
+const RULES_FILE = "rules.txt"
 const FACTS_FILE = "facts.txt"
+const GLOBAL_PROJECT = "_global"
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,63}$/
 const FORBIDDEN_IN_VALUE = /[|\r\n]/
-// Hard cap on injected instincts block — keeps silent context bloat from
+// Hard cap on injected rules block — keeps silent context bloat from
 // accumulating as the user adds rules. ~4 chars per token → ~500 tokens.
 const INJECT_MAX_CHARS = 2000
 
 const memoryDirFor = (project: string): string =>
   join(ARTIFACT_ROOT, project, MEMORY_SUBDIR)
 
-const instinctsPath = (project: string): string =>
-  join(memoryDirFor(project), INSTINCTS_FILE)
+const rulesPath = (project: string): string =>
+  join(memoryDirFor(project), RULES_FILE)
 
 const factsPath = (project: string): string =>
   join(memoryDirFor(project), FACTS_FILE)
 
-type Kind = "instincts" | "facts"
+type Kind = "rules" | "facts"
 
 const pathFor = (project: string, kind: Kind): string =>
-  kind === "instincts" ? instinctsPath(project) : factsPath(project)
+  kind === "rules" ? rulesPath(project) : factsPath(project)
 
 const normalizeSlug = (raw: string): string =>
   raw.trim().toLowerCase().replace(/\s+/g, "-").replace(/-+/g, "-")
@@ -125,10 +138,10 @@ const truncateInjected = (body: string): string => {
   const head = body.slice(0, INJECT_MAX_CHARS - 64)
   const lastNl = head.lastIndexOf("\n")
   const cut = lastNl > 0 ? head.slice(0, lastNl) : head
-  return `${cut}\n… (truncated — call memory_list kind:"instincts" for the full set)`
+  return `${cut}\n… (truncated — call memory_list kind:"rules" for the full set)`
 }
 
-const formatInjectedInstincts = (project: string, lines: string[]): string | undefined => {
+const formatInjectedRules = (lines: string[]): string | undefined => {
   if (lines.length === 0) return undefined
   // Drop slug when injecting — LLM doesn't need the primary key; it only
   // needs trigger → note. Saves ~5-10 tokens per entry.
@@ -141,7 +154,7 @@ const formatInjectedInstincts = (project: string, lines: string[]): string | und
     })
     .filter((r): r is string => r !== undefined)
   if (rules.length === 0) return undefined
-  const body = `Instincts (${project}) — follow when the "when" fires:\n${rules.join("\n")}`
+  const body = `Rules — follow when the "when" fires:\n${rules.join("\n")}`
   return truncateInjected(body)
 }
 
@@ -166,25 +179,32 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
 
     "experimental.chat.system.transform": async (_input, output) => {
       const project = await resolveProject()
-      const lines = await readLines(instinctsPath(project))
-      const block = formatInjectedInstincts(project, lines)
+      // Globals first so project-scoped rules come last — if the model reads
+      // top-down and treats later rules as refinements, project wins.
+      const globalLines = await readLines(rulesPath(GLOBAL_PROJECT))
+      const projectLines = project === GLOBAL_PROJECT ? [] : await readLines(rulesPath(project))
+      const block = formatInjectedRules([...globalLines, ...projectLines])
       if (block) output.system.push(block)
     },
 
     tool: {
       memory_list: tool({
-        description: `List memory entries. Defaults to kind:"instincts" for the lightest surface.
+        description: `List memory entries. Defaults to kind:"rules" scope:"all" — shows both global and project rules.
 
-Instincts are auto-injected into the system prompt every message, so normally you do not need to call this — only do so when you want to see slugs (for memory_write/memory_delete) or when you need facts.
+Rules (global + project, merged) are auto-injected into the system prompt every message, so normally you do not need to call this — only do so when you want to see slugs (for memory_write/memory_delete) or when you need facts.
 
 Output format is the raw on-disk line per entry:
-- instincts: slug|trigger|note
+- rules: slug|trigger|note
 - facts: slug|domain|note`,
         args: {
           kind: tool.schema
-            .enum(["instincts", "facts", "all"])
+            .enum(["rules", "facts", "all"])
             .optional()
-            .describe("Which set to list. Default 'instincts'."),
+            .describe("Which set to list. Default 'rules'."),
+          scope: tool.schema
+            .enum(["project", "global", "all"])
+            .optional()
+            .describe("Which scope(s) to list. Default 'all' (both global and project)."),
           domain: tool.schema
             .string()
             .optional()
@@ -192,15 +212,19 @@ Output format is the raw on-disk line per entry:
           slug: tool.schema
             .string()
             .optional()
-            .describe("Exact-match lookup by slug across the selected kind(s)."),
+            .describe("Exact-match lookup by slug across the selected kind(s) and scope(s)."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
+            .describe("Project name. Only valid when scope is 'project' or omitted. Defaults to current."),
         },
         async execute(args) {
-          const project = args.project ?? (await resolveProject())
-          const kind = args.kind ?? "instincts"
+          const kind = args.kind ?? "rules"
+          const scope = args.scope ?? "all"
+
+          if (args.project && scope === "global") {
+            return "`project` is not valid with scope:\"global\". Drop one."
+          }
 
           let slugNorm: string | undefined
           if (args.slug !== undefined) {
@@ -209,24 +233,34 @@ Output format is the raw on-disk line per entry:
             slugNorm = v.slug
           }
 
-          const wantInstincts = kind === "instincts" || kind === "all"
+          const targets: Array<{ label: string; project: string }> = []
+          if (scope === "global" || scope === "all") {
+            targets.push({ label: "global", project: GLOBAL_PROJECT })
+          }
+          if (scope === "project" || scope === "all") {
+            const p = args.project ?? (await resolveProject())
+            if (p !== GLOBAL_PROJECT) targets.push({ label: p, project: p })
+          }
+
+          const wantRules = kind === "rules" || kind === "all"
           const wantFacts = kind === "facts" || kind === "all"
 
           const sections: string[] = []
 
-          if (wantInstincts) {
-            let lines = await readLines(instinctsPath(project))
-            if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
-            sections.push(formatListOutput(project, "instincts", lines))
-          }
-
-          if (wantFacts) {
-            let lines = await readLines(factsPath(project))
-            if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
-            if (args.domain !== undefined) {
-              lines = lines.filter((l) => l.split("|", 3)[1] === args.domain)
+          for (const t of targets) {
+            if (wantRules) {
+              let lines = await readLines(rulesPath(t.project))
+              if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+              sections.push(formatListOutput(t.label, "rules", lines))
             }
-            sections.push(formatListOutput(project, "facts", lines))
+            if (wantFacts) {
+              let lines = await readLines(factsPath(t.project))
+              if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+              if (args.domain !== undefined) {
+                lines = lines.filter((l) => l.split("|", 3)[1] === args.domain)
+              }
+              sections.push(formatListOutput(t.label, "facts", lines))
+            }
           }
 
           return sections.join("\n\n")
@@ -234,11 +268,15 @@ Output format is the raw on-disk line per entry:
       }),
 
       memory_write: tool({
-        description: `Write or overwrite a durable per-project memory entry — one line in instincts.txt or facts.txt under ~/.opencode-artifacts/<project>/memory/.
+        description: `Write or overwrite a durable memory entry — one line in rules.txt or facts.txt under ~/.opencode-artifacts/<project>/memory/ (or _global/memory/ for scope:"global").
 
 Classify the entry:
-- kind:"instinct" — a behavioral rule the future session should follow when a condition fires. Requires \`trigger\` (the "when"). Auto-injected into every system prompt.
+- kind:"rule" — a behavioral directive the future session should follow when a condition fires. Requires \`trigger\` (the "when"). Auto-injected into every system prompt.
 - kind:"fact" — a piece of context the session can look up when relevant. Requires \`domain\` (the filter key). Tool-gated, not auto-injected.
+
+Choose scope:
+- scope:"project" (default) — applies only to the current project.
+- scope:"global" — applies to every project. Reserve for universally-true rules (e.g. security practices) or preferences the user holds across all repos.
 
 Write when:
 - The user states a preference the current session won't remember next time.
@@ -248,14 +286,16 @@ Do NOT write for:
 - Session context — use /handoff (ephemeral).
 - One-off observations whose cost exceeds the value of remembering.
 
-Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per project across both kinds; to change an entry's kind, memory_delete it first.`,
+Note: memory/instincts.txt is reserved for a future observer-derived store (learned behaviors with confidence/evidence). This tool does not write there — asserted behavior goes to rules, observed behavior will come from the observer.
+
+Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per scope across both kinds; to change an entry's kind within a scope, memory_delete it first.`,
         args: {
           kind: tool.schema
-            .enum(["instinct", "fact"])
-            .describe("'instinct' for a triggered behavioral rule; 'fact' for domain-tagged context."),
+            .enum(["rule", "fact"])
+            .describe("'rule' for a triggered behavioral directive; 'fact' for domain-tagged context."),
           slug: tool.schema
             .string()
-            .describe("Kebab-case slug (e.g. 'conventional-commits'). Unique per project across both kinds."),
+            .describe("Kebab-case slug (e.g. 'conventional-commits'). Unique per scope across both kinds."),
           note: tool.schema
             .string()
             .max(240)
@@ -264,16 +304,20 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
             .string()
             .max(120)
             .optional()
-            .describe("Required for kind:'instinct'. The 'when' condition (e.g. 'when committing')."),
+            .describe("Required for kind:'rule'. The 'when' condition (e.g. 'when committing')."),
           domain: tool.schema
             .string()
             .max(40)
             .optional()
             .describe("Required for kind:'fact'. Category tag (e.g. 'git', 'testing'). Filters memory_list."),
+          scope: tool.schema
+            .enum(["project", "global"])
+            .optional()
+            .describe("'project' (default) for current-project-only, or 'global' for every project."),
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to current."),
+            .describe("Project name override. Only valid when scope is 'project' or omitted. Defaults to current."),
         },
         async execute(args) {
           const v = validateSlug(args.slug)
@@ -283,14 +327,20 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
           const noteErr = validateValue("note", args.note)
           if (noteErr) return noteErr
 
-          const isInstinct = args.kind === "instinct"
+          const scope = args.scope ?? "project"
 
-          if (isInstinct) {
+          if (args.project && scope === "global") {
+            return "`project` is not valid with scope:\"global\". Drop one."
+          }
+
+          const isRule = args.kind === "rule"
+
+          if (isRule) {
             if (args.trigger === undefined) {
-              return "kind:'instinct' requires 'trigger' — the 'when' condition that activates the rule."
+              return "kind:'rule' requires 'trigger' — the 'when' condition that activates the directive."
             }
             if (args.domain !== undefined) {
-              return "kind:'instinct' does not take 'domain'. Drop the domain arg or switch to kind:'fact'."
+              return "kind:'rule' does not take 'domain'. Drop the domain arg or switch to kind:'fact'."
             }
             const trigErr = validateValue("trigger", args.trigger)
             if (trigErr) return trigErr
@@ -299,33 +349,37 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
               return "kind:'fact' requires 'domain' — a short category tag used to filter memory_list."
             }
             if (args.trigger !== undefined) {
-              return "kind:'fact' does not take 'trigger'. Drop the trigger arg or switch to kind:'instinct'."
+              return "kind:'fact' does not take 'trigger'. Drop the trigger arg or switch to kind:'rule'."
             }
             const domErr = validateValue("domain", args.domain)
             if (domErr) return domErr
           }
 
-          const project = args.project ?? (await resolveProject())
+          const project = scope === "global" ? GLOBAL_PROJECT : (args.project ?? (await resolveProject()))
           await ensureMemoryDir(project)
 
-          const targetKind: Kind = isInstinct ? "instincts" : "facts"
-          const otherKind: Kind = isInstinct ? "facts" : "instincts"
+          const targetKind: Kind = isRule ? "rules" : "facts"
+          const otherKind: Kind = isRule ? "facts" : "rules"
 
+          // Cross-kind collision is scoped: same slug can coexist across
+          // project/global (project may intentionally shadow global).
           const otherLines = await readLines(pathFor(project, otherKind))
           if (otherLines.some((l) => slugOf(l) === slug)) {
-            return `Slug '${slug}' already exists as a ${otherKind.slice(0, -1)}. Run memory_delete confirm:true slug:"${slug}" first, then re-write as ${args.kind}.`
+            const scopeHint = scope === "global" ? ' scope:"global"' : ""
+            return `Slug '${slug}' already exists as a ${otherKind.slice(0, -1)} in this scope. Run memory_delete confirm:true slug:"${slug}"${scopeHint} first, then re-write as ${args.kind}.`
           }
 
           const existing = await readLines(pathFor(project, targetKind))
           const filtered = existing.filter((l) => slugOf(l) !== slug)
-          const newLine = isInstinct
+          const newLine = isRule
             ? `${slug}|${args.trigger}|${args.note}`
             : `${slug}|${args.domain}|${args.note}`
           filtered.push(newLine)
           await writeLines(pathFor(project, targetKind), filtered)
 
           const path = pathFor(project, targetKind)
-          return `wrote ${args.kind} ${slug} to ${path} (${filtered.length} ${targetKind}, ${newLine.length} bytes).`
+          const scopeLabel = scope === "global" ? "global" : project
+          return `wrote ${args.kind} ${slug} (${scopeLabel}) to ${path} (${filtered.length} ${targetKind}, ${newLine.length} bytes).`
         },
       }),
 
@@ -333,14 +387,15 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
         description: `Delete memory entries. Scoped to memory/ only — will NOT touch artifacts or designs.
 
 Scope by args:
-- slug only → remove that slug from whichever file holds it (instincts or facts).
-- domain only → remove matching facts (instincts ignore 'domain').
+- slug only → remove that slug from whichever file holds it (rules or facts), across the selected scope(s).
+- domain only → remove matching facts (rules ignore 'domain').
 - kind only → wipe that file.
 - kind + slug → remove that slug from only the named kind.
 - kind + domain → remove matching facts (only meaningful with kind:'facts' or 'all').
-- nothing set → wipe both files for the project.
+- scope:"global" → restrict to global storage. scope:"project" → restrict to project storage. scope:"all" (default) → both.
+- nothing set → wipe both files across all scopes.
 
-confirm:true required. Returns deleted slug list per kind.`,
+confirm:true required. Returns deleted file paths.`,
         args: {
           confirm: tool.schema
             .literal(true)
@@ -350,9 +405,13 @@ confirm:true required. Returns deleted slug list per kind.`,
             .optional()
             .describe("Memory slug. Omit to scope by kind/domain or wipe."),
           kind: tool.schema
-            .enum(["instincts", "facts", "all"])
+            .enum(["rules", "facts", "all"])
             .optional()
             .describe("Which file(s) to operate on. Default 'all'."),
+          scope: tool.schema
+            .enum(["project", "global", "all"])
+            .optional()
+            .describe("Which scope(s) to operate on. Default 'all' (both global and project)."),
           domain: tool.schema
             .string()
             .optional()
@@ -360,7 +419,7 @@ confirm:true required. Returns deleted slug list per kind.`,
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Omit to apply across all projects."),
+            .describe("Project name. Only valid when scope is 'project' or omitted. Omit to apply across all projects."),
         },
         async execute(args) {
           let slugNorm: string | undefined
@@ -371,9 +430,26 @@ confirm:true required. Returns deleted slug list per kind.`,
           }
 
           const kind = args.kind ?? "all"
+          const scope = args.scope ?? "all"
+
+          if (args.project && scope !== "project") {
+            return `\`project\` is not valid with scope:"${scope}". Drop one.`
+          }
+
+          // Build the project list according to scope.
+          let projects: string[]
+          if (scope === "global") {
+            projects = [GLOBAL_PROJECT]
+          } else if (scope === "project") {
+            projects = args.project
+              ? [args.project]
+              : (await collectProjectsWithMemory()).filter((p) => p !== GLOBAL_PROJECT)
+          } else {
+            projects = args.project ? [args.project] : await collectProjectsWithMemory()
+          }
+
           const result: DeleteResult = { deleted: [], skipped: [] }
           let totalRemoved = 0
-          const projects = args.project ? [args.project] : await collectProjectsWithMemory()
 
           // Returns a matcher that identifies lines to REMOVE, or undefined to
           // skip this file entirely. When no matcher fields are set, remove all.
@@ -412,8 +488,8 @@ confirm:true required. Returns deleted slug list per kind.`,
             const dir = memoryDirFor(project)
             if (!existsSync(dir)) continue
 
-            if (kind === "instincts" || kind === "all") {
-              await applyToFile(instinctsPath(project), "instincts")
+            if (kind === "rules" || kind === "all") {
+              await applyToFile(rulesPath(project), "rules")
             }
             if (kind === "facts" || kind === "all") {
               await applyToFile(factsPath(project), "facts")
