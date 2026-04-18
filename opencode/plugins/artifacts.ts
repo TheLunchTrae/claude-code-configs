@@ -1,19 +1,17 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
-import { mkdir, readFile, writeFile, readdir, stat, unlink, rmdir } from "node:fs/promises"
+import { mkdir, readFile, writeFile, readdir, stat } from "node:fs/promises"
 import { existsSync } from "node:fs"
-import { homedir } from "node:os"
-import { basename, join } from "node:path"
+import { join } from "node:path"
+import {
+  ARTIFACT_ROOT,
+  type DeleteResult,
+  deleteFile,
+  makeResolveProject,
+  removeEmptyDir,
+} from "./lib/project"
 
-const ARTIFACT_ROOT = join(homedir(), ".opencode-artifacts")
 const DEFAULT_TTL_DAYS = 90
 const DAY_MS = 24 * 60 * 60 * 1000
-
-const projectNameFromRemoteUrl = (url: string): string | undefined => {
-  const trimmed = url.trim().replace(/\.git$/, "")
-  if (!trimmed) return undefined
-  const last = trimmed.split(/[\/:]/).pop()
-  return last || undefined
-}
 
 const artifactPathFor = (project: string, command: string): string =>
   join(ARTIFACT_ROOT, project, `${command}.md`)
@@ -24,25 +22,6 @@ const resolveTtlDays = (): number => {
   const parsed = Number(raw)
   if (!Number.isFinite(parsed) || parsed < 0) return DEFAULT_TTL_DAYS
   return parsed
-}
-
-const removeEmptyDir = async (dir: string): Promise<void> => {
-  try {
-    await rmdir(dir)
-  } catch {
-    // not empty or already gone — ignore
-  }
-}
-
-type DeleteResult = { deleted: string[]; skipped: string[] }
-
-const deleteFile = async (path: string, result: DeleteResult): Promise<void> => {
-  try {
-    await unlink(path)
-    result.deleted.push(path)
-  } catch {
-    result.skipped.push(path)
-  }
 }
 
 const collectProjects = async (): Promise<string[]> => {
@@ -79,25 +58,7 @@ const pruneExpired = async (ttlDays: number): Promise<DeleteResult> => {
 }
 
 export const ArtifactsPlugin: Plugin = async ({ $, directory }) => {
-  let cachedProject: string | undefined
-
-  const resolveProject = async (): Promise<string> => {
-    if (cachedProject) return cachedProject
-    try {
-      const remote = (await $`git -C ${directory} config --get remote.origin.url`.quiet().nothrow().text()).trim()
-      const fromRemote = projectNameFromRemoteUrl(remote)
-      if (fromRemote) return (cachedProject = fromRemote)
-    } catch {
-      // fall through
-    }
-    try {
-      const top = (await $`git -C ${directory} rev-parse --show-toplevel`.quiet().nothrow().text()).trim()
-      if (top) return (cachedProject = basename(top))
-    } catch {
-      // fall through
-    }
-    return (cachedProject = basename(directory))
-  }
+  const resolveProject = makeResolveProject({ $, directory })
 
   const ensureProjectDir = async (project: string): Promise<string> => {
     const dir = join(ARTIFACT_ROOT, project)

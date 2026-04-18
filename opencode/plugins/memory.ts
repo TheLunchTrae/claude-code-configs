@@ -1,41 +1,50 @@
-// Memory plugin — unified store for loose facts and instinct-style behavioral
-// rules. Sibling to artifacts.ts.
+// Memory plugin — durable per-project store for facts and instinct-style
+// behavioral rules. Sibling to artifacts.ts.
 //
-// Storage: ~/.opencode-artifacts/<project>/memory/<slug>.yaml — one compact
-// YAML file per entry. Durable (no TTL). Entries hold a short `note` plus
-// optional `domain`, `trigger`, `confidence`, and `source`. Presence of
-// `trigger` promotes an entry from plain memory to an instinct.
+// Storage: two pipe-delimited files per project, no field names on disk.
+//   ~/.opencode-artifacts/<project>/memory/instincts.txt   slug|trigger|note
+//   ~/.opencode-artifacts/<project>/memory/facts.txt       slug|domain|note
 //
-// Token cost is paid on every session that calls memory_list, so entries are
-// kept terse by design: flat YAML with always-quoted string values (no parser
-// library needed) and a truncated table on list.
+// Instincts are auto-injected into the system prompt via the
+// experimental.chat.system.transform hook on every message, so the model
+// always carries them without needing a tool call. Facts stay tool-gated
+// (memory_list kind:"facts") so they only cost tokens when explicitly queried.
 //
-// The following helpers are duplicated from plugins/artifacts.ts and must be
-// kept in sync if edited in either of them: projectNameFromRemoteUrl,
-// removeEmptyDir, deleteFile, DeleteResult, and the resolveProject closure.
+// Shared project-resolution and delete helpers live in ./lib/project.
 
 import { type Plugin, tool } from "@opencode-ai/plugin"
-import { mkdir, readFile, writeFile, readdir, unlink, rmdir } from "node:fs/promises"
+import { mkdir, readdir, readFile, writeFile, rename, unlink } from "node:fs/promises"
 import { existsSync } from "node:fs"
-import { homedir } from "node:os"
-import { basename, join } from "node:path"
+import { join } from "node:path"
+import {
+  ARTIFACT_ROOT,
+  type DeleteResult,
+  makeResolveProject,
+  removeEmptyDir,
+} from "./lib/project"
 
-const ARTIFACT_ROOT = join(homedir(), ".opencode-artifacts")
 const MEMORY_SUBDIR = "memory"
+const INSTINCTS_FILE = "instincts.txt"
+const FACTS_FILE = "facts.txt"
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,63}$/
-
-const projectNameFromRemoteUrl = (url: string): string | undefined => {
-  const trimmed = url.trim().replace(/\.git$/, "")
-  if (!trimmed) return undefined
-  const last = trimmed.split(/[\/:]/).pop()
-  return last || undefined
-}
+const FORBIDDEN_IN_VALUE = /[|\r\n]/
+// Hard cap on injected instincts block — keeps silent context bloat from
+// accumulating as the user adds rules. ~4 chars per token → ~500 tokens.
+const INJECT_MAX_CHARS = 2000
 
 const memoryDirFor = (project: string): string =>
   join(ARTIFACT_ROOT, project, MEMORY_SUBDIR)
 
-const memoryPathFor = (project: string, slug: string): string =>
-  join(memoryDirFor(project), `${slug}.yaml`)
+const instinctsPath = (project: string): string =>
+  join(memoryDirFor(project), INSTINCTS_FILE)
+
+const factsPath = (project: string): string =>
+  join(memoryDirFor(project), FACTS_FILE)
+
+type Kind = "instincts" | "facts"
+
+const pathFor = (project: string, kind: Kind): string =>
+  kind === "instincts" ? instinctsPath(project) : factsPath(project)
 
 const normalizeSlug = (raw: string): string =>
   raw.trim().toLowerCase().replace(/\s+/g, "-").replace(/-+/g, "-")
@@ -53,126 +62,98 @@ const validateSlug = (raw: string): SlugResult => {
   return { ok: true, slug }
 }
 
-const removeEmptyDir = async (dir: string): Promise<void> => {
+const validateValue = (field: string, value: string): string | undefined => {
+  if (FORBIDDEN_IN_VALUE.test(value)) {
+    return `Invalid ${field}: contains '|', '\\n', or '\\r'. These are reserved delimiters — paraphrase to remove them.`
+  }
+  return undefined
+}
+
+const readLines = async (path: string): Promise<string[]> => {
+  if (!existsSync(path)) return []
+  const raw = await readFile(path, "utf8")
+  return raw.split(/\r?\n/).filter((l) => l.length > 0)
+}
+
+// Slug is always column 0. Cheap without a full parse.
+const slugOf = (line: string): string => {
+  const i = line.indexOf("|")
+  return i === -1 ? line : line.slice(0, i)
+}
+
+const atomicReplace = async (path: string, body: string): Promise<void> => {
+  const tmp = `${path}.tmp-${process.pid}-${Date.now()}`
+  await writeFile(tmp, body, "utf8")
   try {
-    await rmdir(dir)
-  } catch {
-    // not empty or already gone — ignore
+    await rename(tmp, path)
+  } catch (err) {
+    try {
+      await unlink(tmp)
+    } catch {
+      // ignore cleanup failure
+    }
+    throw err
   }
 }
 
-type DeleteResult = { deleted: string[]; skipped: string[] }
-
-const deleteFile = async (path: string, result: DeleteResult): Promise<void> => {
-  try {
-    await unlink(path)
-    result.deleted.push(path)
-  } catch {
-    result.skipped.push(path)
+const writeLines = async (path: string, lines: string[]): Promise<void> => {
+  if (lines.length === 0) {
+    if (existsSync(path)) await unlink(path)
+    return
   }
+  const sorted = [...lines].sort((a, b) => slugOf(a).localeCompare(slugOf(b)))
+  await atomicReplace(path, sorted.join("\n") + "\n")
+}
+
+const ensureMemoryDir = async (project: string): Promise<string> => {
+  const dir = memoryDirFor(project)
+  await mkdir(dir, { recursive: true })
+  return dir
 }
 
 const collectProjectsWithMemory = async (): Promise<string[]> => {
   if (!existsSync(ARTIFACT_ROOT)) return []
   const entries = await readdir(ARTIFACT_ROOT, { withFileTypes: true })
-  const projects = entries.filter((e) => e.isDirectory()).map((e) => e.name)
-  return projects.filter((p) => existsSync(memoryDirFor(p)))
+  return entries
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .filter((p) => existsSync(memoryDirFor(p)))
 }
 
-const collectMemories = async (project: string): Promise<string[]> => {
-  const dir = memoryDirFor(project)
-  if (!existsSync(dir)) return []
-  const entries = await readdir(dir)
-  return entries.filter((e) => e.endsWith(".yaml")).map((e) => join(dir, e))
+const truncateInjected = (body: string): string => {
+  if (body.length <= INJECT_MAX_CHARS) return body
+  const head = body.slice(0, INJECT_MAX_CHARS - 64)
+  const lastNl = head.lastIndexOf("\n")
+  const cut = lastNl > 0 ? head.slice(0, lastNl) : head
+  return `${cut}\n… (truncated — call memory_list kind:"instincts" for the full set)`
 }
 
-// Always single-quote string values; embedded single quotes doubled per YAML 1.2.
-// Predictable parse, no dependency on quote-detection heuristics.
-const yamlQuote = (value: string): string => `'${value.replace(/'/g, "''")}'`
-
-type Entry = {
-  note: string
-  domain?: string
-  trigger?: string
-  confidence?: number
-  source?: string
+const formatInjectedInstincts = (project: string, lines: string[]): string | undefined => {
+  if (lines.length === 0) return undefined
+  // Drop slug when injecting — LLM doesn't need the primary key; it only
+  // needs trigger → note. Saves ~5-10 tokens per entry.
+  const rules = lines
+    .map((line) => {
+      const parts = line.split("|", 3)
+      if (parts.length < 3) return undefined
+      const [, trigger, note] = parts
+      return `${trigger}: ${note}`
+    })
+    .filter((r): r is string => r !== undefined)
+  if (rules.length === 0) return undefined
+  const body = `Instincts (${project}) — follow when the "when" fires:\n${rules.join("\n")}`
+  return truncateInjected(body)
 }
 
-const serializeEntry = (entry: Entry): string => {
-  const lines: string[] = []
-  if (entry.domain !== undefined) lines.push(`domain: ${yamlQuote(entry.domain)}`)
-  if (entry.trigger !== undefined) lines.push(`trigger: ${yamlQuote(entry.trigger)}`)
-  if (entry.confidence !== undefined) lines.push(`confidence: ${entry.confidence}`)
-  if (entry.source !== undefined) lines.push(`source: ${yamlQuote(entry.source)}`)
-  lines.push(`note: ${yamlQuote(entry.note)}`)
-  return lines.join("\n") + "\n"
-}
-
-// Cheap line parser used only to surface fields for memory_list and to match
-// domains in memory_delete. The LLM reads raw file contents on memory_read, so
-// full YAML parsing would be wasted code.
-const parseEntryFields = (raw: string): Partial<Entry> => {
-  const out: Partial<Entry> = {}
-  for (const line of raw.split(/\r?\n/)) {
-    const match = line.match(/^(\w+):\s*(.*)$/)
-    if (!match) continue
-    const key = match[1]
-    let value = match[2].trim()
-    if (value.startsWith("'") && value.endsWith("'") && value.length >= 2) {
-      value = value.slice(1, -1).replace(/''/g, "'")
-    }
-    switch (key) {
-      case "note":
-        out.note = value
-        break
-      case "domain":
-        out.domain = value
-        break
-      case "trigger":
-        out.trigger = value
-        break
-      case "source":
-        out.source = value
-        break
-      case "confidence": {
-        const n = Number(value)
-        if (Number.isFinite(n)) out.confidence = n
-        break
-      }
-    }
+const formatListOutput = (project: string, kind: Kind, lines: string[]): string => {
+  if (lines.length === 0) {
+    return `no ${kind} (${project}).`
   }
-  return out
+  return `${kind} (${project}):\n${lines.join("\n")}`
 }
-
-const truncate = (s: string, n: number): string =>
-  s.length <= n ? s : s.slice(0, n - 1) + "…"
 
 export const MemoryPlugin: Plugin = async ({ $, directory }) => {
-  let cachedProject: string | undefined
-
-  const resolveProject = async (): Promise<string> => {
-    if (cachedProject) return cachedProject
-    try {
-      const remote = (await $`git -C ${directory} config --get remote.origin.url`.quiet().nothrow().text()).trim()
-      const fromRemote = projectNameFromRemoteUrl(remote)
-      if (fromRemote) return (cachedProject = fromRemote)
-    } catch {
-      // fall through
-    }
-    try {
-      const top = (await $`git -C ${directory} rev-parse --show-toplevel`.quiet().nothrow().text()).trim()
-      if (top) return (cachedProject = basename(top))
-    } catch {
-      // fall through
-    }
-    return (cachedProject = basename(directory))
-  }
-
-  const ensureMemoryDir = async (project: string): Promise<string> => {
-    const dir = memoryDirFor(project)
-    await mkdir(dir, { recursive: true })
-    return dir
-  }
+  const resolveProject = makeResolveProject({ $, directory })
 
   await mkdir(ARTIFACT_ROOT, { recursive: true })
 
@@ -183,83 +164,112 @@ export const MemoryPlugin: Plugin = async ({ $, directory }) => {
       output.env.OPENCODE_MEMORY_DIR = dir
     },
 
+    "experimental.chat.system.transform": async (_input, output) => {
+      const project = await resolveProject()
+      const lines = await readLines(instinctsPath(project))
+      const block = formatInjectedInstincts(project, lines)
+      if (block) output.system.push(block)
+    },
+
     tool: {
-      memory_read: tool({
-        description:
-          "Read a single memory entry (raw YAML). Returns file contents or a not-found message.",
+      memory_list: tool({
+        description: `List memory entries. Defaults to kind:"instincts" for the lightest surface.
+
+Instincts are auto-injected into the system prompt every message, so normally you do not need to call this — only do so when you want to see slugs (for memory_write/memory_delete) or when you need facts.
+
+Output format is the raw on-disk line per entry:
+- instincts: slug|trigger|note
+- facts: slug|domain|note`,
         args: {
+          kind: tool.schema
+            .enum(["instincts", "facts", "all"])
+            .optional()
+            .describe("Which set to list. Default 'instincts'."),
+          domain: tool.schema
+            .string()
+            .optional()
+            .describe("Facts only: filter by exact domain match."),
           slug: tool.schema
             .string()
-            .describe("Kebab-case slug (file stem). Spaces → hyphens, lowercased before validation."),
+            .optional()
+            .describe("Exact-match lookup by slug across the selected kind(s)."),
           project: tool.schema
             .string()
             .optional()
             .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
         },
         async execute(args) {
-          const v = validateSlug(args.slug)
-          if (!v.ok) return v.error
           const project = args.project ?? (await resolveProject())
-          const path = memoryPathFor(project, v.slug)
-          if (!existsSync(path)) {
-            return `No memory at ${path}.`
+          const kind = args.kind ?? "instincts"
+
+          let slugNorm: string | undefined
+          if (args.slug !== undefined) {
+            const v = validateSlug(args.slug)
+            if (!v.ok) return v.error
+            slugNorm = v.slug
           }
-          const content = await readFile(path, "utf8")
-          return `${project}/memory/${v.slug}.yaml:\n${content}`
+
+          const wantInstincts = kind === "instincts" || kind === "all"
+          const wantFacts = kind === "facts" || kind === "all"
+
+          const sections: string[] = []
+
+          if (wantInstincts) {
+            let lines = await readLines(instinctsPath(project))
+            if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+            sections.push(formatListOutput(project, "instincts", lines))
+          }
+
+          if (wantFacts) {
+            let lines = await readLines(factsPath(project))
+            if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+            if (args.domain !== undefined) {
+              lines = lines.filter((l) => l.split("|", 3)[1] === args.domain)
+            }
+            sections.push(formatListOutput(project, "facts", lines))
+          }
+
+          return sections.join("\n\n")
         },
       }),
 
       memory_write: tool({
-        description: `Write/overwrite a durable per-project memory entry — one YAML file at ~/.opencode-artifacts/<project>/memory/<slug>.yaml.
+        description: `Write or overwrite a durable per-project memory entry — one line in instincts.txt or facts.txt under ~/.opencode-artifacts/<project>/memory/.
 
-Memory captures facts and instinct-style behavioral rules so future sessions recall them without rediscovery. It is the terse counterpart to designs: designs are multi-paragraph architectural records with history; memory is one-sentence facts with metadata.
-
-Entry shape:
-- note (required): one short sentence, aim ≤120 chars, hard cap 240. State the fact directly, no prose, no "the user said…" framing.
-- domain (optional): category tag ('git', 'style', 'testing', 'repo-conventions').
-- trigger (optional): condition that activates the entry ('when committing'). Presence promotes it to an **instinct** (situational behavioral rule).
-- confidence (optional): 0-1.
-- source (optional): 'user-told', 'observed', 'repo-curation'.
+Classify the entry:
+- kind:"instinct" — a behavioral rule the future session should follow when a condition fires. Requires \`trigger\` (the "when"). Auto-injected into every system prompt.
+- kind:"fact" — a piece of context the session can look up when relevant. Requires \`domain\` (the filter key). Tool-gated, not auto-injected.
 
 Write when:
 - The user states a preference the current session won't remember next time.
 - A repo convention surfaces that isn't in any rule file and would slow a future session to rediscover.
-- A conditional behavioral rule fits a clear trigger (= instinct).
 
 Do NOT write for:
 - Session context — use /handoff (ephemeral).
 - One-off observations whose cost exceeds the value of remembering.
 
-Instinct vs plain memory is purely the presence of \`trigger\`. Both shapes share the same directory and tools.`,
+Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per project across both kinds; to change an entry's kind, memory_delete it first.`,
         args: {
+          kind: tool.schema
+            .enum(["instinct", "fact"])
+            .describe("'instinct' for a triggered behavioral rule; 'fact' for domain-tagged context."),
           slug: tool.schema
             .string()
-            .describe("Kebab-case slug (e.g. 'conventional-commits')."),
+            .describe("Kebab-case slug (e.g. 'conventional-commits'). Unique per project across both kinds."),
           note: tool.schema
             .string()
             .max(240)
-            .describe("The memory. One short sentence, aim ≤120 chars. Hard cap 240."),
-          domain: tool.schema
-            .string()
-            .max(40)
-            .optional()
-            .describe("Category tag (e.g. 'git', 'style'). Filters memory_list."),
+            .describe("The memory. One short sentence, aim ≤120 chars. Hard cap 240. No '|' or newlines."),
           trigger: tool.schema
             .string()
             .max(120)
             .optional()
-            .describe("Condition that activates this entry (e.g. 'when committing'). Presence makes it an instinct."),
-          confidence: tool.schema
-            .number()
-            .min(0)
-            .max(1)
-            .optional()
-            .describe("Confidence 0–1. Omit when not applicable."),
-          source: tool.schema
+            .describe("Required for kind:'instinct'. The 'when' condition (e.g. 'when committing')."),
+          domain: tool.schema
             .string()
             .max(40)
             .optional()
-            .describe("Origin tag: 'user-told', 'observed', 'repo-curation'."),
+            .describe("Required for kind:'fact'. Category tag (e.g. 'git', 'testing'). Filters memory_list."),
           project: tool.schema
             .string()
             .optional()
@@ -268,74 +278,69 @@ Instinct vs plain memory is purely the presence of \`trigger\`. Both shapes shar
         async execute(args) {
           const v = validateSlug(args.slug)
           if (!v.ok) return v.error
+          const slug = v.slug
+
+          const noteErr = validateValue("note", args.note)
+          if (noteErr) return noteErr
+
+          const isInstinct = args.kind === "instinct"
+
+          if (isInstinct) {
+            if (args.trigger === undefined) {
+              return "kind:'instinct' requires 'trigger' — the 'when' condition that activates the rule."
+            }
+            if (args.domain !== undefined) {
+              return "kind:'instinct' does not take 'domain'. Drop the domain arg or switch to kind:'fact'."
+            }
+            const trigErr = validateValue("trigger", args.trigger)
+            if (trigErr) return trigErr
+          } else {
+            if (args.domain === undefined) {
+              return "kind:'fact' requires 'domain' — a short category tag used to filter memory_list."
+            }
+            if (args.trigger !== undefined) {
+              return "kind:'fact' does not take 'trigger'. Drop the trigger arg or switch to kind:'instinct'."
+            }
+            const domErr = validateValue("domain", args.domain)
+            if (domErr) return domErr
+          }
+
           const project = args.project ?? (await resolveProject())
           await ensureMemoryDir(project)
-          const path = memoryPathFor(project, v.slug)
-          const body = serializeEntry({
-            note: args.note,
-            domain: args.domain,
-            trigger: args.trigger,
-            confidence: args.confidence,
-            source: args.source,
-          })
-          await writeFile(path, body, "utf8")
-          return `Wrote ${body.length} bytes to ${path}.`
-        },
-      }),
 
-      memory_list: tool({
-        description:
-          "List memory entries: slug | domain | trigger | note (truncated at 60 chars). Call at task start to surface relevant facts and instincts for the current project — filter by `domain` when the category is known. Use memory_read only when the truncated preview is insufficient.",
-        args: {
-          domain: tool.schema
-            .string()
-            .optional()
-            .describe("Only list entries matching this domain."),
-          project: tool.schema
-            .string()
-            .optional()
-            .describe("Project name. Defaults to current."),
-        },
-        async execute(args) {
-          const project = args.project ?? (await resolveProject())
-          const dir = memoryDirFor(project)
-          if (!existsSync(dir)) {
-            return `No memory for '${project}'.`
+          const targetKind: Kind = isInstinct ? "instincts" : "facts"
+          const otherKind: Kind = isInstinct ? "facts" : "instincts"
+
+          const otherLines = await readLines(pathFor(project, otherKind))
+          if (otherLines.some((l) => slugOf(l) === slug)) {
+            return `Slug '${slug}' already exists as a ${otherKind.slice(0, -1)}. Run memory_delete confirm:true slug:"${slug}" first, then re-write as ${args.kind}.`
           }
-          const entries = await readdir(dir)
-          const yamls = entries.filter((e) => e.endsWith(".yaml"))
-          if (yamls.length === 0) {
-            return `No memory for '${project}'.`
-          }
-          const rows = await Promise.all(
-            yamls.map(async (name) => {
-              const raw = await readFile(join(dir, name), "utf8")
-              const parsed = parseEntryFields(raw)
-              return {
-                slug: name.replace(/\.yaml$/, ""),
-                domain: parsed.domain ?? "",
-                trigger: parsed.trigger ?? "",
-                note: parsed.note ?? "",
-              }
-            }),
-          )
-          const filtered = args.domain
-            ? rows.filter((r) => r.domain === args.domain)
-            : rows
-          if (filtered.length === 0) {
-            return `No memory for '${project}' in domain '${args.domain}'.`
-          }
-          const lines = filtered.map(
-            (r) =>
-              `- ${r.slug} | ${r.domain || "-"} | ${r.trigger || "-"} | ${truncate(r.note, 60)}`,
-          )
-          return `Memory (${project}):\n${lines.join("\n")}`
+
+          const existing = await readLines(pathFor(project, targetKind))
+          const filtered = existing.filter((l) => slugOf(l) !== slug)
+          const newLine = isInstinct
+            ? `${slug}|${args.trigger}|${args.note}`
+            : `${slug}|${args.domain}|${args.note}`
+          filtered.push(newLine)
+          await writeLines(pathFor(project, targetKind), filtered)
+
+          const path = pathFor(project, targetKind)
+          return `wrote ${args.kind} ${slug} to ${path} (${filtered.length} ${targetKind}, ${newLine.length} bytes).`
         },
       }),
 
       memory_delete: tool({
-        description:
-          "Delete memory entries. Scoped to memory/ only — will NOT touch artifacts or designs. Scope by args: `slug`+`project` → one file; `project` only → all memory for that project; `slug` only → that entry across every project; `domain` only → all entries with that domain (in scoped projects); neither → wipe all memory. `confirm: true` required. Returns deleted/skipped paths.",
+        description: `Delete memory entries. Scoped to memory/ only — will NOT touch artifacts or designs.
+
+Scope by args:
+- slug only → remove that slug from whichever file holds it (instincts or facts).
+- domain only → remove matching facts (instincts ignore 'domain').
+- kind only → wipe that file.
+- kind + slug → remove that slug from only the named kind.
+- kind + domain → remove matching facts (only meaningful with kind:'facts' or 'all').
+- nothing set → wipe both files for the project.
+
+confirm:true required. Returns deleted slug list per kind.`,
         args: {
           confirm: tool.schema
             .literal(true)
@@ -343,54 +348,86 @@ Instinct vs plain memory is purely the presence of \`trigger\`. Both shapes shar
           slug: tool.schema
             .string()
             .optional()
-            .describe("Memory slug (file stem). Omit to scope by project, domain, or wipe all."),
+            .describe("Memory slug. Omit to scope by kind/domain or wipe."),
+          kind: tool.schema
+            .enum(["instincts", "facts", "all"])
+            .optional()
+            .describe("Which file(s) to operate on. Default 'all'."),
           domain: tool.schema
             .string()
             .optional()
-            .describe("Only delete entries whose `domain` matches. Ignored when `slug` is provided."),
+            .describe("Facts only: delete entries whose domain matches. Ignored when slug is also provided."),
           project: tool.schema
             .string()
             .optional()
             .describe("Project name. Omit to apply across all projects."),
         },
         async execute(args) {
-          let slug: string | undefined
+          let slugNorm: string | undefined
           if (args.slug !== undefined) {
             const v = validateSlug(args.slug)
             if (!v.ok) return v.error
-            slug = v.slug
+            slugNorm = v.slug
           }
+
+          const kind = args.kind ?? "all"
           const result: DeleteResult = { deleted: [], skipped: [] }
+          let totalRemoved = 0
           const projects = args.project ? [args.project] : await collectProjectsWithMemory()
+
+          // Returns a matcher that identifies lines to REMOVE, or undefined to
+          // skip this file entirely. When no matcher fields are set, remove all.
+          const matcherFor = (forKind: Kind): ((line: string) => boolean) | undefined => {
+            if (slugNorm) return (l) => slugOf(l) === slugNorm
+            if (args.domain !== undefined) {
+              // 'domain' is facts-only; ignore files that can't match.
+              if (forKind !== "facts") return undefined
+              return (l) => l.split("|", 3)[1] === args.domain
+            }
+            return () => true
+          }
+
+          const applyToFile = async (path: string, forKind: Kind): Promise<void> => {
+            if (!existsSync(path)) return
+            const matcher = matcherFor(forKind)
+            if (!matcher) return
+            const before = await readLines(path)
+            const after = before.filter((l) => !matcher(l))
+            const removed = before.length - after.length
+            if (removed === 0) return
+            try {
+              if (after.length === 0) {
+                await unlink(path)
+              } else {
+                await writeLines(path, after)
+              }
+              totalRemoved += removed
+              result.deleted.push(path)
+            } catch {
+              result.skipped.push(path)
+            }
+          }
 
           for (const project of projects) {
             const dir = memoryDirFor(project)
             if (!existsSync(dir)) continue
 
-            if (slug) {
-              const path = memoryPathFor(project, slug)
-              if (existsSync(path)) await deleteFile(path, result)
-            } else if (args.domain) {
-              const files = await collectMemories(project)
-              for (const path of files) {
-                try {
-                  const parsed = parseEntryFields(await readFile(path, "utf8"))
-                  if (parsed.domain === args.domain) await deleteFile(path, result)
-                } catch {
-                  result.skipped.push(path)
-                }
-              }
-            } else {
-              const files = await collectMemories(project)
-              for (const path of files) await deleteFile(path, result)
+            if (kind === "instincts" || kind === "all") {
+              await applyToFile(instinctsPath(project), "instincts")
             }
+            if (kind === "facts" || kind === "all") {
+              await applyToFile(factsPath(project), "facts")
+            }
+
             await removeEmptyDir(dir)
             await removeEmptyDir(join(ARTIFACT_ROOT, project))
           }
 
-          const noun = result.deleted.length === 1 ? "entry" : "entries"
-          const lines = [`Deleted ${result.deleted.length} memory ${noun}.`]
-          if (result.deleted.length > 0) lines.push(...result.deleted.map((p) => `  - ${p}`))
+          const noun = totalRemoved === 1 ? "entry" : "entries"
+          const lines = [`Deleted ${totalRemoved} memory ${noun}.`]
+          if (result.deleted.length > 0) {
+            lines.push(...result.deleted.map((p) => `  - ${p}`))
+          }
           if (result.skipped.length > 0) {
             lines.push(`Skipped ${result.skipped.length} (could not delete):`)
             lines.push(...result.skipped.map((p) => `  - ${p}`))
