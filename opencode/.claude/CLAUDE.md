@@ -14,19 +14,19 @@ Hooks are intentionally not versioned in this repo on either the Claude Code sid
 
 # READMEs
 
-Each tracked subdirectory has a user-facing `README.md` that must stay in sync with its contents. These READMEs ship to users via `/sync-configs` and are the primary reference for anyone who didn't also clone the upstream repo.
+Each tracked subdirectory has a user-facing `README.md` that is a **pure TOC** — title plus the inventory table(s) for that directory, nothing else. No install instructions, no prose walkthroughs, no frontmatter schema, no authoring checklists. These READMEs ship to users via `/sync-configs`.
 
-| README | Covers |
-|--------|--------|
-| `opencode/README.md` | Top-level TOC, install instructions, folder map, typical-session walkthrough |
-| `opencode/agents/README.md` | Agent roster tables grouped by category, frontmatter schema, authoring checklist |
-| `opencode/commands/README.md` | Slash-command catalogue grouped by workflow, frontmatter schema, authoring checklist |
-| `opencode/skills/README.md` | Skill inventory, frontmatter schema, commands-vs-skills relationship |
-| `opencode/plugins/README.md` | Per-plugin write-up (memory, artifacts, block-secrets), shared-helpers note, SDK reference |
+| README | Contents |
+|--------|----------|
+| `opencode/README.md` | Folder map — one row per subdirectory |
+| `opencode/agents/README.md` | Agent roster tables grouped by category |
+| `opencode/commands/README.md` | Slash-command catalogue grouped by workflow |
+| `opencode/skills/README.md` | Skill inventory (single table) |
+| `opencode/plugins/README.md` | Plugin inventory (single table) |
 
-**When you add, rename, or remove any agent / command / skill / plugin, update the matching README inventory in the same commit.** The "Adding a new …" section at the end of each README enumerates the specific rows/sections to touch.
+**When you add, rename, or remove any agent / command / skill / plugin, update the matching README table in the same commit.** Keep rows terse — one line describing what the item does, following the existing pattern.
 
-The READMEs are written from the perspective of an isolated OpenCode install. Do not add language that presumes the reader has the Claude Code configs, the `/opencode-mirror` skill, or any file that doesn't ship via the `/sync-configs` manifest. Keep authoring-from-CC schema notes and upstream-manifest bookkeeping in this `.claude/CLAUDE.md` instead.
+All authoring guidance (frontmatter schema, CC-only keys to strip, pre-commit checklist, per-plugin deep-dives, "Adding a new …" steps) lives only in this `.claude/CLAUDE.md`. Do not push any of it back into the user-facing READMEs.
 
 # Frontmatter schema for agents, commands, and skills
 
@@ -182,5 +182,5 @@ Verify hook signatures and the return shape against the source before adding a n
 1. Create the TS file under `opencode/plugins/`.
 2. If it needs a new npm dep, add it to `opencode/package.json` and note the reason in the plugin's opening comment.
 3. Add the plugin to the `## Registry` above and to the `## Plugins` section of `opencode/.opencode/sync-configs-manifest.md` so it propagates on `/sync-configs`.
-4. Add a user-facing write-up for the new plugin to `opencode/plugins/README.md` — what it does, what the user sees, any new tool surface.
+4. Add a one-line row for the new plugin to the table in `opencode/plugins/README.md`.
 5. No change to `opencode.jsonc` is needed — plugins are auto-discovered from `plugins/`.
