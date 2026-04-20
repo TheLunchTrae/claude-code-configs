@@ -3,6 +3,8 @@ description: GitHub Actions developer for authoring, modifying, and fixing workf
 mode: subagent
 temperature: 0.1
 color: "#24292F"
+permission:
+  edit: allow
 ---
 
 You are a senior engineer implementing GitHub Actions workflows, composite actions, and reusable workflows.

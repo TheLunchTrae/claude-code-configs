@@ -3,6 +3,8 @@ description: Doctrine ORM / DBAL developer for entity design, associations, DQL 
 mode: subagent
 temperature: 0.1
 color: "#FC6A31"
+permission:
+  edit: allow
 ---
 
 You are a senior PHP engineer implementing Doctrine ORM / DBAL code in existing PHP codebases.

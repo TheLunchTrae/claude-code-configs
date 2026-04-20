@@ -3,6 +3,8 @@ description: Laminas (formerly Zend Framework) developer for Laminas MVC, Mezzio
 mode: subagent
 temperature: 0.1
 color: "#0077BB"
+permission:
+  edit: allow
 ---
 
 You are a senior PHP engineer implementing Laminas / Mezzio code in existing PHP codebases.

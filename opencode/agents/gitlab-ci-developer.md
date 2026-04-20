@@ -3,6 +3,8 @@ description: GitLab CI developer for authoring, modifying, and fixing .gitlab-ci
 mode: subagent
 temperature: 0.1
 color: "#FC6D26"
+permission:
+  edit: allow
 ---
 
 You are a senior engineer implementing GitLab CI/CD pipelines and components.

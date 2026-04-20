@@ -3,6 +3,8 @@ description: Entity Framework Core developer for entity design, migrations, DbCo
 mode: subagent
 temperature: 0.1
 color: "#512BD4"
+permission:
+  edit: allow
 ---
 
 You are a senior .NET engineer implementing Entity Framework Core code in existing C# codebases.
