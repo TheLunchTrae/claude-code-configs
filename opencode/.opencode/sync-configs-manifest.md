@@ -2,7 +2,11 @@
 
 Paths are relative to the `opencode/` directory in the upstream repo, and are written to the same relative path in the local OpenCode config tree.
 
-Any line matching `^- <path>` contributes a path to the sync manifest. Section headers are for human readability only.
+Any line matching `^- <path>` contributes a path to the sync manifest. Section headers are for human readability only, except `## Deleted` — paths under that section are removed from the local tree rather than fetched.
+
+`Version:` is a monotonically increasing integer bumped on every commit that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
+
+Version: 1
 
 ## Config
 - opencode.jsonc
@@ -73,3 +77,8 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - plugins/lib/project.ts
 - plugins/memory.ts
 - tsconfig.json
+
+## Deleted
+
+Paths that were previously synced and should now be removed from the local OpenCode config tree. Entries stay here indefinitely so users whose last-synced version predates the deletion still have it applied when they next run `/sync-configs`.
+

@@ -2,15 +2,16 @@
 
 This rule governs `opencode/.opencode/sync-configs-manifest.md` — the manifest used by the **OC distribution command** `/sync-configs`, which webfetches OC configs from GitHub into a downstream install (for environments where cloning the repo isn't an option). It is **not** the same as the CC-side `/opencode-mirror` skill, which is a selective within-repo mirror used while authoring configs; see `.claude/skills/opencode-mirror/SKILL.md` for the hardcoded CC↔OC exclusion list. `/sync-configs` always fetches this manifest from upstream before syncing, so the manifest must list every OC file verbatim — anything missing won't reach the user.
 
-`opencode/.opencode/sync-configs-manifest.md` is a pure list of paths under `opencode/`. The command file (`opencode/.opencode/commands/sync-configs.md`) contains only the sync procedure and references this manifest. The manifest must mirror the current OC file tree — newly added files won't ship without an entry, and removed files cause 404s during sync.
+`opencode/.opencode/sync-configs-manifest.md` is a list of paths under `opencode/` plus a `Version:` integer. The command file (`opencode/.opencode/commands/sync-configs.md`) contains only the sync procedure and references this manifest. The manifest must mirror the current OC file tree — newly added files won't ship without an entry, and removed files cause 404s during sync unless they are moved to the `## Deleted` section.
 
 ## When to update
 
 Update the manifest in the **same commit** as any of these changes to `opencode/`:
 
+- **Bump `Version:`** — every commit that changes a manifest-tracked file (content or membership) or the manifest itself increments the `Version:` integer by 1. `/sync-configs` uses this value to short-circuit when nothing has changed since the user's last sync, so the bump is what causes downstream users to pull your change.
 - **Add** — a new file in a tracked location creates a bullet under the corresponding section.
-- **Remove** — a deleted file's entry must be removed in the same commit.
-- **Rename / move** — change the bullet's path to match the new location.
+- **Delete** — **move** the file's bullet from its current section into the `## Deleted` section (do not just remove it). Entries stay under `## Deleted` indefinitely so users whose last-synced version predates the delete still have it applied when they next run `/sync-configs`. If the same path is later re-added to `opencode/`, remove the `## Deleted` entry in the same commit that re-adds it.
+- **Rename / move** — update the existing bullet's path to match the new location, and add the old path to `## Deleted` so user installs lose the stale file.
 
 ## Scope
 
@@ -23,6 +24,7 @@ The manifest must include **every file under `opencode/`** that OpenCode reads a
 | Commands | `opencode/commands/` + `opencode/.opencode/commands/` | every `*.md` (including `sync-configs.md` itself) |
 | Skills | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
 | Plugins | `opencode/plugins/` + root | every `plugins/*.ts` plus `tsconfig.json` |
+| Deleted | any path previously tracked | paths removed from the OC tree; never pruned |
 
 ## Excluded by design
 
