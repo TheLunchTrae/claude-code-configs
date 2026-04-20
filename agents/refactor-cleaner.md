@@ -1,6 +1,6 @@
 ---
 name: refactor-cleaner
-description: Dead code and dependency cleanup specialist using knip, depcheck, and ts-prune. Use PROACTIVELY for removing unused exports, unused dependencies, and leftover scaffolding across the codebase.
+description: Dead code and dependency cleanup specialist using knip, depcheck, and ts-prune. Use when removing unused exports, unused dependencies, and leftover scaffolding across the codebase.
 tools: ["Read", "Edit", "Bash", "Grep", "Glob"]
 model: haiku
 ---

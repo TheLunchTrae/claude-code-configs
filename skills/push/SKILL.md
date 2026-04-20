@@ -17,3 +17,9 @@ Push the current branch to its remote. Follow these steps:
 Repository-level CLAUDE.md instructions take precedence over these defaults.
 
 $ARGUMENTS
+
+## Gotchas
+
+- The retry loop in step 4 covers network errors only. Auth, permission, or repo-not-found failures fail fast — do not retry them.
+- Non-fast-forward rejections in step 5 stop the skill. Never force-push to recover unless the user has explicitly authorized it for this push.
+- First push to a new branch needs `-u origin <branch>` (handled in step 3); skipping the upstream flag leaves the branch untracked locally.

@@ -32,3 +32,9 @@ Review the gathered code using your review methodology. Format the output accord
 Present the findings grouped by severity. For each issue include the file, line, and description. Present the verdict clearly.
 
 Stop here. The user will decide what to do next — if they want fixes applied, they will ask.
+
+## Gotchas
+
+- Subagent fork — read-only. The skill stops after presenting findings; do not auto-apply fixes even if the issues look trivial.
+- If `$ARGUMENTS` is empty or ambiguous, ask which review target the user wants. Do not default to "everything changed" silently.
+- The review covers changed code only by default. Bugs in unchanged surrounding code can be relevant context but are not flagged unless they're CRITICAL security issues.
