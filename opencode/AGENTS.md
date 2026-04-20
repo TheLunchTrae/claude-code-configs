@@ -1,9 +1,3 @@
-# AGENTS.md
-
-Cross-agent instructions for this OpenCode install. Plugin-specific guidance (memory) lives in the plugin tool descriptions themselves — see `plugins/memory.ts`.
-
----
-
 # General
 
 - Be critical, pragmatic, and fact-focused. Keep responses direct — omit compliments and unrequested context.
