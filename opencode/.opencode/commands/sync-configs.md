@@ -1,3 +1,7 @@
+---
+description: "Sync OpenCode config files (agents, commands, skills, plugins) from the upstream GitHub repo into ~/.claude/. Use to pull config updates after a version bump."
+---
+
 Sync OpenCode config files from the upstream GitHub repo into this project directory.
 
 Base URL: `https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/`
