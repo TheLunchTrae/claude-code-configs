@@ -64,6 +64,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 - skills/review/SKILL.md
 - skills/review/template.md
 - skills/security-review/SKILL.md
+- skills/security-review/references/owasp-2021.md
 
 ## Plugins
 - plugins/README.md

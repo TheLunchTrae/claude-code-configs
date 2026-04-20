@@ -21,5 +21,23 @@
     "superpowers@claude-plugins-official": true,
     "playwright@claude-plugins-official": true
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/block-secrets.sh"
+          }
+        ]
+      }
+    ]
+  },
   "autoUpdatesChannel": "latest"
 }

@@ -33,9 +33,9 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 **Skills** (CC-side skills with no `opencode/skills/` or `opencode/commands/` counterpart):
 - `.claude/skills/opencode-mirror/` — this skill itself. It exists to support authoring inside this repo; an OC session on a downstream install has no use for it.
 
-**Hooks** — not versioned on either side. No hook entries exist here and no `opencode/.claude/CLAUDE.md` hook entries exist on the OC side. Do not add any.
+**Hooks ↔ Plugins** — CC hooks (`hooks/*.sh`, registered in `settings.json.hooks`) and OC plugins (`opencode/plugins/*.ts`) are the closest functional equivalents but live in different technology stacks and cannot be translated automatically. Mirror them **manually and directionally**: when adding a hook on CC that should have a plugin counterpart on OC (or vice versa), author the counterpart in the other stack's idiom and keep behavior in sync. Current pair: `hooks/block-secrets.sh` ↔ `opencode/plugins/block-secrets.ts`. Not every hook needs a plugin (and vice versa) — decide per capability.
 
-**Plugins** — OC plugins (`opencode/plugins/*.ts`) have no CC counterpart because CC's plugin system is npm-package-based and unrelated. This is a deliberate asymmetry, not an omission.
+**Plugins (without a hook counterpart)** — OC plugins that have no CC equivalent (`artifacts.ts`, `memory.ts`) stay OC-only. They rely on `~/.opencode-artifacts/` conventions that only exist for OC sessions.
 
 **Plugin-specific guidance lives in plugin tool descriptions, not AGENTS.md** — the `memory` plugin (`opencode/plugins/memory.ts`) carries its when-to-write / when-not-to-write rules inside the `memory_write` tool description. There is no corresponding section in `opencode/AGENTS.md`, and no CC-side rule to mirror — the model picks up the guidance from the tool schema at call time.
 
@@ -54,8 +54,9 @@ When any config file in a mirrored category is created or modified, the correspo
 | Claude Code | OpenCode | Notes |
 |-------------|----------|-------|
 | `rules/*.md` (cross-agent) | `opencode/AGENTS.md` (a single coalesced file) | OpenCode reads `AGENTS.md` automatically — no `instructions` array needed. The CC side keeps one file per topic under `rules/`; the OC side concatenates them into `AGENTS.md` under topic headings (`# General`, `# Security`, `# Coding Style`, `# Code Review`, `# Testing`, `# Patterns`, `# Agents`, etc.). |
-| `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). Plugins have no equivalent. |
-| _(none — OpenCode-only)_ | `opencode/plugins/*.ts` | Authored OpenCode plugins. Auto-discovered at session start. No Claude Code equivalent — CC's plugin system is npm-package-based and unrelated. |
+| `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). `enabledPlugins` (CC-official plugins) have no equivalent. `statusLine` has no OC equivalent. `hooks` ↔ `opencode/plugins/*.ts` — see next row. |
+| `hooks/*.sh` (registered in `settings.json.hooks`) | `opencode/plugins/*.ts` | Functional counterparts across stacks, not automatic translations. Mirror manually and directionally. Current pair: `hooks/block-secrets.sh` ↔ `opencode/plugins/block-secrets.ts`. |
+| _(none — OpenCode-only)_ | `opencode/plugins/{artifacts,memory}.ts` | Authored OpenCode plugins with no CC counterpart — rely on `~/.opencode-artifacts/` conventions specific to OC sessions. |
 | _(none — OpenCode-only)_ | `opencode/package.json`, `opencode/tsconfig.json` | Manifest + tsconfig so `bun install` resolves plugin SDK + types at the OC config root. |
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: code-reviewer` + `subtask: true` for user invocation with context isolation. |

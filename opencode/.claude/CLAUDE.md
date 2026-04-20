@@ -8,9 +8,11 @@ The `permission.edit` is set to `"ask"` globally.
 
 This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `AGENTS.md`, `opencode.jsonc`, and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
 
-# Hooks are out of scope
+# Hooks are out of scope on the OpenCode side
 
-Hooks are intentionally not versioned in this repo on either the Claude Code side or the OpenCode side. The opencode-mirror mapping reflects that — no hook entries exist. Do not add any.
+OpenCode has no hooks system comparable to Claude Code's `settings.json.hooks`. The equivalent on the OC side is plugins — authored TypeScript modules under `opencode/plugins/` (see the Plugins section below). When a new capability is needed that would be a hook on CC, implement it as a plugin here instead; don't try to invent an OC hooks shim.
+
+The CC side does version hooks under `hooks/` at the CC repo root. The opencode-mirror mapping reflects this directional asymmetry: CC hooks mirror to OC plugins manually (no automatic translation). Current pair: `hooks/block-secrets.sh` ↔ `opencode/plugins/block-secrets.ts`.
 
 # READMEs
 

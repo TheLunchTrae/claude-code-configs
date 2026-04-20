@@ -1,5 +1,5 @@
 ---
-description: Dead code and dependency cleanup specialist using knip, depcheck, and ts-prune. Use PROACTIVELY for removing unused exports, unused dependencies, and leftover scaffolding across the codebase.
+description: Dead code and dependency cleanup specialist using knip, depcheck, and ts-prune. Use when removing unused exports, unused dependencies, and leftover scaffolding across the codebase.
 mode: subagent
 temperature: 0.1
 ---

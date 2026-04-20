@@ -17,3 +17,9 @@ Produce a structured implementation plan. Use when the task needs phases, file p
 4. Wait for explicit user approval before any implementation begins
 
 Read the codebase but make no changes. Output a plan only.
+
+## Gotchas
+
+- Subagent fork — the output is a plan, not an implementation. Always wait for explicit user approval before any code is written.
+- The planner does not run tests or execute scripts; verification steps in the plan are descriptions, not results.
+- If the user's request is ambiguous, surface the ambiguity in the plan rather than guessing a direction.

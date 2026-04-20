@@ -2,9 +2,10 @@ This repository is a versioned backup of a `~/.claude` directory for Claude Code
 It is a config repo, not a software project — there is no application to build or run.
 
 Files here are Claude Code configuration: `rules/` (user-level rules split by topic),
-`settings.json` (permissions and plugins), `agents/` (subagent definitions),
-and `skills/` (user-invocable slash commands). There is no root `CLAUDE.md` —
-Claude Code loads `rules/*.md` directly from `~/.claude/rules/`.
+`settings.json` (permissions, plugins, statusline, hooks), `agents/` (subagent definitions),
+`skills/` (user-invocable slash commands), `hooks/` (lifecycle scripts referenced from
+`settings.json`), and `statusline.sh` (the script `settings.json.statusLine` calls).
+There is no root `CLAUDE.md` — Claude Code loads `rules/*.md` directly from `~/.claude/rules/`.
 
 Do not treat the absence of source code as a problem to fix.
 
@@ -68,4 +69,8 @@ User-level Claude configuration lives at the repo root: `rules/` (loaded globall
 
 This `.claude/` directory is for **repo-specific Claude functionality**: skills or instructions that apply only when working inside this repository. When adding or modifying Claude features that are specific to managing this repo (e.g. the OpenCode sync skill), place them here in `.claude/`, not in the root `skills/` or `agents/` directories.
 
-Hooks are intentionally out of scope for this repo — they are not versioned here and not copied across machines.
+# Hooks
+
+Hooks are versioned at the repo root under `hooks/` and registered in `settings.json` under the `hooks` key. When the repo is cloned to `~/.claude/`, scripts at `hooks/<name>.sh` end up at `~/.claude/hooks/<name>.sh`. Reference them from `settings.json` with the full `~/.claude/hooks/<name>.sh` path. Keep hook scripts dependency-light — assume `bash` and `jq` only — and chmod +x before committing so the executable bit survives the clone.
+
+The CC-side `hooks/` directory is the intended counterpart to OC's `opencode/plugins/`. When adding a CC hook that mirrors an existing OC plugin (or vice versa), name them consistently and keep their match patterns in sync. Current pair: `hooks/block-secrets.sh` ↔ `opencode/plugins/block-secrets.ts`.
