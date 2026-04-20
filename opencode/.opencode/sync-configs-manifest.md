@@ -14,7 +14,7 @@ Version: 6
 - README.md
 
 ## Agents
-- agents/README.md
+- agents/README.markdown
 - agents/lead.md
 - agents/architect.md
 - agents/planner.md
@@ -41,7 +41,7 @@ Version: 6
 - agents/react-developer.md
 
 ## Commands
-- commands/README.md
+- commands/README.markdown
 - commands/commit.md
 - commands/commit-push.md
 - commands/push.md
@@ -81,4 +81,7 @@ Version: 6
 ## Deleted
 
 Paths that were previously synced and should now be removed from the local OpenCode config tree. Entries stay here indefinitely so users whose last-synced version predates the deletion still have it applied when they next run `/sync-configs`.
+
+- agents/README.md
+- commands/README.md
 

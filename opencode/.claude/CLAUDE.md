@@ -16,13 +16,13 @@ The CC side does version hooks under `hooks/` at the CC repo root. The opencode-
 
 # READMEs
 
-Each tracked subdirectory has a user-facing `README.md` that is a **pure TOC** — title plus the inventory table(s) for that directory, nothing else. No install instructions, no prose walkthroughs, no frontmatter schema, no authoring checklists. These READMEs ship to users via `/sync-configs`.
+Each tracked subdirectory has a user-facing README that is a **pure TOC** — title plus the inventory table(s) for that directory, nothing else. No install instructions, no prose walkthroughs, no frontmatter schema, no authoring checklists. These READMEs ship to users via `/sync-configs`. Most use the `README.md` filename; the two inside OpenCode's agent/command discovery globs use `README.markdown` to avoid being loaded as phantom agents/commands (see the table below).
 
 | README | Contents |
 |--------|----------|
 | `opencode/README.md` | Folder map — one row per subdirectory |
-| `opencode/agents/README.md` | Agent roster tables grouped by category |
-| `opencode/commands/README.md` | Slash-command catalogue grouped by workflow |
+| `opencode/agents/README.markdown` | Agent roster tables grouped by category. Named `.markdown` (not `.md`) so OpenCode's `opencode/agents/*.md` discovery glob skips it — otherwise it gets loaded as a phantom agent. |
+| `opencode/commands/README.markdown` | Slash-command catalogue grouped by workflow. Named `.markdown` (not `.md`) so OpenCode's `opencode/commands/*.md` discovery glob skips it — otherwise it gets loaded as a phantom command. |
 | `opencode/skills/README.md` | Skill inventory (single table) |
 | `opencode/plugins/README.md` | Plugin inventory (single table) |
 | `opencode/.opencode/README.md` | `/sync-configs` usage blurb + files table. The only README that isn't a pure TOC — it documents the one command entry point exposed by this directory. |
