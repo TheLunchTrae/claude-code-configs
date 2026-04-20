@@ -10,6 +10,11 @@ This repository is a versioned backup of a personal `~/.claude` directory for [C
    git clone git@github.com:thelunchtrae/claude-code-configs.git ~/.claude
    ```
 3. Reinstall any plugins listed as enabled in `settings.json` — they are excluded from the repo (see `.gitignore`) but the enabled set is captured there.
+4. (Optional) Add user-scope MCP servers via `claude mcp add`. They are not versioned in this repo because Claude Code stores user-scope MCP config in the auto-managed `~/.claude.json`, not in `~/.claude/settings.json`. Recommended starter set:
+   ```sh
+   claude mcp add fetch --scope user -- uvx mcp-server-fetch
+   ```
+   Add the GitHub MCP server only if you need authenticated access from sessions outside the IDE harness — it requires a personal access token, which should never be checked in.
 
 ## Attribution
 
