@@ -53,15 +53,45 @@ Present the finalized design to the user with these explicit options and wait fo
 
 ### 4. Implement
 
-Implement the approved design directly. If you hit a blocker, revise the design if needed and return to step 2.
+When the work decomposes into non-overlapping files or modules, fan out to the matching developer subagents in parallel (see **Delegation and parallelism**). Otherwise, implement the approved design directly, or pass the whole slice to one developer subagent. If you hit a blocker, revise the design if needed and return to step 2.
 
 ### 5. Review — implementation
 
 Send the implementation to the **code-reviewer** subagent. If issues are raised, fix them and re-run this step. If no critical or high issues remain, report completion to the user including any lower-severity findings — the user decides whether to address them.
 
-## Available subagents
+## Delegation and parallelism
 
-When a task needs specialized knowledge or a focused pass over the code, delegate to a subagent rather than doing the work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently. When a language-specific reviewer surfaces a CRITICAL security finding, invoke `security-reviewer` next for a focused vulnerability pass before merging.
+Delegate to a subagent rather than doing specialized work inline. Pass complete context — the design, relevant file contents, and any prior review feedback — so the subagent can work independently.
+
+Parallelise delegation when subtasks are independent. The rule of thumb:
+
+| Work type | Default |
+|-----------|---------|
+| Research, exploration, reviews on different files/modules | Parallel |
+| Implementation across non-overlapping files or modules | Parallel (fan-out / fan-in) |
+| Implementation on overlapping files, or step B depends on step A | Sequential |
+
+Maintain single ownership per artifact — no two subagents modifying the same file in one fan-out.
+
+BAD (same file, two editors collide):
+
+```
+@typescript-developer: add feature A to src/foo.ts
+@typescript-developer: add feature B to src/foo.ts
+```
+
+GOOD (independent modules, safe to run in parallel):
+
+```
+@typescript-developer: implement src/foo.ts
+@go-developer:         implement cmd/bar.go
+@typescript-reviewer:  review the TS diff
+@go-reviewer:          review the Go diff
+```
+
+When a language-specific reviewer surfaces a CRITICAL security finding, invoke `security-reviewer` next for a focused vulnerability pass before merging.
+
+## Available subagents
 
 | Agent | Purpose | When to invoke |
 |-------|---------|----------------|

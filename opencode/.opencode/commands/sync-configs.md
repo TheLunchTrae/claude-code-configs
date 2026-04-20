@@ -22,8 +22,8 @@ The list of files to sync lives in a separate manifest fetched from upstream on 
 
 4. **Short-circuit.** If `last_version == remote_version`, print `Already up to date (version <N>).` and exit. Do not fetch any file content; do not modify the state file.
 
-5. **Sync each path in `sync_paths`** sequentially:
-   1. **Fetch** the remote file via `curl` to `<Base URL><path>`. If the fetch fails, skip the file and add it to the failures list — do not abort the whole run.
+5. **Sync each path in `sync_paths`.** Split `sync_paths` into batches of ~5 paths each and dispatch one subagent per batch via the Task tool, running all batches in parallel. Each subagent performs steps 5.1–5.3 on its assigned paths (fetch, compare, merge when different) and returns a structured result per path: updated, unchanged, needs-user-decision, or failed. Single ownership per artifact — no two subagents touch the same path. The primary consolidates the results from all batches, handles the needs-user-decision cases centrally (see step 5.3), and only then proceeds to step 6.
+   1. **Fetch** the remote file via `curl` to `<Base URL><path>`. If the fetch fails, skip the file and add it to the failures list — do not abort the whole run or the batch.
    2. **Compare** the fetched content to the local file at `<path>`:
       - **Identical** — skip, add to unchanged list.
       - **Local file missing** — write the remote content directly, add to updated list.
@@ -33,8 +33,8 @@ The list of files to sync lives in a separate manifest fetched from upstream on 
       - Scan the local file for sections, lines, or blocks absent from the remote. For each local-only addition, judge intent:
         - **Preserve** if the addition is clearly a local customization (environment-specific tool references, local paths, workspace-specific notes).
         - **Drop** if it appears to be content the remote has since removed or superseded.
-      - If the diff is large, touches core workflow behavior, or the intent of a local addition is ambiguous, **pause and ask the user** before writing anything for that file. Show a brief summary of what differs. Wait for their instruction before continuing with that file.
-      - Once the merged content is determined, write the file and add it to the updated list.
+      - If the diff is large, touches core workflow behavior, or the intent of a local addition is ambiguous, **defer the write and return the file as needs-user-decision** with a brief summary of what differs. Do not write the file from inside the subagent — the primary surfaces these after all batches report back, asks the user, and writes each one based on their instruction.
+      - Once the merged content is determined (either inside the subagent for clear-cut merges, or by the primary after user confirmation), write the file and add it to the updated list.
 
 6. **Apply deletions from `delete_paths`** — **only if `last_version != null`.**
    - For each path, if the local file exists, delete it and add it to the deleted list. If it does not exist, silently skip it.
