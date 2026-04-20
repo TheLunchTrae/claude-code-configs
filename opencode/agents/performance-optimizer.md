@@ -1,5 +1,5 @@
 ---
-description: Performance specialist for identifying bottlenecks and improving speed, memory, and resource efficiency. Profiles code paths, flags N+1 queries and algorithmic hotspots, and proposes caching / parallelisation fixes. Use when profiler data or observed slowness indicates a performance issue rather than a functional bug.
+description: "Performance specialist for identifying bottlenecks and improving speed, memory, and resource efficiency. Profiles code paths, flags N+1 queries and algorithmic hotspots, and proposes caching / parallelisation fixes. Use when profiler data or observed slowness indicates a performance issue rather than a functional bug."
 mode: subagent
 temperature: 0.3
 color: "#87CEEB"
