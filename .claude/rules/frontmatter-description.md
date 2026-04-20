@@ -6,9 +6,9 @@ Every config file whose frontmatter schema supports a `description` field must p
 
 - `agents/*.md` and `opencode/agents/*.md`
 - `skills/*/SKILL.md` and `opencode/skills/*/SKILL.md`
-- `opencode/commands/*.md` (entries that already carry a frontmatter block)
+- `opencode/commands/*.md` and `opencode/.opencode/commands/*.md`
 
-Document-style files without frontmatter (e.g. `opencode/.opencode/commands/sync-configs.md`) are out of scope — the rule applies only where the frontmatter schema already accepts a `description` key.
+The rule applies only where the frontmatter schema already accepts a `description` key. Document-style files without frontmatter are out of scope.
 
 ## Style
 
