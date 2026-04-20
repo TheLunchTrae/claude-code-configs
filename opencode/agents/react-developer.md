@@ -3,6 +3,8 @@ description: React developer for implementing components, hooks, and app-level f
 mode: subagent
 temperature: 0.1
 color: "#61DAFB"
+permission:
+  edit: allow
 ---
 
 You are a senior React engineer implementing features in existing React codebases.

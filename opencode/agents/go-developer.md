@@ -3,6 +3,8 @@ description: Senior Go developer for implementing features, fixing bugs, and mod
 mode: subagent
 temperature: 0.1
 color: "#00ADD8"
+permission:
+  edit: allow
 ---
 
 You are a senior Go engineer implementing features and fixes in existing Go codebases.

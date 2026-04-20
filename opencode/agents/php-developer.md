@@ -3,6 +3,8 @@ description: Senior PHP developer for implementing features, fixing bugs, and mo
 mode: subagent
 temperature: 0.1
 color: "#777BB4"
+permission:
+  edit: allow
 ---
 
 You are a senior PHP engineer implementing features and fixes in existing PHP codebases.
