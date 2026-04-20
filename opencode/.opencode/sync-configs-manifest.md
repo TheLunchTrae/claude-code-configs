@@ -6,7 +6,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 
 `Version:` is a monotonically increasing integer bumped on every commit that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
 
-Version: 5
+Version: 6
 
 ## Config
 - opencode.jsonc
@@ -14,7 +14,7 @@ Version: 5
 - README.md
 
 ## Agents
-- agents/README.md
+- agents/README.markdown
 - agents/lead.md
 - agents/architect.md
 - agents/planner.md
@@ -41,7 +41,7 @@ Version: 5
 - agents/react-developer.md
 
 ## Commands
-- commands/README.md
+- commands/README.markdown
 - commands/commit.md
 - commands/commit-push.md
 - commands/push.md
@@ -81,4 +81,7 @@ Version: 5
 ## Deleted
 
 Paths that were previously synced and should now be removed from the local OpenCode config tree. Entries stay here indefinitely so users whose last-synced version predates the deletion still have it applied when they next run `/sync-configs`.
+
+- agents/README.md
+- commands/README.md
 
