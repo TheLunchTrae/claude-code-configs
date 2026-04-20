@@ -1,5 +1,5 @@
 ---
-description: Senior C# and .NET code reviewer. Reviews for security, async patterns, type safety, and idiomatic .NET conventions. Use for all C# code changes.
+description: "Senior C# and .NET code reviewer. Reviews for security, async patterns, type safety, and idiomatic .NET conventions. Use for all C# code changes."
 mode: subagent
 temperature: 0.1
 color: "#CE93D8"

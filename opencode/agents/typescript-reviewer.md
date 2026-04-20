@@ -1,5 +1,5 @@
 ---
-description: Senior TypeScript/JavaScript code reviewer. Reviews for type safety, async correctness, security vulnerabilities, and idiomatic patterns. Use for all TypeScript and JavaScript code changes.
+description: "Senior TypeScript/JavaScript code reviewer. Reviews for type safety, async correctness, security vulnerabilities, and idiomatic patterns. Use for all TypeScript and JavaScript code changes."
 mode: subagent
 temperature: 0.1
 color: "#4FC3F7"

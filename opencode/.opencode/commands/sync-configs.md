@@ -1,5 +1,5 @@
 ---
-description: "Sync OpenCode config files (agents, commands, skills, plugins) from the upstream GitHub repo into ~/.claude/. Use to pull config updates after a version bump."
+description: "Sync OpenCode config files (agents, commands, skills, plugins) from the upstream GitHub repo. Use to pull config updates after a version bump."
 ---
 
 Sync OpenCode config files from the upstream GitHub repo into this project directory.

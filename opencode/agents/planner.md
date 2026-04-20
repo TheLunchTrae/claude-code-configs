@@ -1,5 +1,5 @@
 ---
-description: Expert planning specialist for complex features and refactoring. Use when users request feature implementation, architectural changes, or complex refactoring. Automatically activated for planning tasks.
+description: "Expert planning specialist for complex features and refactoring. Use when users request feature implementation, architectural changes, or complex refactoring. Automatically activated for planning tasks."
 mode: subagent
 temperature: 0.2
 permission:

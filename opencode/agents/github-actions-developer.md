@@ -1,5 +1,5 @@
 ---
-description: GitHub Actions developer for authoring, modifying, and fixing workflows under .github/workflows/, composite actions, and reusable workflows. Handles triggers, job graphs, matrices, caching, concurrency, least-privilege GITHUB_TOKEN permissions, SHA-pinned third-party actions, and OIDC-based cloud auth. Use for any GitHub Actions workflow or action implementation task.
+description: "GitHub Actions developer for authoring, modifying, and fixing workflows under .github/workflows/, composite actions, and reusable workflows. Handles triggers, job graphs, matrices, caching, concurrency, least-privilege GITHUB_TOKEN permissions, SHA-pinned third-party actions, and OIDC-based cloud auth. Use for any GitHub Actions workflow or action implementation task."
 mode: subagent
 temperature: 0.1
 color: "#24292F"
