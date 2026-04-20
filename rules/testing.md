@@ -4,10 +4,6 @@
 
 Minimum 80%. Unit tests for individual functions, utilities, components. Integration tests for API endpoints and database operations.
 
-## TDD
-
-Write the failing test first, then the minimal implementation to pass, then refactor. Verify coverage at the end.
-
 ## Structure
 
 Use Arrange-Act-Assert. Name tests by the behavior under test, not the function called:
