@@ -6,9 +6,9 @@ This rule governs `opencode/.opencode/sync-configs-manifest.md` — the manifest
 
 ## When to update
 
-Update the manifest in the **same commit** as any of these changes to `opencode/`:
+Update the manifest in the **same PR** as any of these changes to `opencode/`. Entry changes (add/delete/rename) must land in the same commit as the underlying file change so the manifest always matches the tree at every commit; the version bump only needs to happen once per PR.
 
-- **Bump `Version:`** — every commit that changes a manifest-tracked file (content or membership) or the manifest itself increments the `Version:` integer by 1. `/sync-configs` uses this value to short-circuit when nothing has changed since the user's last sync, so the bump is what causes downstream users to pull your change.
+- **Bump `Version:`** — bump the integer by exactly 1 per PR that changes a manifest-tracked file (content or membership) or the manifest itself, regardless of how many commits in the PR touch tracked files. PRs merge atomically so one bump per PR is sufficient, and staging multiple bumps across intermediate commits just adds noise. `/sync-configs` uses this value to short-circuit when nothing has changed since the user's last sync, so the bump is what causes downstream users to pull your change.
 - **Add** — a new file in a tracked location creates a bullet under the corresponding section.
 - **Delete** — **move** the file's bullet from its current section into the `## Deleted` section (do not just remove it). Entries stay under `## Deleted` indefinitely so users whose last-synced version predates the delete still have it applied when they next run `/sync-configs`. If the same path is later re-added to `opencode/`, remove the `## Deleted` entry in the same commit that re-adds it.
 - **Rename / move** — update the existing bullet's path to match the new location, and add the old path to `## Deleted` so user installs lose the stale file.
