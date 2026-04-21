@@ -2,6 +2,8 @@
 description: "Sync OpenCode config files (agents, commands, skills, plugins) from the upstream GitHub repo. Use to pull config updates after a version bump."
 ---
 
+**Execute this procedure now as tool calls.** This command is a runtime sync operation — not a specification to implement. Perform each numbered step directly using `curl`, file reads, and file writes; do not author code, plugins, or scripts that reproduce the procedure. Use `curl` (not `webfetch`) for the HTTP fetches — `webfetch` triggers a per-URL permission prompt that would fire dozens of times across the manifest, and its 5 MB response cap is a hard throw.
+
 Sync OpenCode config files from the upstream GitHub repo into this project directory.
 
 Base URL: `https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/`

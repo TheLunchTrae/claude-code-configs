@@ -4,9 +4,9 @@ Paths are relative to the `opencode/` directory in the upstream repo, and are wr
 
 Any line matching `^- <path>` contributes a path to the sync manifest. Section headers are for human readability only, except `## Deleted` — paths under that section are removed from the local tree rather than fetched.
 
-`Version:` is a monotonically increasing integer bumped on every commit that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
+`Version:` is a monotonically increasing integer bumped once per PR that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
 
-Version: 9
+Version: 10
 
 ## Config
 - opencode.jsonc
