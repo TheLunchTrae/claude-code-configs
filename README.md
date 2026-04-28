@@ -22,6 +22,8 @@ These configs are based heavily on the work in [everything-claude-code](https://
 
 [agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski was also consulted as a reference when shaping the language-specific developer agents.
 
+The `caveman` skill was vendored from [caveman](https://github.com/JuliusBrussee/caveman) by JuliusBrussee (MIT-licensed; trimmed to the `lite` / `full` / `ultra` intensity levels — Classical Chinese (wenyan) variants dropped).
+
 ## OpenCode configurations
 
 The `opencode/` directory contains OpenCode equivalents of the Claude Code configurations in this repo. They are kept as close as possible to their Claude Code counterparts, but are not 1-1 due to functionality differences and limitations between the two tools.
