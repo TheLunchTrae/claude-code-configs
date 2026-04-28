@@ -14,11 +14,11 @@
     },
     "edit": {
       "*": "ask",
-      "~/.opencode-artifacts/**": "allow"
+      "~/.opencode-data/**": "allow"
     },
     "external_directory": {
       "*": "ask",
-      "~/.opencode-artifacts/**": "allow"
+      "~/.opencode-data/**": "allow"
     },
     "task": {
       "*": "allow"

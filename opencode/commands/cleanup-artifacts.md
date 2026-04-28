@@ -1,27 +1,27 @@
 ---
-description: "Delete saved artifacts from ~/.opencode-artifacts"
+description: "Delete saved artifacts"
 ---
 
-Delete artifacts saved under `~/.opencode-artifacts/`.
+Delete saved artifacts via the `artifacts` plugin.
 
 Interpret `$ARGUMENTS` to determine scope:
 
-- **No arguments** — all files under `~/.opencode-artifacts/`
-- **One word matching a project directory** (e.g. `my-repo`) — all files under `~/.opencode-artifacts/my-repo/`
-- **One word matching a command name** (e.g. `handoff`) — `handoff.md` inside every project directory
-- **Two words** (e.g. `my-repo handoff`) — the single file `~/.opencode-artifacts/my-repo/handoff.md`
+- **No arguments** — every artifact across every project.
+- **One word matching a project name** (e.g. `my-repo`) — every artifact for that project.
+- **One word matching a command name** (e.g. `handoff`) — that command's artifact across every project.
+- **Two words** (e.g. `my-repo handoff`) — the single artifact for that project + command pair.
 
 Steps:
 
 1. Use `artifact_list` to enumerate what currently exists. If nothing is found, tell the user there is nothing to clean up and stop.
 
-2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, check whether a subdirectory of that name exists under `~/.opencode-artifacts/` to identify it as a project; otherwise treat it as a command name.
+2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, treat it as a project name if `artifact_list`'s output shows a project of that name; otherwise treat it as a command name.
 
-3. Resolve the full list of files that would be deleted and display them to the user. Ask for confirmation before proceeding.
+3. Display the full list of artifacts that would be deleted. Ask for confirmation before proceeding.
 
-4. Upon confirmation, call `artifact_delete` with `confirm: true` and the appropriate `command` / `project` arguments per the scope rules above. Report the tool's summary of deleted and skipped paths back to the user.
+4. Upon confirmation, delete the matching artifacts via `artifact_delete` (its description documents the required confirmation gate and how it interprets project + command scoping). Report the tool's summary of deleted and skipped paths back to the user.
 
-**Fallback:** If the `artifacts` plugin failed to load and `artifact_list` / `artifact_delete` are unavailable, enumerate files directly under `~/.opencode-artifacts/` via shell and delete with `rm`, cleaning up empty directories with `rmdir` afterward.
+If `artifact_list` or `artifact_delete` is unavailable, stop and tell the user that the `artifacts` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 
 **Note on automatic pruning:** the plugin also runs a startup TTL pass that deletes artifacts older than 90 days (configurable via `OPENCODE_ARTIFACT_TTL_DAYS`; set to `0` to disable). This command exists for explicit, scoped cleanup that the TTL pass does not cover.
 

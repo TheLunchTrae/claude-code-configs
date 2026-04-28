@@ -2,10 +2,13 @@
 // scoped to the current project or global. Sibling to artifacts.ts.
 //
 // Storage: two pipe-delimited files per scope, no field names on disk.
-//   ~/.opencode-artifacts/<project>/memory/rules.txt   slug|trigger|note
-//   ~/.opencode-artifacts/<project>/memory/facts.txt   slug|domain|note
-//   ~/.opencode-artifacts/_global/memory/rules.txt     (global scope)
-//   ~/.opencode-artifacts/_global/memory/facts.txt     (global scope)
+//   ~/.opencode-data/memory/<project>/rules.txt   slug|trigger|note
+//   ~/.opencode-data/memory/<project>/facts.txt   slug|domain|note
+//   ~/.opencode-data/memory/_global/rules.txt     (global scope)
+//   ~/.opencode-data/memory/_global/facts.txt     (global scope)
+//
+// Memory lives in its own top-level subtree (not under artifacts/) so
+// artifact-cleanup tooling can never reach it by accident.
 //
 // Rules (both scopes merged, globals first) are auto-injected into the system
 // prompt via the experimental.chat.system.transform hook on every message,
@@ -16,11 +19,11 @@
 // "_global" is a reserved project name; a project literally named "_global"
 // will share storage with the global scope.
 //
-// RESERVED: memory/instincts.txt is reserved for a future observer-derived
-// store (ECC-style: hooks capture traces → background agent extracts
-// instincts with confidence/evidence). The current tool surface does NOT
-// write instincts — they come only from observation. Until that ships, no
-// tool here reads or writes that file.
+// RESERVED: instincts.txt under each memory scope dir is reserved for a
+// future observer-derived store (ECC-style: hooks capture traces →
+// background agent extracts instincts with confidence/evidence). The
+// current tool surface does NOT write instincts — they come only from
+// observation. Until that ships, no tool here reads or writes that file.
 //
 // Shared project-resolution and delete helpers live in ./lib/project.
 
@@ -29,13 +32,12 @@ import { mkdir, readdir, readFile, writeFile, rename, unlink } from "node:fs/pro
 import { existsSync } from "node:fs"
 import { join } from "node:path"
 import {
-  ARTIFACT_ROOT,
   type DeleteResult,
   makeResolveProject,
+  MEMORY_ROOT,
   removeEmptyDir,
 } from "./lib/project"
 
-const MEMORY_SUBDIR = "memory"
 const RULES_FILE = "rules.txt"
 const FACTS_FILE = "facts.txt"
 const GLOBAL_PROJECT = "_global"
@@ -49,7 +51,7 @@ const INJECT_MAX_CHARS = 2000
 const INJECT_SENTINEL = "<!-- memory-plugin -->"
 
 const memoryDirFor = (project: string): string =>
-  join(ARTIFACT_ROOT, project, MEMORY_SUBDIR)
+  join(MEMORY_ROOT, project)
 
 const rulesPath = (project: string): string =>
   join(memoryDirFor(project), RULES_FILE)
@@ -128,12 +130,9 @@ const ensureMemoryDir = async (project: string): Promise<string> => {
 }
 
 const collectProjectsWithMemory = async (): Promise<string[]> => {
-  if (!existsSync(ARTIFACT_ROOT)) return []
-  const entries = await readdir(ARTIFACT_ROOT, { withFileTypes: true })
-  return entries
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name)
-    .filter((p) => existsSync(memoryDirFor(p)))
+  if (!existsSync(MEMORY_ROOT)) return []
+  const entries = await readdir(MEMORY_ROOT, { withFileTypes: true })
+  return entries.filter((e) => e.isDirectory()).map((e) => e.name)
 }
 
 const truncateInjected = (body: string): string => {
@@ -171,7 +170,7 @@ const formatListOutput = (project: string, kind: Kind, lines: string[]): string 
 export const MemoryPlugin: Plugin = async ({ $, directory }) => {
   const resolveProject = makeResolveProject({ $, directory })
 
-  await mkdir(ARTIFACT_ROOT, { recursive: true })
+  await mkdir(MEMORY_ROOT, { recursive: true })
 
   return {
     "shell.env": async (_input, output) => {
@@ -274,7 +273,7 @@ Output format is the raw on-disk line per entry:
       }),
 
       memory_write: tool({
-        description: `Write or overwrite a durable memory entry — one line in rules.txt or facts.txt under ~/.opencode-artifacts/<project>/memory/ (or _global/memory/ for scope:"global").
+        description: `Write or overwrite a durable memory entry — one line in rules.txt or facts.txt under ~/.opencode-data/memory/<project>/ (or ~/.opencode-data/memory/_global/ for scope:"global").
 
 Classify the entry:
 - kind:"rule" — a behavioral directive the future session should follow when a condition fires. Requires \`trigger\` (the "when"). Auto-injected into every system prompt.
@@ -292,7 +291,7 @@ Do NOT write for:
 - Session context — use /handoff (ephemeral).
 - One-off observations whose cost exceeds the value of remembering.
 
-Note: memory/instincts.txt is reserved for a future observer-derived store (learned behaviors with confidence/evidence). This tool does not write there — asserted behavior goes to rules, observed behavior will come from the observer.
+Note: instincts.txt under each memory scope dir is reserved for a future observer-derived store (learned behaviors with confidence/evidence). This tool does not write there — asserted behavior goes to rules, observed behavior will come from the observer.
 
 Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per scope across both kinds; to change an entry's kind within a scope, memory_delete it first.`,
         args: {
@@ -502,7 +501,6 @@ confirm:true required. Returns deleted file paths.`,
             }
 
             await removeEmptyDir(dir)
-            await removeEmptyDir(join(ARTIFACT_ROOT, project))
           }
 
           const noun = totalRemoved === 1 ? "entry" : "entries"

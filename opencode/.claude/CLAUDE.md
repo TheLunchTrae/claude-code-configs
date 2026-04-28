@@ -86,7 +86,7 @@ Before committing any change to `opencode/agents/`, `opencode/commands/`, or `op
 
 # OpenCode-exclusive commands
 
-Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They exist only in OpenCode because they rely on patterns or conventions (like `~/.opencode-artifacts/`) that belong to OpenCode sessions.
+Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They depend on the OC-only `artifacts` and `memory` plugins (and the storage tree those plugins manage), which only exist for OpenCode sessions.
 
 Do not create a matching `skills/<name>/SKILL.md` for any command listed here. Do not add them to the opencode-mirror mapping.
 
@@ -96,21 +96,33 @@ Do not create a matching `skills/<name>/SKILL.md` for any command listed here. D
 
 ### /handoff — `opencode/commands/handoff.md`
 
-Saves a structured session summary to `~/.opencode-artifacts/<project>/handoff.md`. Overwrites on each run. Used to preserve context across sessions manually.
+Saves a structured session summary via the `artifact_write` tool from the `artifacts` plugin (slot named "handoff"). Overwrites on each run. Used to preserve context across sessions manually.
 
-OpenCode-exclusive because: writes to `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `artifacts` plugin, which is OC-only.
 
 ### /catchup — `opencode/commands/catchup.md`
 
-Reads `~/.opencode-artifacts/<project>/handoff.md` and orients the agent at the start of a new session.
+Loads the saved handoff for the current project via the `artifact_read` tool and orients the agent at the start of a new session.
 
-OpenCode-exclusive because: reads from `~/.opencode-artifacts/`, paired with `/handoff`.
+OpenCode-exclusive because: depends on the `artifacts` plugin, paired with `/handoff`.
 
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
-Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
+Deletes saved artifacts via the `artifacts` plugin tools (`artifact_list` to enumerate, `artifact_delete` to remove). Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
 
-OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `artifacts` plugin.
+
+### /cleanup-memory — `opencode/commands/cleanup-memory.md`
+
+Deletes memory entries via the `memory` plugin tools (`memory_list` to enumerate, `memory_delete` to remove). Accepts combinable tokens: `global` / `project` / `<project-name>` for scope, `rules` / `facts` for kind, `domain:<x>` for facts filtering, or a kebab-case slug for a specific entry. No arguments wipes every rule and fact across every scope. Always lists matches and asks for confirmation before deleting.
+
+OpenCode-exclusive because: depends on the `memory` plugin.
+
+### /review-memory — `opencode/commands/review-memory.md`
+
+Walks every memory entry across project and global scopes via the `memory_list` tool, applies model judgment to flag stale / redundant / contradictory / trivial entries, and prompts the user one at a time to delete (via `memory_delete`), keep, or merge (via `memory_write` + `memory_delete`). Heavier than `/cleanup-memory` — use when you want guided pruning rather than executing a known scope.
+
+OpenCode-exclusive because: depends on the `memory` plugin.
 
 ### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
@@ -118,17 +130,21 @@ Fetches the manifest at `opencode/.opencode/sync-configs-manifest.md` from `raw.
 
 OpenCode-exclusive because: it writes directly to `~/.claude/` config files and is designed for syncing the global OpenCode config setup, not for use within individual projects.
 
-# Artifact storage convention
+# Storage convention
 
-OpenCode commands that write persistent artifacts use:
+All OpenCode persistent state lives under a single top-level data root:
 
 ```
-~/.opencode-artifacts/<project>/<command>.md
+~/.opencode-data/
+├── artifacts/<project>/<command>.md       # session handoffs, /handoff /catchup /cleanup-artifacts
+└── memory/<project>/{rules,facts}.txt     # durable rules and facts, memory_write/list/delete
+    └── _global/{rules,facts}.txt          # global-scope memory entries
 ```
 
 - `<project>` is the git remote repo name, local repo directory name, or working directory name (in that priority order)
 - `<command>` matches the command directory name under `opencode/commands/`
-- Single file per command per project, overwritten on each run (no append/history)
+- Artifacts: single file per command per project, overwritten on each run (no append/history)
+- Memory and artifacts live in sibling subtrees so cleanup tooling for one cannot reach the other.
 
 # Plugins
 
@@ -153,19 +169,19 @@ Verify hook signatures and the return shape against the source before adding a n
 ### `plugins/artifacts.ts` — ArtifactsPlugin
 
 - **`shell.env` hook** — injects `OPENCODE_ARTIFACT_DIR` and `OPENCODE_PROJECT` so shell commands can reference the resolved artifact path without re-deriving it.
-- **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Artifact storage convention". `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe everything).
+- **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Storage convention". `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe all artifacts across all projects). Operates only under `~/.opencode-data/artifacts/`; memory storage lives in the sibling `memory/` subtree and is unreachable from this tool.
 - **Startup TTL prune** — on plugin init, fires a fire-and-forget pass that deletes any artifact whose `mtime` is older than `OPENCODE_ARTIFACT_TTL_DAYS` (default `90`). Set the env var to `0` to disable. Errors during the prune do not block plugin init; deletions are logged via `client.app.log` at `info` level when any occur.
 
 ### `plugins/memory.ts` — MemoryPlugin
 
-- **Vocabulary** — **rule** = manually-authored behavioral directive (`trigger` + `note`); auto-injected every session. **Fact** = manually-authored context (`domain` + `note`); tool-gated. **Instinct** is *reserved* for a future observer-derived store (ECC-style: hook-captured traces → background agent extracts instincts with confidence/evidence). The current tool surface does NOT write `memory/instincts.txt` — that file is owned by the future observer only.
-- **Scopes** — every entry is either `project` (default) or `global`. Global storage lives at `~/.opencode-artifacts/_global/memory/` and applies to every project. `_global` is a reserved project name; a repo literally named `_global` will share storage with the global scope.
-- **`shell.env` hook** — injects `OPENCODE_MEMORY_DIR` (the current project's `memory/` directory) alongside the other plugin-set env vars.
-- **`experimental.chat.system.transform` hook** — on every message, reads `_global/memory/rules.txt` + `<project>/memory/rules.txt` (globals first), and appends a single `Rules — follow when the "when" fires:` block to `output.system` with one `<trigger>: <note>` line per entry. Slugs and scope labels are dropped — the LLM only needs the directive, not the primary key or provenance. `INJECT_MAX_CHARS = 2000` (≈500 tokens) cap with `…` truncation footer prevents silent context bloat. Empty/missing files push nothing.
+- **Vocabulary** — **rule** = manually-authored behavioral directive (`trigger` + `note`); auto-injected every session. **Fact** = manually-authored context (`domain` + `note`); tool-gated. **Instinct** is *reserved* for a future observer-derived store (ECC-style: hook-captured traces → background agent extracts instincts with confidence/evidence). The current tool surface does NOT write `instincts.txt` — that file is owned by the future observer only.
+- **Scopes** — every entry is either `project` (default) or `global`. Global storage lives at `~/.opencode-data/memory/_global/` and applies to every project. `_global` is a reserved project name; a repo literally named `_global` will share storage with the global scope.
+- **`shell.env` hook** — injects `OPENCODE_MEMORY_DIR` (the current project's memory directory at `~/.opencode-data/memory/<project>/`) alongside the other plugin-set env vars.
+- **`experimental.chat.system.transform` hook** — on every message, reads `_global/rules.txt` + `<project>/rules.txt` under `~/.opencode-data/memory/` (globals first), and appends a single `Rules — follow when the "when" fires:` block to `output.system` with one `<trigger>: <note>` line per entry. Slugs and scope labels are dropped — the LLM only needs the directive, not the primary key or provenance. `INJECT_MAX_CHARS = 2000` (≈500 tokens) cap with `…` truncation footer prevents silent context bloat. Empty/missing files push nothing.
 - **Custom tools** — registers `memory_list`, `memory_write`, and `memory_delete`.
   - Storage: pipe-delimited columns, no field names on disk.
-    - `~/.opencode-artifacts/<project|_global>/memory/rules.txt` → `slug|trigger|note`
-    - `~/.opencode-artifacts/<project|_global>/memory/facts.txt` → `slug|domain|note`
+    - `~/.opencode-data/memory/<project|_global>/rules.txt` → `slug|trigger|note`
+    - `~/.opencode-data/memory/<project|_global>/facts.txt` → `slug|domain|note`
   - `memory_write` requires `kind: "rule" | "fact"` and accepts `scope: "project" | "global"` (default project). Rules require `trigger`; facts require `domain`. Values may not contain `|`, `\n`, or `\r`. Slugs (`^[a-z0-9][a-z0-9-]{0,63}$`) are unique per scope across both kinds — cross-kind collision within a scope errors with a "delete first" hint. Same slug may coexist across scopes (project may intentionally shadow global).
   - `memory_list` defaults `kind: "rules"` + `scope: "all"` (merges global + project sections, labeled). Supports `domain` filter for facts, exact-match `slug` lookup, `project` override.
   - `memory_delete` requires `confirm: true`. Accepts `slug` / `kind` / `scope` / `domain` / `project`. `scope` defaults to `"all"` — nothing-set call wipes both files across all scopes. `project` is invalid with `scope:"global"` or `"all"`.
