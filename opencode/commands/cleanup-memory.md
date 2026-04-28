@@ -17,11 +17,11 @@ Interpret `$ARGUMENTS` as a set of independent, combinable tokens. Absent tokens
 
 Steps:
 
-1. Resolve `$ARGUMENTS` into `memory_list` arguments (`scope`, `kind`, `domain`, `slug`, `project`) and call `memory_list` to enumerate the entries that match. If nothing matches, tell the user there is nothing to clean up and stop.
+1. Use `memory_list` to enumerate the entries that match `$ARGUMENTS` — map each token onto the tool's filter parameters per its own description. If nothing matches, tell the user there is nothing to clean up and stop.
 
 2. Display the matching entries. Ask for confirmation before proceeding.
 
-3. Upon confirmation, call `memory_delete` with `confirm: true` and the same scope/kind/domain/slug/project arguments. Report the tool's summary back to the user.
+3. Upon confirmation, delete the same set via `memory_delete` (its description documents the required confirmation gate and the scope/kind/domain/slug filters). Report the tool's summary back to the user.
 
 If `memory_list` or `memory_delete` is unavailable, stop and tell the user that the `memory` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 

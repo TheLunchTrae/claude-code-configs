@@ -25,7 +25,7 @@ Ordered list of what should happen next.
 File paths, branch names, external constraints, environment quirks, or anything else needed to resume without re-discovering it.
 ```
 
-2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin resolves the project, creates the directory, and overwrites any previous handoff. The tool's return value reports the path.
+2. Save the summary via the `artifact_write` tool, naming this command's slot ("handoff"). The plugin resolves the project, creates the directory, and overwrites any previous handoff. The tool's return value reports the path.
 
 3. Confirm to the user that the handoff was saved and report the path returned by the tool.
 

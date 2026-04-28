@@ -6,7 +6,7 @@ Review the full memory corpus across project and global scopes and help the user
 
 Steps:
 
-1. Call `memory_list { kind: "all", scope: "all" }` to dump every rule and fact across both project and global scopes.
+1. Dump the full corpus via `memory_list` — request every rule and fact across both project and global scopes (its description explains how to express that).
 
 2. Read every entry and categorize each as one of:
    - **Keep** — current, distinct, adds clear value.
@@ -23,8 +23,8 @@ Steps:
    Group decisions where possible (e.g. a batch of clearly-redundant entries can share one prompt) to avoid prompting fatigue. Ask the user to confirm or override each suggestion.
 
 4. Apply accepted decisions:
-   - **Delete** — call `memory_delete` with `confirm: true`, `slug: <slug>`, and the entry's `scope`.
-   - **Merge** — call `memory_write` with the merged content under one of the slugs, then `memory_delete` the obsolete one.
+   - **Delete** — remove the entry via `memory_delete` (the tool's description documents its confirmation gate and slug/scope filters).
+   - **Merge** — write the merged entry via `memory_write`, then delete the obsolete one via `memory_delete`.
    - **Keep** — no action.
 
 5. End with a one-line summary: number reviewed, kept, deleted, merged.

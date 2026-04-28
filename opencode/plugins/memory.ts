@@ -291,7 +291,7 @@ Do NOT write for:
 - Session context — use /handoff (ephemeral).
 - One-off observations whose cost exceeds the value of remembering.
 
-Note: memory/instincts.txt is reserved for a future observer-derived store (learned behaviors with confidence/evidence). This tool does not write there — asserted behavior goes to rules, observed behavior will come from the observer.
+Note: instincts.txt under each memory scope dir is reserved for a future observer-derived store (learned behaviors with confidence/evidence). This tool does not write there — asserted behavior goes to rules, observed behavior will come from the observer.
 
 Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per scope across both kinds; to change an entry's kind within a scope, memory_delete it first.`,
         args: {

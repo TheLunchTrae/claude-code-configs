@@ -19,7 +19,7 @@ Steps:
 
 3. Display the full list of artifacts that would be deleted. Ask for confirmation before proceeding.
 
-4. Upon confirmation, call `artifact_delete` with `confirm: true` and the appropriate `command` / `project` arguments per the scope rules above. Report the tool's summary of deleted and skipped paths back to the user.
+4. Upon confirmation, delete the matching artifacts via `artifact_delete` (its description documents the required confirmation gate and how it interprets project + command scoping). Report the tool's summary of deleted and skipped paths back to the user.
 
 If `artifact_list` or `artifact_delete` is unavailable, stop and tell the user that the `artifacts` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 
