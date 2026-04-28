@@ -13,7 +13,7 @@ Extra context: $ARGUMENTS
 
 1. Determine what is being built or changed from the user's request and current context
 2. Pass the full request to the planner, including any relevant file paths or constraints already known
-3. Present the resulting plan to the user, organized by phase with file paths, dependencies, and risks clearly marked
+3. Present the resulting plan to the user with file paths, dependencies, and risks clearly marked. Default to a single-pass plan describing the end state; only break into phases if the user explicitly asks (use `/phased-plan` for that) or if phasing is structurally required.
 4. Wait for explicit user approval before any implementation begins
 
 The planner reads the codebase but makes no changes. Its output is a plan only.
