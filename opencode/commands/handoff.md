@@ -29,8 +29,6 @@ File paths, branch names, external constraints, environment quirks, or anything 
 
 3. Confirm to the user that the handoff was saved and report the path returned by the tool.
 
-**Fallback:** If `artifact_write` is unavailable (the `artifacts` plugin failed to load), fall back to shell:
-- Resolve `<project>` via `git remote get-url origin` → strip `.git` and take the last path segment, else `basename $(git rev-parse --show-toplevel)`, else `basename $PWD`.
-- `mkdir -p ~/.opencode-data/artifacts/<project>` and write the summary to `~/.opencode-data/artifacts/<project>/handoff.md`.
+If `artifact_write` is unavailable, stop and tell the user that the `artifacts` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 
 $ARGUMENTS

@@ -29,6 +29,6 @@ Steps:
 
 5. End with a one-line summary: number reviewed, kept, deleted, merged.
 
-**Fallback:** If the `memory` plugin failed to load, read `~/.opencode-data/memory/<project>/{rules,facts}.txt` and `~/.opencode-data/memory/_global/{rules,facts}.txt` directly. On-disk format is `slug|trigger|note` for rules and `slug|domain|note` for facts.
+If `memory_list`, `memory_write`, or `memory_delete` is unavailable, stop and tell the user that the `memory` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 
 $ARGUMENTS

@@ -23,6 +23,6 @@ Steps:
 
 3. Upon confirmation, call `memory_delete` with `confirm: true` and the same scope/kind/domain/slug/project arguments. Report the tool's summary back to the user.
 
-**Fallback:** If the `memory` plugin failed to load and `memory_list` / `memory_delete` are unavailable, read `rules.txt` and `facts.txt` directly under `~/.opencode-data/memory/<project>/` (and `~/.opencode-data/memory/_global/` for the global scope). On-disk format is `slug|trigger|note` for rules and `slug|domain|note` for facts; filter lines manually with `grep -v` and rewrite the file, or `rm` the whole file when wiping a kind. The artifact subtree at `~/.opencode-data/artifacts/` is unrelated and must not be touched.
+If `memory_list` or `memory_delete` is unavailable, stop and tell the user that the `memory` plugin appears unloaded — they should check their OpenCode plugin configuration. Do not fall back to direct file IO.
 
 $ARGUMENTS
