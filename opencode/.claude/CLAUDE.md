@@ -86,7 +86,7 @@ Before committing any change to `opencode/agents/`, `opencode/commands/`, or `op
 
 # OpenCode-exclusive commands
 
-Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They exist only in OpenCode because they rely on patterns or conventions (like `~/.opencode-data/`) that belong to OpenCode sessions.
+Some commands in `opencode/commands/` have no Claude Code equivalent and should never be given one. They depend on the OC-only `artifacts` and `memory` plugins (and the storage tree those plugins manage), which only exist for OpenCode sessions.
 
 Do not create a matching `skills/<name>/SKILL.md` for any command listed here. Do not add them to the opencode-mirror mapping.
 
@@ -96,33 +96,33 @@ Do not create a matching `skills/<name>/SKILL.md` for any command listed here. D
 
 ### /handoff — `opencode/commands/handoff.md`
 
-Saves a structured session summary to `~/.opencode-data/artifacts/<project>/handoff.md`. Overwrites on each run. Used to preserve context across sessions manually.
+Saves a structured session summary via the `artifact_write` tool from the `artifacts` plugin (slot named "handoff"). Overwrites on each run. Used to preserve context across sessions manually.
 
-OpenCode-exclusive because: writes to `~/.opencode-data/artifacts/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `artifacts` plugin, which is OC-only.
 
 ### /catchup — `opencode/commands/catchup.md`
 
-Reads `~/.opencode-data/artifacts/<project>/handoff.md` and orients the agent at the start of a new session.
+Loads the saved handoff for the current project via the `artifact_read` tool and orients the agent at the start of a new session.
 
-OpenCode-exclusive because: reads from `~/.opencode-data/artifacts/`, paired with `/handoff`.
+OpenCode-exclusive because: depends on the `artifacts` plugin, paired with `/handoff`.
 
 ### /cleanup-artifacts — `opencode/commands/cleanup-artifacts.md`
 
-Deletes artifacts under `~/.opencode-data/artifacts/`. Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
+Deletes saved artifacts via the `artifacts` plugin tools (`artifact_list` to enumerate, `artifact_delete` to remove). Accepts zero, one, or two positional arguments: a project name removes all artifacts for that project, a command name removes that command's file from every project, both together (`<project> <command>`) deletes a single file, and no arguments deletes everything. Always lists files and asks for confirmation before deleting.
 
-OpenCode-exclusive because: operates on `~/.opencode-data/artifacts/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `artifacts` plugin.
 
 ### /cleanup-memory — `opencode/commands/cleanup-memory.md`
 
-Deletes memory entries under `~/.opencode-data/memory/`. Accepts combinable tokens: `global` / `project` / `<project-name>` for scope, `rules` / `facts` for kind, `domain:<x>` for facts filtering, or a kebab-case slug for a specific entry. No arguments wipes every rule and fact across every scope. Always uses `memory_list` to show matches and asks for confirmation before calling `memory_delete`.
+Deletes memory entries via the `memory` plugin tools (`memory_list` to enumerate, `memory_delete` to remove). Accepts combinable tokens: `global` / `project` / `<project-name>` for scope, `rules` / `facts` for kind, `domain:<x>` for facts filtering, or a kebab-case slug for a specific entry. No arguments wipes every rule and fact across every scope. Always lists matches and asks for confirmation before deleting.
 
-OpenCode-exclusive because: operates on `~/.opencode-data/memory/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `memory` plugin.
 
 ### /review-memory — `opencode/commands/review-memory.md`
 
-Walks every memory entry across project and global scopes via `memory_list { kind: "all", scope: "all" }`, applies model judgment to flag stale / redundant / contradictory / trivial entries, and prompts the user one at a time to delete, keep, or merge. Heavier than `/cleanup-memory` — use when you want guided pruning rather than executing a known scope.
+Walks every memory entry across project and global scopes via the `memory_list` tool, applies model judgment to flag stale / redundant / contradictory / trivial entries, and prompts the user one at a time to delete (via `memory_delete`), keep, or merge (via `memory_write` + `memory_delete`). Heavier than `/cleanup-memory` — use when you want guided pruning rather than executing a known scope.
 
-OpenCode-exclusive because: operates on `~/.opencode-data/memory/`, a convention that only exists for OpenCode sessions.
+OpenCode-exclusive because: depends on the `memory` plugin.
 
 ### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
