@@ -25,12 +25,12 @@ Ordered list of what should happen next.
 File paths, branch names, external constraints, environment quirks, or anything else needed to resume without re-discovering it.
 ```
 
-2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin handles project resolution and directory creation. The artifact lands at `~/.opencode-artifacts/<project>/handoff.md`, overwriting any previous entry.
+2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin handles project resolution and directory creation. The artifact lands at `~/.opencode-data/artifacts/<project>/handoff.md`, overwriting any previous entry.
 
 3. Confirm to the user that the handoff was saved and report the path returned by the tool.
 
 **Fallback:** If `artifact_write` is unavailable (the `artifacts` plugin failed to load), fall back to shell:
 - Resolve `<project>` via `git remote get-url origin` → strip `.git` and take the last path segment, else `basename $(git rev-parse --show-toplevel)`, else `basename $PWD`.
-- `mkdir -p ~/.opencode-artifacts/<project>` and write the summary to `~/.opencode-artifacts/<project>/handoff.md`.
+- `mkdir -p ~/.opencode-data/artifacts/<project>` and write the summary to `~/.opencode-data/artifacts/<project>/handoff.md`.
 
 $ARGUMENTS

@@ -45,7 +45,7 @@ By default, all config changes target the **Claude Code** configs (`rules/`, `ag
 
 Only skip the Claude Code side and work directly in `opencode/` if explicitly told that changes are OpenCode-only.
 
-The `opencode/` directory has its own `opencode/.claude/CLAUDE.md` documenting OpenCode-exclusive commands and conventions (including the `~/.opencode-artifacts/` storage pattern). Check it before modifying anything in `opencode/`.
+The `opencode/` directory has its own `opencode/.claude/CLAUDE.md` documenting OpenCode-exclusive commands and conventions (including the `~/.opencode-data/` storage pattern). Check it before modifying anything in `opencode/`.
 
 # Project-conventions file: CLAUDE.md vs AGENTS.md
 

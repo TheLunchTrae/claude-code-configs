@@ -1,12 +1,20 @@
-// Shared helpers for plugins that persist under ~/.opencode-artifacts/<project>/.
+// Shared helpers for plugins that persist under ~/.opencode-data/.
 // Both artifacts.ts and memory.ts use these; keep behavior consistent across both.
+//
+// Layout under the single top-level data root:
+//   ~/.opencode-data/artifacts/<project>/<command>.md   (artifacts.ts)
+//   ~/.opencode-data/memory/<project>/{rules,facts}.txt (memory.ts)
+// Memory and artifacts live in separate subtrees so cleanup tooling for one
+// can never reach into the other.
 
 import type { PluginInput } from "@opencode-ai/plugin"
 import { rmdir, unlink } from "node:fs/promises"
 import { homedir } from "node:os"
 import { basename, join } from "node:path"
 
-export const ARTIFACT_ROOT = join(homedir(), ".opencode-artifacts")
+const DATA_ROOT = join(homedir(), ".opencode-data")
+export const ARTIFACT_ROOT = join(DATA_ROOT, "artifacts")
+export const MEMORY_ROOT = join(DATA_ROOT, "memory")
 
 export const projectNameFromRemoteUrl = (url: string): string | undefined => {
   const trimmed = url.trim().replace(/\.git$/, "")

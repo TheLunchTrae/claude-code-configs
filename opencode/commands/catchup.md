@@ -10,6 +10,6 @@ Load the saved session summary for this project and orient for the next piece of
 
 **Fallback:** If `artifact_read` is unavailable (the `artifacts` plugin failed to load), resolve the project via shell:
 - `git remote get-url origin` → strip `.git` and take the last path segment, else `basename $(git rev-parse --show-toplevel)`, else `basename $PWD`.
-- Read `~/.opencode-artifacts/<project>/handoff.md`. If absent, report and stop.
+- Read `~/.opencode-data/artifacts/<project>/handoff.md`. If absent, report and stop.
 
 $ARGUMENTS

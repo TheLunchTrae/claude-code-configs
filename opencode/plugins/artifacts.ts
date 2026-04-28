@@ -76,7 +76,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
         body: {
           service: "plugin/artifacts",
           level: "info",
-          message: `pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-artifacts/`,
+          message: `pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-data/artifacts/`,
         },
       })
     }
@@ -93,7 +93,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
     tool: {
       artifact_read: tool({
         description:
-          "Read an artifact (session handoff note). Returns file contents or a not-found message. Path: ~/.opencode-artifacts/<project>/<command>.md.",
+          "Read an artifact (session handoff note). Returns file contents or a not-found message. Path: ~/.opencode-data/artifacts/<project>/<command>.md.",
         args: {
           command: tool.schema
             .string()
@@ -167,7 +167,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
 
       artifact_delete: tool({
         description:
-          "Delete artifacts. Scope by args: `command`+`project` → one file; `project` only → all artifacts in that project; `command` only → that file across every project; neither → wipe all artifacts across all projects. Only `*.md` artifacts are touched; `memory/` entries are never deleted by this tool (use `memory_delete` for those). `confirm: true` required. Returns deleted/skipped paths.",
+          "Delete artifacts. Scope by args: `command`+`project` → one file; `project` only → all artifacts in that project; `command` only → that file across every project; neither → wipe all artifacts across all projects. Operates only under `~/.opencode-data/artifacts/`; memory storage lives in a separate subtree and is unreachable from this tool. `confirm: true` required. Returns deleted/skipped paths.",
         args: {
           confirm: tool.schema
             .literal(true)
