@@ -2,6 +2,7 @@
 
 | Skill | What it does |
 |-------|--------------|
+| `caveman` | Token-efficient response mode — drops articles, filler, and pleasantries while keeping technical substance exact. Intensity levels: `lite`, `full` (default), `ultra`. Matches the `/caveman` command. |
 | `plan` | Draft a detailed implementation plan (phases, file paths, risks) before any code is written. Matches the `/plan` command. |
 | `phased-plan` | Draft a phased rollout plan with migration windows, backwards-compat scaffolding, and per-phase rollback. Matches the `/phased-plan` command. |
 | `review` | Review code and present findings using a standard template. Matches the `/review` / `/code-review` commands. The template lives in `review/template.md`. |

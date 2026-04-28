@@ -42,6 +42,7 @@ Version: 12
 
 ## Commands
 - commands/README.markdown
+- commands/caveman.md
 - commands/commit.md
 - commands/commit-push.md
 - commands/push.md
@@ -65,6 +66,7 @@ Version: 12
 
 ## Skills
 - skills/README.md
+- skills/caveman/SKILL.md
 - skills/plan/SKILL.md
 - skills/phased-plan/SKILL.md
 - skills/review/SKILL.md
