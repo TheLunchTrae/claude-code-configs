@@ -35,6 +35,12 @@
 | `/push` | Push the current branch to the remote. |
 | `/summarize-branch` | Summarize every commit on the current branch — useful before opening a PR. |
 
+### Output style
+
+| Command | What it does |
+|---------|--------------|
+| `/caveman` | Toggle token-efficient response mode — terse fragments, drops filler/pleasantries, keeps technical substance exact. Optional intensity arg: `lite`, `full` (default), `ultra`. Say "stop caveman" to revert. |
+
 ### Session continuity
 
 | Command | What it does |

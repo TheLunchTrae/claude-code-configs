@@ -6,7 +6,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 
 `Version:` is a monotonically increasing integer bumped once per PR that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
 
-Version: 11
+Version: 12
 
 ## Config
 - opencode.jsonc
@@ -42,6 +42,7 @@ Version: 11
 
 ## Commands
 - commands/README.markdown
+- commands/caveman.md
 - commands/commit.md
 - commands/commit-push.md
 - commands/push.md
@@ -65,6 +66,7 @@ Version: 11
 
 ## Skills
 - skills/README.md
+- skills/caveman/SKILL.md
 - skills/plan/SKILL.md
 - skills/phased-plan/SKILL.md
 - skills/review/SKILL.md
