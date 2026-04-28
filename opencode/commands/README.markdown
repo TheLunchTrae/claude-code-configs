@@ -45,6 +45,13 @@
 
 | Command | What it does |
 |---------|--------------|
-| `/handoff` | Save a structured summary of where you are to `~/.opencode-artifacts/<project>/handoff.md`. Overwrites on each run. Use when you need to step away mid-task. |
+| `/handoff` | Save a structured summary of where you are so a future session can resume. Overwrites the previous handoff for this project on each run. Use when you need to step away mid-task. |
 | `/catchup` | Read that handoff and orient the AI to resume. First thing to run when you come back. |
-| `/cleanup-artifacts` | Delete artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two positional args to scope by project, by command, or both. Always asks before deleting. |
+| `/cleanup-artifacts` | Delete saved artifacts. Accepts zero, one, or two positional args to scope by project, by command, or both. Always asks before deleting. |
+
+### Memory
+
+| Command | What it does |
+|---------|--------------|
+| `/cleanup-memory` | Delete memory entries (rules and facts). Combinable tokens — `global`/`project`/`<name>`, `rules`/`facts`, `domain:<x>`, a kebab-case slug — to scope; no args wipes everything. Always asks before deleting. |
+| `/review-memory` | Walk every rule and fact across both scopes, flag stale / redundant / contradictory / trivial entries, and prompt one at a time to delete, keep, or merge. |

@@ -1,23 +1,23 @@
 ---
-description: "Delete saved artifacts from ~/.opencode-data/artifacts"
+description: "Delete saved artifacts"
 ---
 
-Delete artifacts saved under `~/.opencode-data/artifacts/`.
+Delete saved artifacts via the `artifacts` plugin.
 
 Interpret `$ARGUMENTS` to determine scope:
 
-- **No arguments** — all files under `~/.opencode-data/artifacts/`
-- **One word matching a project directory** (e.g. `my-repo`) — all files under `~/.opencode-data/artifacts/my-repo/`
-- **One word matching a command name** (e.g. `handoff`) — `handoff.md` inside every project directory
-- **Two words** (e.g. `my-repo handoff`) — the single file `~/.opencode-data/artifacts/my-repo/handoff.md`
+- **No arguments** — every artifact across every project.
+- **One word matching a project name** (e.g. `my-repo`) — every artifact for that project.
+- **One word matching a command name** (e.g. `handoff`) — that command's artifact across every project.
+- **Two words** (e.g. `my-repo handoff`) — the single artifact for that project + command pair.
 
 Steps:
 
 1. Use `artifact_list` to enumerate what currently exists. If nothing is found, tell the user there is nothing to clean up and stop.
 
-2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, check whether a subdirectory of that name exists under `~/.opencode-data/artifacts/` to identify it as a project; otherwise treat it as a command name.
+2. Determine scope from `$ARGUMENTS` using the rules above. When one word is given, treat it as a project name if `artifact_list`'s output shows a project of that name; otherwise treat it as a command name.
 
-3. Resolve the full list of files that would be deleted and display them to the user. Ask for confirmation before proceeding.
+3. Display the full list of artifacts that would be deleted. Ask for confirmation before proceeding.
 
 4. Upon confirmation, call `artifact_delete` with `confirm: true` and the appropriate `command` / `project` arguments per the scope rules above. Report the tool's summary of deleted and skipped paths back to the user.
 

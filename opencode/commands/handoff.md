@@ -25,7 +25,7 @@ Ordered list of what should happen next.
 File paths, branch names, external constraints, environment quirks, or anything else needed to resume without re-discovering it.
 ```
 
-2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin handles project resolution and directory creation. The artifact lands at `~/.opencode-data/artifacts/<project>/handoff.md`, overwriting any previous entry.
+2. Save the summary using the `artifact_write` tool: `artifact_write({ command: "handoff", content: <summary> })`. The plugin resolves the project, creates the directory, and overwrites any previous handoff. The tool's return value reports the path.
 
 3. Confirm to the user that the handoff was saved and report the path returned by the tool.
 

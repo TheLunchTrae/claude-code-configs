@@ -55,6 +55,8 @@ Version: 13
 - commands/catchup.md
 - commands/design.md
 - commands/cleanup-artifacts.md
+- commands/cleanup-memory.md
+- commands/review-memory.md
 - commands/code-review.md
 - commands/update-docs.md
 - commands/verify.md

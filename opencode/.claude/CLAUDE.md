@@ -112,6 +112,18 @@ Deletes artifacts under `~/.opencode-artifacts/`. Accepts zero, one, or two posi
 
 OpenCode-exclusive because: operates on `~/.opencode-artifacts/`, a convention that only exists for OpenCode sessions.
 
+### /cleanup-memory — `opencode/commands/cleanup-memory.md`
+
+Deletes memory entries under `~/.opencode-data/memory/`. Accepts combinable tokens: `global` / `project` / `<project-name>` for scope, `rules` / `facts` for kind, `domain:<x>` for facts filtering, or a kebab-case slug for a specific entry. No arguments wipes every rule and fact across every scope. Always uses `memory_list` to show matches and asks for confirmation before calling `memory_delete`.
+
+OpenCode-exclusive because: operates on `~/.opencode-data/memory/`, a convention that only exists for OpenCode sessions.
+
+### /review-memory — `opencode/commands/review-memory.md`
+
+Walks every memory entry across project and global scopes via `memory_list { kind: "all", scope: "all" }`, applies model judgment to flag stale / redundant / contradictory / trivial entries, and prompts the user one at a time to delete, keep, or merge. Heavier than `/cleanup-memory` — use when you want guided pruning rather than executing a known scope.
+
+OpenCode-exclusive because: operates on `~/.opencode-data/memory/`, a convention that only exists for OpenCode sessions.
+
 ### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
 Fetches the manifest at `opencode/.opencode/sync-configs-manifest.md` from `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` on every run (the local manifest is never consulted). Reads the `Version:` integer from the manifest and compares it against a project-scope memory fact (`memory_list` with `domain: "sync-configs"`, `slug: "last-version"`); if they match, the command short-circuits with `Already up to date (version <N>).` and fetches nothing further. On version mismatch, for each path in the manifest it fetches the remote copy (using `curl -fsSL` and rejecting empty / HTML-404 responses), compares it to the local copy under `~/.claude/`, and merges changes (prefer remote; auto-preserve only allowlisted regions like the `permission` block in `opencode.jsonc`; everything else surfaces to the user as `needs-user-decision`). A reconciliation step verifies every requested path is accounted for before the run can advance. Paths under the manifest's `## Deleted` section are removed from the local tree — but **only when the version fact already holds a prior value**; on first-run (no fact), deletions are skipped with a note so unrelated local files are never removed. The version fact is written via `memory_write` only when the run is fully clean (no failures, all `needs-user-decision` cases resolved); on partial failure the fact is left untouched so the next `/sync-configs` automatically retries. If the manifest fetch itself fails, the command aborts immediately and touches no local files. Reports updated, unchanged, deleted, and failed files.
