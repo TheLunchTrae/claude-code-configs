@@ -7,7 +7,6 @@
     "@opencode-ai/plugin": "latest"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@types/node": "latest",
     "typescript": "latest"
   }

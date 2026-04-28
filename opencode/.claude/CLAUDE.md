@@ -132,7 +132,7 @@ OpenCode commands that write persistent artifacts use:
 
 # Plugins
 
-Authored OpenCode plugins live in `opencode/plugins/`. They are TypeScript modules auto-discovered by OpenCode at session start. `opencode/package.json` + `opencode/tsconfig.json` exist so `bun install` at the config root resolves the plugin SDK (`@opencode-ai/plugin`) and types (`@types/bun`, `typescript`) for editor tooling.
+Authored OpenCode plugins live in `opencode/plugins/`. They are TypeScript modules auto-discovered by OpenCode at session start. `opencode/package.json` + `opencode/tsconfig.json` exist so `bun install` at the config root resolves the plugin SDK (`@opencode-ai/plugin`) and types (`@types/node`, `typescript`) for editor tooling.
 
 `opencode/package.json` is intentionally excluded from the `/sync-configs` manifest — OpenCode generates one automatically at runtime on a user's install, so syncing the committed copy would clobber theirs. It stays in this repo only to support local plugin-authoring IDE type-checking. `opencode/tsconfig.json` is still synced because OpenCode does not auto-generate it.
 
