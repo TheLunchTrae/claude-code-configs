@@ -13,7 +13,7 @@ Produce a structured implementation plan. Use when the task needs phases, file p
 
 1. Determine what is being built or changed from the user's request and current context
 2. Restate the requirements clearly, including any relevant file paths or constraints
-3. Present the resulting plan organized by phase with file paths, dependencies, and risks clearly marked
+3. Present the resulting plan with file paths, dependencies, and risks clearly marked. Default to a single-pass plan describing the end state; only break into phases if the user explicitly asks (use `/phased-plan` for that) or if phasing is structurally required.
 4. Wait for explicit user approval before any implementation begins
 
 Read the codebase but make no changes. Output a plan only.
