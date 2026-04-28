@@ -167,7 +167,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
 
       artifact_delete: tool({
         description:
-          "Delete artifacts. Scope by args: `command`+`project` → one file; `project` only → all artifacts in that project; `command` only → that file across every project; neither → wipe all artifacts. `confirm: true` required. Returns deleted/skipped paths.",
+          "Delete artifacts. Scope by args: `command`+`project` → one file; `project` only → all artifacts in that project; `command` only → that file across every project; neither → wipe all artifacts across all projects. Only `*.md` artifacts are touched; `memory/` entries are never deleted by this tool (use `memory_delete` for those). `confirm: true` required. Returns deleted/skipped paths.",
         args: {
           confirm: tool.schema
             .literal(true)

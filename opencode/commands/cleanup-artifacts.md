@@ -21,7 +21,7 @@ Steps:
 
 4. Upon confirmation, call `artifact_delete` with `confirm: true` and the appropriate `command` / `project` arguments per the scope rules above. Report the tool's summary of deleted and skipped paths back to the user.
 
-**Fallback:** If the `artifacts` plugin failed to load and `artifact_list` / `artifact_delete` are unavailable, enumerate files directly under `~/.opencode-artifacts/` via shell and delete with `rm`, cleaning up empty directories with `rmdir` afterward.
+**Fallback:** If the `artifacts` plugin failed to load and `artifact_list` / `artifact_delete` are unavailable, enumerate `*.md` files directly under `~/.opencode-artifacts/<project>/` via shell and delete with `rm`. Do not touch `memory/` subdirectories — those are managed by `memory_delete` and must survive artifact cleanup. Use `rmdir` (non-recursive) on the project directory afterward; it will correctly fail when `memory/` is present, leaving the project dir intact.
 
 **Note on automatic pruning:** the plugin also runs a startup TTL pass that deletes artifacts older than 90 days (configurable via `OPENCODE_ARTIFACT_TTL_DAYS`; set to `0` to disable). This command exists for explicit, scoped cleanup that the TTL pass does not cover.
 
