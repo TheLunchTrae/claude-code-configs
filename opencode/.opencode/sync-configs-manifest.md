@@ -6,7 +6,7 @@ Any line matching `^- <path>` contributes a path to the sync manifest. Section h
 
 `Version:` is a monotonically increasing integer bumped once per PR that changes a manifest-tracked file or the manifest itself. `/sync-configs` compares it against the last-synced version to decide whether any work is needed.
 
-Version: 18
+Version: 19
 
 ## Config
 - opencode.jsonc
@@ -56,7 +56,7 @@ Version: 18
 - commands/design.md
 - commands/cleanup-artifacts.md
 - commands/cleanup-memory.md
-- commands/review-memory.md
+- commands/manage.md
 - commands/code-review.md
 - commands/update-docs.md
 - commands/verify.md
@@ -90,4 +90,5 @@ Paths that were previously synced and should now be removed from the local OpenC
 
 - agents/README.md
 - commands/README.md
+- commands/review-memory.md
 
