@@ -118,7 +118,7 @@ Deletes memory entries via the `memory` plugin tools (`memory_list` to enumerate
 
 OpenCode-exclusive because: depends on the `memory` plugin.
 
-### /manage — `opencode/commands/manage.md`
+### /manage-storage — `opencode/commands/manage-storage.md`
 
 Multi-verb management for the `artifacts` and `memory` plugins. Verbs: `rename` (move every project-scoped artifact and memory entry from `<old>` → `<new>`, hard-refusing on destination collision; globals untouched), `review` (walks artifacts and memory across the requested scope and kind, applies model judgment to flag Stale / Redundant / Contradictory / Trivial / Orphaned entries, and prompts the user one at a time to delete, keep, or merge — supersedes the older `/review-memory`), `copy` (copies entries from `<source>` to `<dest>` while leaving the source untouched, skipping destination collisions with a warning), and `promote` / `demote` (moves a single memory entry between project and global scopes via write-first-then-delete ordering, hard-refusing on cross-kind same-slug collisions per the `memory_write` contract). Domain tokens (`artifacts` / `memory` / `all`) on `rename` and `copy` and the scope/kind tokens on `review` default to `all`. Tool-level `confirm: true` on `*_delete` is independent of the user-facing confirmations and stays in place. Stays alongside the one-shot `/cleanup-artifacts` and `/cleanup-memory` commands.
 

@@ -10,11 +10,11 @@ Interpret `$ARGUMENTS` as `<verb> [args...]`. Verbs: `rename`, `review`, `copy`,
 
 | Verb | Form |
 |------|------|
-| `rename` | `/manage rename <old-project> <new-project> [artifacts\|memory\|all]` |
-| `review` | `/manage review [project\|global\|all] [artifacts\|memory\|all]` |
-| `copy` | `/manage copy <source-project> <dest-project> [artifacts\|memory\|all]` |
-| `promote` | `/manage promote <slug> [rule\|fact]` |
-| `demote` | `/manage demote <slug> [rule\|fact]` |
+| `rename` | `/manage-storage rename <old-project> <new-project> [artifacts\|memory\|all]` |
+| `review` | `/manage-storage review [project\|global\|all] [artifacts\|memory\|all]` |
+| `copy` | `/manage-storage copy <source-project> <dest-project> [artifacts\|memory\|all]` |
+| `promote` | `/manage-storage promote <slug> [rule\|fact]` |
+| `demote` | `/manage-storage demote <slug> [rule\|fact]` |
 
 Domain tokens (`artifacts` / `memory` / `all`) on `rename` and `copy` default to `all`. Scope and kind tokens on `review` default to `all`. `promote` and `demote` are memory-only — artifacts have no scope axis.
 

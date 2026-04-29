@@ -56,7 +56,7 @@ Version: 19
 - commands/design.md
 - commands/cleanup-artifacts.md
 - commands/cleanup-memory.md
-- commands/manage.md
+- commands/manage-storage.md
 - commands/code-review.md
 - commands/update-docs.md
 - commands/verify.md
