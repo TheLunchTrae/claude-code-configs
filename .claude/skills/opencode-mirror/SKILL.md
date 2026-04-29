@@ -61,7 +61,9 @@ When any config file in a mirrored category is created or modified, the correspo
 | `agents/<name>.md` | `opencode/agents/<name>.md` | Same markdown format. Direct port. |
 | `skills/review/SKILL.md` | `opencode/skills/review/SKILL.md` + `opencode/commands/review.md` | Skill for agent use; command with `agent: code-reviewer` + `subtask: true` for user invocation with context isolation. |
 | `skills/review/template.md` | `opencode/skills/review/template.md` | Identical copy. |
-| `skills/commit/SKILL.md` | `opencode/commands/commit.md` | `disable-model-invocation` maps to OC command (see Skill Categories below). |
+| `skills/commit/SKILL.md` | `opencode/skills/commit/SKILL.md` + `opencode/commands/commit.md` | Agent-invocable skill; thin wrapper for user invocation. Bodies kept identical modulo `CLAUDE.md` ↔ `AGENTS.md`. |
+| `skills/push/SKILL.md` | `opencode/skills/push/SKILL.md` + `opencode/commands/push.md` | Same shape as `commit`. |
+| `skills/commit-push/SKILL.md` | `opencode/skills/commit-push/SKILL.md` + `opencode/commands/commit-push.md` | Same shape as `commit`. |
 | `skills/summarize-branch/SKILL.md` | `opencode/commands/summarize-branch.md` | Same. |
 | `skills/<name>/SKILL.md` (agent-invocable) | `opencode/skills/<name>/SKILL.md` + `opencode/commands/<name>.md` | Skill for agent consumption; thin command wrapper for user invocation. |
 

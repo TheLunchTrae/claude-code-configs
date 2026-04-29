@@ -1,4 +1,5 @@
 ---
+name: commit
 description: "Stage and commit changes"
 ---
 
@@ -10,7 +11,7 @@ Stage and commit the specified changes. Follow these steps:
 4. Write a concise commit message focused on the "why" not the "what". Use a HEREDOC to pass it.
 5. Commit and confirm success with `git status`.
 
-Repository-level CLAUDE.md instructions take precedence over these defaults.
+Repository-level AGENTS.md instructions take precedence over these defaults.
 
 $ARGUMENTS
 

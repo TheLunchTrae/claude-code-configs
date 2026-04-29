@@ -69,8 +69,11 @@ Version: 19
 ## Skills
 - skills/README.md
 - skills/caveman/SKILL.md
+- skills/commit/SKILL.md
+- skills/commit-push/SKILL.md
 - skills/plan/SKILL.md
 - skills/phased-plan/SKILL.md
+- skills/push/SKILL.md
 - skills/review/SKILL.md
 - skills/review/template.md
 - skills/security-review/SKILL.md
