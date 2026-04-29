@@ -82,6 +82,8 @@ When adding a new user-level rule, create a new file in `rules/`.
 
 OpenCode has no implicit primary agent equivalent to Claude Code's default behavior. The lead agent fills this role.
 
+**`lead` ↔ CC base session.** Functionally, the OC `lead` agent IS the CC base session — both are "the agent the user is talking to before any subagent fork." This means an OC skill or command that delegates to `lead` (e.g. `agent: lead, subtask: true`) has no CC counterpart with `agent: lead` because CC has no `lead` agent file. The CC equivalent is "no `agent:` in frontmatter — runs in the calling session." Subtask-style CC skills mirroring an OC `lead` wrapper therefore stay agent-less; this is expected, not drift.
+
 **The split:**
 - `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.).
 - `opencode/agents/lead.md` — workflow behavior and the subagent registry (which agents exist and when to invoke them). Only the primary agent reads this file, so the registry does not leak into subagent contexts.
@@ -117,7 +119,7 @@ CC skills with `disable-model-invocation: true` are pure-automation, user-initia
 CC's `context: fork` runs the skill in an isolated subagent context. The OC equivalent is `subtask: true` on the command, which forces the delegated agent to run as a subagent even if its `mode` is `primary`.
 
 - Create `skills/<name>/SKILL.md` with `context: fork` (Claude Code)
-- Create `opencode/skills/<name>/SKILL.md` — same as above; add a note in the body that this skill is intended to be invoked as a subagent
+- Create `opencode/skills/<name>/SKILL.md` — same as above; add a body comment naming the recommended subagent so the skill is self-documenting independent of the command wrapper. Use the form `<!-- Run this skill as a subtask in the \`<agent>\` subagent for context isolation. -->`. The named agent must match the `agent:` on the OC command wrapper, and must exist in `opencode/agents/`.
 - Create `opencode/commands/<name>.md` with `agent: <name>` + `subtask: true`
 
 ## Permissions translation
@@ -201,7 +203,7 @@ Determine the category first — see **Skill categories** above.
 
 **Agent-invocable with `context: fork`**:
 - Create `skills/<name>/SKILL.md` with `context: fork` (Claude Code)
-- Create `opencode/skills/<name>/SKILL.md` (add `name:` key; add a note in body that it is intended for subagent invocation)
+- Create `opencode/skills/<name>/SKILL.md` (add `name:` key; add a body comment naming the recommended subagent: `<!-- Run this skill as a subtask in the \`<agent>\` subagent for context isolation. -->`. Match the agent on the OC command wrapper.)
 - Create `opencode/commands/<name>.md` (`agent: <name>` + `subtask: true` + one-line invocation instruction)
 
 ## When adding a new rule

@@ -3,7 +3,7 @@ name: review
 description: "Review code and present findings"
 ---
 
-<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
+<!-- Run this skill as a subtask in the `code-reviewer` subagent for context isolation. -->
 
 # Review: $ARGUMENTS
 

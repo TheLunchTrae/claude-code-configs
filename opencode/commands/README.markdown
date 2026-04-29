@@ -7,7 +7,6 @@
 | `/plan` | Draft an implementation plan for the current task — file paths, risks, dependencies. No code is written; it waits for your approval before executing. |
 | `/phased-plan` | Same as `/plan` but produces a phased rollout — independently mergeable phases with migration timeline, backwards-compat scaffolding, and per-phase rollback. Use when shipping atomically isn't safe. |
 | `/design` | Produce an architectural design: components, data flow, trade-offs, alternatives. Used when the "how" isn't settled. |
-| `/orchestrate` | Sequence multiple agents when a task spans several specialties. |
 | `/verify` | Run the verification loop (tests, linters, typecheck) and report. |
 
 ### Reviewing code
