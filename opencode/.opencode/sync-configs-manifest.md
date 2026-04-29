@@ -77,6 +77,7 @@ Version: 20
 - skills/review/template.md
 - skills/security-review/SKILL.md
 - skills/security-review/references/owasp-2021.md
+- skills/verify/SKILL.md
 
 ## Plugins
 - plugins/README.md
