@@ -30,11 +30,10 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 import { mkdir, readdir, readFile, writeFile, rename, unlink } from "node:fs/promises"
 import { existsSync } from "node:fs"
-import { join } from "node:path"
+import { basename, join } from "node:path"
 import {
   type DeleteResult,
   formatErr,
-  makeResolveProject,
   MEMORY_ROOT,
   removeEmptyDir,
 } from "./lib/project"
@@ -168,8 +167,8 @@ const formatListOutput = (project: string, kind: Kind, lines: string[]): string 
   return `${kind} (${project}):\n${lines.join("\n")}`
 }
 
-export const MemoryPlugin: Plugin = async ({ $, client, project }) => {
-  const resolveProject = makeResolveProject({ $, project })
+export const MemoryPlugin: Plugin = async ({ client, project }) => {
+  const projectName = basename(project.worktree)
 
   await mkdir(MEMORY_ROOT, { recursive: true })
 
@@ -186,8 +185,7 @@ export const MemoryPlugin: Plugin = async ({ $, client, project }) => {
   return {
     "shell.env": async (_input, output) => {
       try {
-        const project = await resolveProject()
-        const dir = await ensureMemoryDir(project)
+        const dir = await ensureMemoryDir(projectName)
         output.env.OPENCODE_MEMORY_DIR = dir
       } catch (err) {
         await logErr("shell.env injection failed", err)
@@ -199,11 +197,10 @@ export const MemoryPlugin: Plugin = async ({ $, client, project }) => {
       // a fresh one, so re-runs of the hook can't stack duplicates.
       output.system = output.system.filter((s) => !s.includes(INJECT_SENTINEL))
       try {
-        const project = await resolveProject()
         // Globals first so project-scoped rules come last — if the model reads
         // top-down and treats later rules as refinements, project wins.
         const globalLines = await readLines(rulesPath(GLOBAL_PROJECT))
-        const projectLines = project === GLOBAL_PROJECT ? [] : await readLines(rulesPath(project))
+        const projectLines = projectName === GLOBAL_PROJECT ? [] : await readLines(rulesPath(projectName))
         const block = formatInjectedRules([...globalLines, ...projectLines])
         if (block) output.system.push(block)
       } catch (err) {
@@ -264,7 +261,7 @@ Output format is the raw on-disk line per entry:
               targets.push({ label: "global", project: GLOBAL_PROJECT })
             }
             if (scope === "project" || scope === "all") {
-              const p = args.project ?? (await resolveProject())
+              const p = args.project ?? projectName
               if (p !== GLOBAL_PROJECT) targets.push({ label: p, project: p })
             }
 
@@ -385,7 +382,7 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
               if (domErr) return domErr
             }
 
-            const project = scope === "global" ? GLOBAL_PROJECT : (args.project ?? (await resolveProject()))
+            const project = scope === "global" ? GLOBAL_PROJECT : (args.project ?? projectName)
             await ensureMemoryDir(project)
 
             const targetKind: Kind = isRule ? "rules" : "facts"

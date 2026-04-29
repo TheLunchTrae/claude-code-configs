@@ -1,13 +1,12 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 import { mkdir, readFile, writeFile, readdir, stat } from "node:fs/promises"
 import { existsSync } from "node:fs"
-import { join } from "node:path"
+import { basename, join } from "node:path"
 import {
   ARTIFACT_ROOT,
   type DeleteResult,
   deleteFile,
   formatErr,
-  makeResolveProject,
   removeEmptyDir,
 } from "./lib/project"
 
@@ -58,8 +57,8 @@ const pruneExpired = async (ttlDays: number): Promise<DeleteResult> => {
   return result
 }
 
-export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
-  const resolveProject = makeResolveProject({ $, project })
+export const ArtifactsPlugin: Plugin = async ({ client, project }) => {
+  const projectName = basename(project.worktree)
 
   const ensureProjectDir = async (project: string): Promise<string> => {
     const dir = join(ARTIFACT_ROOT, project)
@@ -100,9 +99,8 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
   return {
     "shell.env": async (_input, output) => {
       try {
-        const project = await resolveProject()
-        const dir = await ensureProjectDir(project)
-        output.env.OPENCODE_PROJECT = project
+        const dir = await ensureProjectDir(projectName)
+        output.env.OPENCODE_PROJECT = projectName
         output.env.OPENCODE_ARTIFACT_DIR = dir
       } catch (err) {
         await logErr("shell.env injection failed", err)
@@ -120,11 +118,11 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
           project: tool.schema
             .string()
             .optional()
-            .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
+            .describe("Project name. Defaults to current (worktree basename)."),
         },
         async execute(args) {
           try {
-            const project = args.project ?? (await resolveProject())
+            const project = args.project ?? projectName
             const path = artifactPathFor(project, args.command)
             if (!existsSync(path)) {
               return `No artifact at ${path}.`
@@ -152,7 +150,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
         },
         async execute(args) {
           try {
-            const project = args.project ?? (await resolveProject())
+            const project = args.project ?? projectName
             await ensureProjectDir(project)
             const path = artifactPathFor(project, args.command)
             await writeFile(path, args.content, "utf8")
@@ -173,7 +171,7 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
         },
         async execute(args) {
           try {
-            const project = args.project ?? (await resolveProject())
+            const project = args.project ?? projectName
             const dir = join(ARTIFACT_ROOT, project)
             if (!existsSync(dir)) {
               return `No artifacts for '${project}'.`
