@@ -118,11 +118,11 @@ Deletes memory entries via the `memory` plugin tools (`memory_list` to enumerate
 
 OpenCode-exclusive because: depends on the `memory` plugin.
 
-### /review-memory — `opencode/commands/review-memory.md`
+### /manage-storage — `opencode/commands/manage-storage.md`
 
-Walks every memory entry across project and global scopes via the `memory_list` tool, applies model judgment to flag stale / redundant / contradictory / trivial entries, and prompts the user one at a time to delete (via `memory_delete`), keep, or merge (via `memory_write` + `memory_delete`). Heavier than `/cleanup-memory` — use when you want guided pruning rather than executing a known scope.
+Multi-verb management for the `artifacts` and `memory` plugins. Verbs: `rename` (move every project-scoped artifact and memory entry from `<old>` → `<new>`, hard-refusing on destination collision; globals untouched), `review` (walks artifacts and memory across the requested scope and kind, applies model judgment to flag Stale / Redundant / Contradictory / Trivial / Orphaned entries, and prompts the user one at a time to delete, keep, or merge — supersedes the older `/review-memory`), `copy` (copies entries from `<source>` to `<dest>` while leaving the source untouched, skipping destination collisions with a warning), and `promote` / `demote` (moves a single memory entry between project and global scopes via write-first-then-delete ordering, hard-refusing on cross-kind same-slug collisions per the `memory_write` contract). Domain tokens (`artifacts` / `memory` / `all`) on `rename` and `copy` and the scope/kind tokens on `review` default to `all`. Tool-level `confirm: true` on `*_delete` is independent of the user-facing confirmations and stays in place. Stays alongside the one-shot `/cleanup-artifacts` and `/cleanup-memory` commands.
 
-OpenCode-exclusive because: depends on the `memory` plugin.
+OpenCode-exclusive because: orchestrates the OC-only `artifacts` and `memory` plugins.
 
 ### /sync-configs — `opencode/.opencode/commands/sync-configs.md`
 
@@ -141,7 +141,7 @@ All OpenCode persistent state lives under a single top-level data root:
     └── _global/{rules,facts}.txt          # global-scope memory entries
 ```
 
-- `<project>` is the git remote repo name, local repo directory name, or working directory name (in that priority order)
+- `<project>` is `basename(PluginInput.project.worktree)` — OpenCode resolves the worktree itself (walks up to a VCS root, falls back to the launch dir for non-git workdirs), so plugins never spawn git. Note: this means the storage key is the local clone-directory name, not the GitHub repo name; cloning a repo into a renamed dir gives it a different storage scope.
 - `<command>` matches the command directory name under `opencode/commands/`
 - Artifacts: single file per command per project, overwritten on each run (no append/history)
 - Memory and artifacts live in sibling subtrees so cleanup tooling for one cannot reach the other.
@@ -161,6 +161,7 @@ When authoring a plugin, the canonical reference for the `Plugin` type, the `Hoo
 - Repo: <https://github.com/anomalyco/opencode/tree/dev/packages/plugin>
 - `src/index.ts` — `PluginInput`, `Plugin`, `Hooks`, `ToolDefinition` re-exports.
 - `src/tool.ts` — `tool()` helper and `tool.schema` (re-export of `zod`).
+- SDK docs: <https://opencode.ai/docs/sdk/> — covers the `client` surface plugins receive (project, app, file, find, session, tui, event, auth, config). Generated types: <https://github.com/anomalyco/opencode/blob/dev/packages/sdk/js/src/gen/types.gen.ts>.
 
 Verify hook signatures and the return shape against the source before adding a new event handler. The OpenCode docs page is a good orientation but the source is authoritative.
 
@@ -169,7 +170,7 @@ Verify hook signatures and the return shape against the source before adding a n
 ### `plugins/artifacts.ts` — ArtifactsPlugin
 
 - **`shell.env` hook** — injects `OPENCODE_ARTIFACT_DIR` and `OPENCODE_PROJECT` so shell commands can reference the resolved artifact path without re-deriving it.
-- **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project resolved via the same git-remote → repo-dir → cwd fallback chain documented under "Storage convention". `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe all artifacts across all projects). Operates only under `~/.opencode-data/artifacts/`; memory storage lives in the sibling `memory/` subtree and is unreachable from this tool.
+- **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project (`basename(PluginInput.project.worktree)`, see "Storage convention"). `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe all artifacts across all projects). Operates only under `~/.opencode-data/artifacts/`; memory storage lives in the sibling `memory/` subtree and is unreachable from this tool.
 - **Startup TTL prune** — on plugin init, fires a fire-and-forget pass that deletes any artifact whose `mtime` is older than `OPENCODE_ARTIFACT_TTL_DAYS` (default `90`). Set the env var to `0` to disable. Errors during the prune do not block plugin init; deletions are logged via `client.app.log` at `info` level when any occur, and prune failures are logged at `error` level via the same channel (with a `console.error` fallback if the log call itself fails).
 - **Defensive error handling** — every hook body and tool `execute()` body is wrapped in `try`/`catch`. Hook failures (`shell.env`) are logged via `client.app.log` at `error` level (with `console.error` fallback) and swallowed so they don't break the surrounding shell call. Tool failures return a `<tool> failed: <message>` string, matching the de-facto OpenCode convention of returning error strings from `execute()` rather than throwing. The shared `formatErr` helper in `lib/project.ts` normalises `unknown` into a string.
 
@@ -189,7 +190,7 @@ Verify hook signatures and the return shape against the source before adding a n
 - **Atomic writes** — `atomicReplace` writes to `<path>.tmp-<pid>-<ts>` then `rename`s onto the target so a crash mid-write can't leave a half-written file in place. Files are sorted lex-by-slug on write so diffs (if ever inspected) stay stable.
 - **No TTL prune** — memory entries are durable by design. Pruning is manual via `memory_delete`.
 - **Token-cost discipline** — positional pipe-delimited columns (no field names on disk); rules auto-injected as `<trigger>: <note>` with no slug/scope metadata; facts tool-gated so they cost nothing per session when irrelevant; `INJECT_MAX_CHARS` cap on the injected block. Tool descriptions carry the when-to-write / when-not-to-write guidance so it is visible at tool-call time. Note hard-cap remains 240 chars.
-- **Shared helpers** — `ARTIFACT_ROOT`, `projectNameFromRemoteUrl`, `makeResolveProject`, `removeEmptyDir`, `DeleteResult`, `deleteFile`, and `formatErr` live in `plugins/lib/project.ts` and are imported by both `memory.ts` and `artifacts.ts`. Edit there, not in copies.
+- **Shared helpers** — `ARTIFACT_ROOT`, `MEMORY_ROOT`, `removeEmptyDir`, `DeleteResult`, `deleteFile`, and `formatErr` live in `plugins/lib/project.ts` and are imported by both `memory.ts` and `artifacts.ts`. Edit there, not in copies. The current project name is computed inline in each plugin as `basename(project.worktree)` — no helper needed.
 - **Defensive error handling** — every hook body (`shell.env`, `experimental.chat.system.transform`) and tool `execute()` body is wrapped in `try`/`catch`. Hook failures are logged via `client.app.log` at `error` level (with `console.error` fallback) and swallowed; the rules-injection hook still strips any prior injection sentinel before it tries to read so a partial failure can't leave duplicate blocks behind. Tool failures return a `<tool> failed: <message>` string.
 
 ### `plugins/block-secrets.ts` — BlockSecretsPlugin
@@ -197,6 +198,7 @@ Verify hook signatures and the return shape against the source before adding a n
 - **`tool.execute.before` hook** — blocks reads of sensitive files (`.env`, `.env.*` except `*.example/sample/template/defaults/dist`, `*.pem`, SSH private keys, `*.key`, `credentials.json`, `.netrc`, `secrets.{json,yaml,yml}`, `*.p12`, `*.pfx`, `.aws/credentials`, anything under `.ssh/`).
 - Applies to `read`, `glob`, `edit`, `write` tool calls (by inspecting their path argument) and to `bash` (by token-scanning the command for blocked paths).
 - Safe-read exceptions live in `ALLOWED_BASENAMES` inside the plugin; extend the set if a legitimate template trips the block.
+- **Toast on block** — every block also fires a best-effort `client.tui.showToast` with `variant: "error"` so the deny is visible outside the tool-result panel. The thrown `Error` is what actually stops the tool call; the toast is purely additive UX. Toast failures (headless run, server unavailable) are swallowed so they cannot mask the underlying block reason.
 
 ## When adding a new plugin
 

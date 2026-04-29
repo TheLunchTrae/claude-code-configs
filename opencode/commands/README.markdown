@@ -49,9 +49,9 @@
 | `/catchup` | Read that handoff and orient the AI to resume. First thing to run when you come back. |
 | `/cleanup-artifacts` | Delete saved artifacts. Accepts zero, one, or two positional args to scope by project, by command, or both. Always asks before deleting. |
 
-### Memory
+### Storage management
 
 | Command | What it does |
 |---------|--------------|
 | `/cleanup-memory` | Delete memory entries (rules and facts). Combinable tokens — `global`/`project`/`<name>`, `rules`/`facts`, `domain:<x>`, a kebab-case slug — to scope; no args wipes everything. Always asks before deleting. |
-| `/review-memory` | Walk every rule and fact across both scopes, flag stale / redundant / contradictory / trivial entries, and prompt one at a time to delete, keep, or merge. |
+| `/manage-storage` | Multi-verb management for artifacts and memory: `rename` a project's storage, `review` for stale entries, `copy` across projects, `promote` / `demote` memory between project and global scopes. Use for multi-step workflows; stays alongside the one-shot `/cleanup-*` commands. |
