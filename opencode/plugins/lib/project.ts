@@ -12,6 +12,12 @@ import { rmdir, unlink } from "node:fs/promises"
 import { homedir } from "node:os"
 import { basename, join } from "node:path"
 
+// `PluginInput.project` is a `Project` from the OpenCode SDK. It carries
+// `worktree` and `vcs` so we can skip `git rev-parse --show-toplevel` entirely
+// and skip `git config --get remote.origin.url` outside git repos. The Project
+// type does not include a human-readable name — only an opaque `id` — so the
+// remote-URL → repo-name fallback still has to run inside git repos.
+
 const DATA_ROOT = join(homedir(), ".opencode-data")
 export const ARTIFACT_ROOT = join(DATA_ROOT, "artifacts")
 export const MEMORY_ROOT = join(DATA_ROOT, "memory")
@@ -47,24 +53,22 @@ export const deleteFile = async (path: string, result: DeleteResult): Promise<vo
 
 export const makeResolveProject = ({
   $,
-  directory,
-}: Pick<PluginInput, "$" | "directory">): (() => Promise<string>) => {
+  project,
+}: Pick<PluginInput, "$" | "project">): (() => Promise<string>) => {
   let cached: string | undefined
   return async () => {
     if (cached) return cached
-    try {
-      const remote = (await $`git -C ${directory} config --get remote.origin.url`.quiet().nothrow().text()).trim()
-      const fromRemote = projectNameFromRemoteUrl(remote)
-      if (fromRemote) return (cached = fromRemote)
-    } catch {
-      // fall through
+    if (project.vcs === "git") {
+      try {
+        const remote = (
+          await $`git -C ${project.worktree} config --get remote.origin.url`.quiet().nothrow().text()
+        ).trim()
+        const fromRemote = projectNameFromRemoteUrl(remote)
+        if (fromRemote) return (cached = fromRemote)
+      } catch {
+        // fall through to worktree basename
+      }
     }
-    try {
-      const top = (await $`git -C ${directory} rev-parse --show-toplevel`.quiet().nothrow().text()).trim()
-      if (top) return (cached = basename(top))
-    } catch {
-      // fall through
-    }
-    return (cached = basename(directory))
+    return (cached = basename(project.worktree))
   }
 }

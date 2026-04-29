@@ -58,8 +58,8 @@ const pruneExpired = async (ttlDays: number): Promise<DeleteResult> => {
   return result
 }
 
-export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
-  const resolveProject = makeResolveProject({ $, directory })
+export const ArtifactsPlugin: Plugin = async ({ $, client, project }) => {
+  const resolveProject = makeResolveProject({ $, project })
 
   const ensureProjectDir = async (project: string): Promise<string> => {
     const dir = join(ARTIFACT_ROOT, project)

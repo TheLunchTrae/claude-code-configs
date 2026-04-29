@@ -168,8 +168,8 @@ const formatListOutput = (project: string, kind: Kind, lines: string[]): string 
   return `${kind} (${project}):\n${lines.join("\n")}`
 }
 
-export const MemoryPlugin: Plugin = async ({ $, client, directory }) => {
-  const resolveProject = makeResolveProject({ $, directory })
+export const MemoryPlugin: Plugin = async ({ $, client, project }) => {
+  const resolveProject = makeResolveProject({ $, project })
 
   await mkdir(MEMORY_ROOT, { recursive: true })
 

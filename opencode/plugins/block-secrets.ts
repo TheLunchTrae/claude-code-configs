@@ -1,5 +1,7 @@
-import type { Plugin } from "@opencode-ai/plugin"
+import type { Plugin, PluginInput } from "@opencode-ai/plugin"
 import { basename } from "node:path"
+
+type Client = PluginInput["client"]
 
 const BLOCKED_PATTERNS: readonly RegExp[] = [
   /(^|\/)\.env$/,
@@ -48,13 +50,30 @@ const firstBlockedPathInCommand = (command: string): { path: string; pattern: st
   return undefined
 }
 
-const reject = (reason: string): never => {
+// Toast is best-effort additive UX — the thrown error is what actually stops
+// the tool call. A toast failure must not mask the underlying block reason.
+const notifyBlocked = (client: Client, path: string, pattern: string): void => {
+  void client.tui
+    .showToast({
+      body: {
+        title: "block-secrets",
+        message: `Blocked ${path} (pattern ${pattern})`,
+        variant: "error",
+      },
+    })
+    .catch(() => {
+      // toast surface unavailable (headless run, server down) — swallow
+    })
+}
+
+const reject = (client: Client, path: string, pattern: string, reason: string): never => {
+  notifyBlocked(client, path, pattern)
   throw new Error(
     `blocked by block-secrets plugin: ${reason}. Sensitive-file reads are denied by policy (see rules/security.md). If this file is safe (e.g. a template), add its basename to ALLOWED_BASENAMES in opencode/plugins/block-secrets.ts.`,
   )
 }
 
-export const BlockSecretsPlugin: Plugin = async () => ({
+export const BlockSecretsPlugin: Plugin = async ({ client }) => ({
   "tool.execute.before": async (input, output) => {
     const toolName = input.tool.toLowerCase()
     const args = (output.args ?? {}) as Record<string, unknown>
@@ -62,7 +81,7 @@ export const BlockSecretsPlugin: Plugin = async () => ({
     if (toolName === "bash") {
       const command = typeof args.command === "string" ? args.command : ""
       const hit = firstBlockedPathInCommand(command)
-      if (hit) reject(`bash command references ${hit.path} (pattern ${hit.pattern})`)
+      if (hit) reject(client, hit.path, hit.pattern, `bash command references ${hit.path} (pattern ${hit.pattern})`)
       return
     }
 
@@ -70,7 +89,7 @@ export const BlockSecretsPlugin: Plugin = async () => ({
       const value = args[key]
       if (typeof value !== "string") continue
       const hit = isBlockedPath(value)
-      if (hit) reject(`${toolName || "tool"} attempted to access ${value} (pattern ${hit})`)
+      if (hit) reject(client, value, hit, `${toolName || "tool"} attempted to access ${value} (pattern ${hit})`)
     }
   },
 })
