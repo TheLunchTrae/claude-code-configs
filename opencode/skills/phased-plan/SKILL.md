@@ -3,7 +3,7 @@ name: phased-plan
 description: Produce a phased implementation plan with migration windows, backwards-compatibility scaffolding, and per-phase rollback. Use when the user asks for a phased rollout, gradual migration, or in-phases plan — overrides the planner's default-to-immediate-change directive.
 ---
 
-<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
+<!-- Run this skill as a subtask in the `planner` subagent for context isolation. -->
 
 # Phased plan: $ARGUMENTS
 

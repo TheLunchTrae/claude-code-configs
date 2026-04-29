@@ -3,7 +3,7 @@ name: verify
 description: "Run the verification loop — type checking, linting, tests, build — and report PASS/FAIL with action items. Use before every commit and PR, or when the user asks to verify, validate, or check the implementation."
 ---
 
-<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
+<!-- Run this skill as a subtask in the `lead` subagent for context isolation. -->
 
 # Verify: $ARGUMENTS
 
