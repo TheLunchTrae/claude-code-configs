@@ -6,6 +6,7 @@ import {
   ARTIFACT_ROOT,
   type DeleteResult,
   deleteFile,
+  formatErr,
   makeResolveProject,
   removeEmptyDir,
 } from "./lib/project"
@@ -68,26 +69,44 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
 
   await mkdir(ARTIFACT_ROOT, { recursive: true })
 
-  // Fire-and-forget startup TTL prune. Errors during cleanup must not block plugin init.
-  const ttlDays = resolveTtlDays()
-  void pruneExpired(ttlDays).then(async (result) => {
-    if (result.deleted.length > 0) {
+  const logErr = async (where: string, err: unknown): Promise<void> => {
+    try {
       await client.app.log({
-        body: {
-          service: "plugin/artifacts",
-          level: "info",
-          message: `pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-data/artifacts/`,
-        },
+        body: { service: "plugin/artifacts", level: "error", message: `${where}: ${formatErr(err)}` },
       })
+    } catch {
+      console.error(`[plugin/artifacts] ${where}:`, err)
     }
-  })
+  }
+
+  // Fire-and-forget startup TTL prune. Errors during cleanup must not block plugin init.
+  // Without the .catch, prune failures would be silent unhandled rejections — making it
+  // impossible to diagnose if pruning is implicated in startup hangs.
+  const ttlDays = resolveTtlDays()
+  void pruneExpired(ttlDays)
+    .then(async (result) => {
+      if (result.deleted.length > 0) {
+        await client.app.log({
+          body: {
+            service: "plugin/artifacts",
+            level: "info",
+            message: `pruned ${result.deleted.length} artifact(s) older than ${ttlDays} days from ~/.opencode-data/artifacts/`,
+          },
+        })
+      }
+    })
+    .catch((err) => logErr("startup TTL prune failed", err))
 
   return {
     "shell.env": async (_input, output) => {
-      const project = await resolveProject()
-      const dir = await ensureProjectDir(project)
-      output.env.OPENCODE_PROJECT = project
-      output.env.OPENCODE_ARTIFACT_DIR = dir
+      try {
+        const project = await resolveProject()
+        const dir = await ensureProjectDir(project)
+        output.env.OPENCODE_PROJECT = project
+        output.env.OPENCODE_ARTIFACT_DIR = dir
+      } catch (err) {
+        await logErr("shell.env injection failed", err)
+      }
     },
 
     tool: {
@@ -104,13 +123,17 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
             .describe("Project name. Defaults to current (git remote → repo dir → cwd)."),
         },
         async execute(args) {
-          const project = args.project ?? (await resolveProject())
-          const path = artifactPathFor(project, args.command)
-          if (!existsSync(path)) {
-            return `No artifact at ${path}.`
+          try {
+            const project = args.project ?? (await resolveProject())
+            const path = artifactPathFor(project, args.command)
+            if (!existsSync(path)) {
+              return `No artifact at ${path}.`
+            }
+            const content = await readFile(path, "utf8")
+            return `${project}/${args.command}.md:\n${content}`
+          } catch (err) {
+            return `artifact_read failed: ${formatErr(err)}`
           }
-          const content = await readFile(path, "utf8")
-          return `${project}/${args.command}.md:\n${content}`
         },
       }),
 
@@ -128,11 +151,15 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
             .describe("Project name. Defaults to current."),
         },
         async execute(args) {
-          const project = args.project ?? (await resolveProject())
-          await ensureProjectDir(project)
-          const path = artifactPathFor(project, args.command)
-          await writeFile(path, args.content, "utf8")
-          return `Wrote ${args.content.length} bytes to ${path}.`
+          try {
+            const project = args.project ?? (await resolveProject())
+            await ensureProjectDir(project)
+            const path = artifactPathFor(project, args.command)
+            await writeFile(path, args.content, "utf8")
+            return `Wrote ${args.content.length} bytes to ${path}.`
+          } catch (err) {
+            return `artifact_write failed: ${formatErr(err)}`
+          }
         },
       }),
 
@@ -145,23 +172,27 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
             .describe("Project name. Defaults to current."),
         },
         async execute(args) {
-          const project = args.project ?? (await resolveProject())
-          const dir = join(ARTIFACT_ROOT, project)
-          if (!existsSync(dir)) {
-            return `No artifacts for '${project}'.`
+          try {
+            const project = args.project ?? (await resolveProject())
+            const dir = join(ARTIFACT_ROOT, project)
+            if (!existsSync(dir)) {
+              return `No artifacts for '${project}'.`
+            }
+            const entries = await readdir(dir)
+            const md = entries.filter((e) => e.endsWith(".md"))
+            if (md.length === 0) {
+              return `No artifacts for '${project}'.`
+            }
+            const rows = await Promise.all(
+              md.map(async (name) => {
+                const s = await stat(join(dir, name))
+                return `- ${name.replace(/\.md$/, "")} ${s.size}B ${s.mtime.toISOString().slice(0, 10)}`
+              }),
+            )
+            return `Artifacts (${project}):\n${rows.join("\n")}`
+          } catch (err) {
+            return `artifact_list failed: ${formatErr(err)}`
           }
-          const entries = await readdir(dir)
-          const md = entries.filter((e) => e.endsWith(".md"))
-          if (md.length === 0) {
-            return `No artifacts for '${project}'.`
-          }
-          const rows = await Promise.all(
-            md.map(async (name) => {
-              const s = await stat(join(dir, name))
-              return `- ${name.replace(/\.md$/, "")} ${s.size}B ${s.mtime.toISOString().slice(0, 10)}`
-            }),
-          )
-          return `Artifacts (${project}):\n${rows.join("\n")}`
         },
       }),
 
@@ -182,30 +213,34 @@ export const ArtifactsPlugin: Plugin = async ({ $, client, directory }) => {
             .describe("Project name. Omit to apply across all projects."),
         },
         async execute(args) {
-          const result: DeleteResult = { deleted: [], skipped: [] }
-          const projects = args.project ? [args.project] : await collectProjects()
+          try {
+            const result: DeleteResult = { deleted: [], skipped: [] }
+            const projects = args.project ? [args.project] : await collectProjects()
 
-          for (const project of projects) {
-            const projectDir = join(ARTIFACT_ROOT, project)
-            if (!existsSync(projectDir)) continue
+            for (const project of projects) {
+              const projectDir = join(ARTIFACT_ROOT, project)
+              if (!existsSync(projectDir)) continue
 
-            if (args.command) {
-              const path = artifactPathFor(project, args.command)
-              if (existsSync(path)) await deleteFile(path, result)
-            } else {
-              const files = await collectArtifacts(project)
-              for (const path of files) await deleteFile(path, result)
+              if (args.command) {
+                const path = artifactPathFor(project, args.command)
+                if (existsSync(path)) await deleteFile(path, result)
+              } else {
+                const files = await collectArtifacts(project)
+                for (const path of files) await deleteFile(path, result)
+              }
+              await removeEmptyDir(projectDir)
             }
-            await removeEmptyDir(projectDir)
-          }
 
-          const lines = [`Deleted ${result.deleted.length} artifact(s).`]
-          if (result.deleted.length > 0) lines.push(...result.deleted.map((p) => `  - ${p}`))
-          if (result.skipped.length > 0) {
-            lines.push(`Skipped ${result.skipped.length} (could not delete):`)
-            lines.push(...result.skipped.map((p) => `  - ${p}`))
+            const lines = [`Deleted ${result.deleted.length} artifact(s).`]
+            if (result.deleted.length > 0) lines.push(...result.deleted.map((p) => `  - ${p}`))
+            if (result.skipped.length > 0) {
+              lines.push(`Skipped ${result.skipped.length} (could not delete):`)
+              lines.push(...result.skipped.map((p) => `  - ${p}`))
+            }
+            return lines.join("\n")
+          } catch (err) {
+            return `artifact_delete failed: ${formatErr(err)}`
           }
-          return lines.join("\n")
         },
       }),
     },

@@ -33,6 +33,9 @@ export const removeEmptyDir = async (dir: string): Promise<void> => {
 
 export type DeleteResult = { deleted: string[]; skipped: string[] }
 
+export const formatErr = (err: unknown): string =>
+  err instanceof Error ? err.message : String(err)
+
 export const deleteFile = async (path: string, result: DeleteResult): Promise<void> => {
   try {
     await unlink(path)

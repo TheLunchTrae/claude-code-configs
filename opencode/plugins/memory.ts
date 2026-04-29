@@ -33,6 +33,7 @@ import { existsSync } from "node:fs"
 import { join } from "node:path"
 import {
   type DeleteResult,
+  formatErr,
   makeResolveProject,
   MEMORY_ROOT,
   removeEmptyDir,
@@ -167,29 +168,48 @@ const formatListOutput = (project: string, kind: Kind, lines: string[]): string 
   return `${kind} (${project}):\n${lines.join("\n")}`
 }
 
-export const MemoryPlugin: Plugin = async ({ $, directory }) => {
+export const MemoryPlugin: Plugin = async ({ $, client, directory }) => {
   const resolveProject = makeResolveProject({ $, directory })
 
   await mkdir(MEMORY_ROOT, { recursive: true })
 
+  const logErr = async (where: string, err: unknown): Promise<void> => {
+    try {
+      await client.app.log({
+        body: { service: "plugin/memory", level: "error", message: `${where}: ${formatErr(err)}` },
+      })
+    } catch {
+      console.error(`[plugin/memory] ${where}:`, err)
+    }
+  }
+
   return {
     "shell.env": async (_input, output) => {
-      const project = await resolveProject()
-      const dir = await ensureMemoryDir(project)
-      output.env.OPENCODE_MEMORY_DIR = dir
+      try {
+        const project = await resolveProject()
+        const dir = await ensureMemoryDir(project)
+        output.env.OPENCODE_MEMORY_DIR = dir
+      } catch (err) {
+        await logErr("shell.env injection failed", err)
+      }
     },
 
     "experimental.chat.system.transform": async (_input, output) => {
       // Idempotency: strip any prior injection from this plugin before pushing
       // a fresh one, so re-runs of the hook can't stack duplicates.
       output.system = output.system.filter((s) => !s.includes(INJECT_SENTINEL))
-      const project = await resolveProject()
-      // Globals first so project-scoped rules come last — if the model reads
-      // top-down and treats later rules as refinements, project wins.
-      const globalLines = await readLines(rulesPath(GLOBAL_PROJECT))
-      const projectLines = project === GLOBAL_PROJECT ? [] : await readLines(rulesPath(project))
-      const block = formatInjectedRules([...globalLines, ...projectLines])
-      if (block) output.system.push(block)
+      try {
+        const project = await resolveProject()
+        // Globals first so project-scoped rules come last — if the model reads
+        // top-down and treats later rules as refinements, project wins.
+        const globalLines = await readLines(rulesPath(GLOBAL_PROJECT))
+        const projectLines = project === GLOBAL_PROJECT ? [] : await readLines(rulesPath(project))
+        const block = formatInjectedRules([...globalLines, ...projectLines])
+        if (block) output.system.push(block)
+      } catch (err) {
+        // Rules injection is best-effort; missing rules shouldn't break message processing.
+        await logErr("rules injection failed", err)
+      }
     },
 
     tool: {
@@ -224,51 +244,55 @@ Output format is the raw on-disk line per entry:
             .describe("Project name. Only valid when scope is 'project' or omitted. Defaults to current."),
         },
         async execute(args) {
-          const kind = args.kind ?? "rules"
-          const scope = args.scope ?? "all"
+          try {
+            const kind = args.kind ?? "rules"
+            const scope = args.scope ?? "all"
 
-          if (args.project && scope === "global") {
-            return "`project` is not valid with scope:\"global\". Drop one."
-          }
-
-          let slugNorm: string | undefined
-          if (args.slug !== undefined) {
-            const v = validateSlug(args.slug)
-            if (!v.ok) return v.error
-            slugNorm = v.slug
-          }
-
-          const targets: Array<{ label: string; project: string }> = []
-          if (scope === "global" || scope === "all") {
-            targets.push({ label: "global", project: GLOBAL_PROJECT })
-          }
-          if (scope === "project" || scope === "all") {
-            const p = args.project ?? (await resolveProject())
-            if (p !== GLOBAL_PROJECT) targets.push({ label: p, project: p })
-          }
-
-          const wantRules = kind === "rules" || kind === "all"
-          const wantFacts = kind === "facts" || kind === "all"
-
-          const sections: string[] = []
-
-          for (const t of targets) {
-            if (wantRules) {
-              let lines = await readLines(rulesPath(t.project))
-              if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
-              sections.push(formatListOutput(t.label, "rules", lines))
+            if (args.project && scope === "global") {
+              return "`project` is not valid with scope:\"global\". Drop one."
             }
-            if (wantFacts) {
-              let lines = await readLines(factsPath(t.project))
-              if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
-              if (args.domain !== undefined) {
-                lines = lines.filter((l) => l.split("|", 3)[1] === args.domain)
+
+            let slugNorm: string | undefined
+            if (args.slug !== undefined) {
+              const v = validateSlug(args.slug)
+              if (!v.ok) return v.error
+              slugNorm = v.slug
+            }
+
+            const targets: Array<{ label: string; project: string }> = []
+            if (scope === "global" || scope === "all") {
+              targets.push({ label: "global", project: GLOBAL_PROJECT })
+            }
+            if (scope === "project" || scope === "all") {
+              const p = args.project ?? (await resolveProject())
+              if (p !== GLOBAL_PROJECT) targets.push({ label: p, project: p })
+            }
+
+            const wantRules = kind === "rules" || kind === "all"
+            const wantFacts = kind === "facts" || kind === "all"
+
+            const sections: string[] = []
+
+            for (const t of targets) {
+              if (wantRules) {
+                let lines = await readLines(rulesPath(t.project))
+                if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+                sections.push(formatListOutput(t.label, "rules", lines))
               }
-              sections.push(formatListOutput(t.label, "facts", lines))
+              if (wantFacts) {
+                let lines = await readLines(factsPath(t.project))
+                if (slugNorm) lines = lines.filter((l) => slugOf(l) === slugNorm)
+                if (args.domain !== undefined) {
+                  lines = lines.filter((l) => l.split("|", 3)[1] === args.domain)
+                }
+                sections.push(formatListOutput(t.label, "facts", lines))
+              }
             }
-          }
 
-          return sections.join("\n\n")
+            return sections.join("\n\n")
+          } catch (err) {
+            return `memory_list failed: ${formatErr(err)}`
+          }
         },
       }),
 
@@ -325,66 +349,70 @@ Values may not contain '|', '\\n', or '\\r' — paraphrase. Slugs are unique per
             .describe("Project name override. Only valid when scope is 'project' or omitted. Defaults to current."),
         },
         async execute(args) {
-          const v = validateSlug(args.slug)
-          if (!v.ok) return v.error
-          const slug = v.slug
+          try {
+            const v = validateSlug(args.slug)
+            if (!v.ok) return v.error
+            const slug = v.slug
 
-          const noteErr = validateValue("note", args.note)
-          if (noteErr) return noteErr
+            const noteErr = validateValue("note", args.note)
+            if (noteErr) return noteErr
 
-          const scope = args.scope ?? "project"
+            const scope = args.scope ?? "project"
 
-          if (args.project && scope === "global") {
-            return "`project` is not valid with scope:\"global\". Drop one."
+            if (args.project && scope === "global") {
+              return "`project` is not valid with scope:\"global\". Drop one."
+            }
+
+            const isRule = args.kind === "rule"
+
+            if (isRule) {
+              if (args.trigger === undefined) {
+                return "kind:'rule' requires 'trigger' — the 'when' condition that activates the directive."
+              }
+              if (args.domain !== undefined) {
+                return "kind:'rule' does not take 'domain'. Drop the domain arg or switch to kind:'fact'."
+              }
+              const trigErr = validateValue("trigger", args.trigger)
+              if (trigErr) return trigErr
+            } else {
+              if (args.domain === undefined) {
+                return "kind:'fact' requires 'domain' — a short category tag used to filter memory_list."
+              }
+              if (args.trigger !== undefined) {
+                return "kind:'fact' does not take 'trigger'. Drop the trigger arg or switch to kind:'rule'."
+              }
+              const domErr = validateValue("domain", args.domain)
+              if (domErr) return domErr
+            }
+
+            const project = scope === "global" ? GLOBAL_PROJECT : (args.project ?? (await resolveProject()))
+            await ensureMemoryDir(project)
+
+            const targetKind: Kind = isRule ? "rules" : "facts"
+            const otherKind: Kind = isRule ? "facts" : "rules"
+
+            // Cross-kind collision is scoped: same slug can coexist across
+            // project/global (project may intentionally shadow global).
+            const otherLines = await readLines(pathFor(project, otherKind))
+            if (otherLines.some((l) => slugOf(l) === slug)) {
+              const scopeHint = scope === "global" ? ' scope:"global"' : ""
+              return `Slug '${slug}' already exists as a ${otherKind.slice(0, -1)} in this scope. Run memory_delete confirm:true slug:"${slug}"${scopeHint} first, then re-write as ${args.kind}.`
+            }
+
+            const existing = await readLines(pathFor(project, targetKind))
+            const filtered = existing.filter((l) => slugOf(l) !== slug)
+            const newLine = isRule
+              ? `${slug}|${args.trigger}|${args.note}`
+              : `${slug}|${args.domain}|${args.note}`
+            filtered.push(newLine)
+            await writeLines(pathFor(project, targetKind), filtered)
+
+            const path = pathFor(project, targetKind)
+            const scopeLabel = scope === "global" ? "global" : project
+            return `wrote ${args.kind} ${slug} (${scopeLabel}) to ${path} (${filtered.length} ${targetKind}, ${newLine.length} bytes).`
+          } catch (err) {
+            return `memory_write failed: ${formatErr(err)}`
           }
-
-          const isRule = args.kind === "rule"
-
-          if (isRule) {
-            if (args.trigger === undefined) {
-              return "kind:'rule' requires 'trigger' — the 'when' condition that activates the directive."
-            }
-            if (args.domain !== undefined) {
-              return "kind:'rule' does not take 'domain'. Drop the domain arg or switch to kind:'fact'."
-            }
-            const trigErr = validateValue("trigger", args.trigger)
-            if (trigErr) return trigErr
-          } else {
-            if (args.domain === undefined) {
-              return "kind:'fact' requires 'domain' — a short category tag used to filter memory_list."
-            }
-            if (args.trigger !== undefined) {
-              return "kind:'fact' does not take 'trigger'. Drop the trigger arg or switch to kind:'rule'."
-            }
-            const domErr = validateValue("domain", args.domain)
-            if (domErr) return domErr
-          }
-
-          const project = scope === "global" ? GLOBAL_PROJECT : (args.project ?? (await resolveProject()))
-          await ensureMemoryDir(project)
-
-          const targetKind: Kind = isRule ? "rules" : "facts"
-          const otherKind: Kind = isRule ? "facts" : "rules"
-
-          // Cross-kind collision is scoped: same slug can coexist across
-          // project/global (project may intentionally shadow global).
-          const otherLines = await readLines(pathFor(project, otherKind))
-          if (otherLines.some((l) => slugOf(l) === slug)) {
-            const scopeHint = scope === "global" ? ' scope:"global"' : ""
-            return `Slug '${slug}' already exists as a ${otherKind.slice(0, -1)} in this scope. Run memory_delete confirm:true slug:"${slug}"${scopeHint} first, then re-write as ${args.kind}.`
-          }
-
-          const existing = await readLines(pathFor(project, targetKind))
-          const filtered = existing.filter((l) => slugOf(l) !== slug)
-          const newLine = isRule
-            ? `${slug}|${args.trigger}|${args.note}`
-            : `${slug}|${args.domain}|${args.note}`
-          filtered.push(newLine)
-          await writeLines(pathFor(project, targetKind), filtered)
-
-          const path = pathFor(project, targetKind)
-          const scopeLabel = scope === "global" ? "global" : project
-          return `wrote ${args.kind} ${slug} (${scopeLabel}) to ${path} (${filtered.length} ${targetKind}, ${newLine.length} bytes).`
         },
       }),
 
@@ -427,92 +455,96 @@ confirm:true required. Returns deleted file paths.`,
             .describe("Project name. Only valid when scope is 'project' or omitted. Omit to apply across all projects."),
         },
         async execute(args) {
-          let slugNorm: string | undefined
-          if (args.slug !== undefined) {
-            const v = validateSlug(args.slug)
-            if (!v.ok) return v.error
-            slugNorm = v.slug
-          }
-
-          const kind = args.kind ?? "all"
-          const scope = args.scope ?? "all"
-
-          if (args.project && scope !== "project") {
-            return `\`project\` is not valid with scope:"${scope}". Drop one.`
-          }
-
-          // Build the project list according to scope.
-          let projects: string[]
-          if (scope === "global") {
-            projects = [GLOBAL_PROJECT]
-          } else if (scope === "project") {
-            projects = args.project
-              ? [args.project]
-              : (await collectProjectsWithMemory()).filter((p) => p !== GLOBAL_PROJECT)
-          } else {
-            projects = args.project ? [args.project] : await collectProjectsWithMemory()
-          }
-
-          const result: DeleteResult = { deleted: [], skipped: [] }
-          let totalRemoved = 0
-
-          // Returns a matcher that identifies lines to REMOVE, or undefined to
-          // skip this file entirely. When no matcher fields are set, remove all.
-          const matcherFor = (forKind: Kind): ((line: string) => boolean) | undefined => {
-            if (slugNorm) return (l) => slugOf(l) === slugNorm
-            if (args.domain !== undefined) {
-              // 'domain' is facts-only; ignore files that can't match.
-              if (forKind !== "facts") return undefined
-              return (l) => l.split("|", 3)[1] === args.domain
+          try {
+            let slugNorm: string | undefined
+            if (args.slug !== undefined) {
+              const v = validateSlug(args.slug)
+              if (!v.ok) return v.error
+              slugNorm = v.slug
             }
-            return () => true
-          }
 
-          const applyToFile = async (path: string, forKind: Kind): Promise<void> => {
-            if (!existsSync(path)) return
-            const matcher = matcherFor(forKind)
-            if (!matcher) return
-            const before = await readLines(path)
-            const after = before.filter((l) => !matcher(l))
-            const removed = before.length - after.length
-            if (removed === 0) return
-            try {
-              if (after.length === 0) {
-                await unlink(path)
-              } else {
-                await writeLines(path, after)
+            const kind = args.kind ?? "all"
+            const scope = args.scope ?? "all"
+
+            if (args.project && scope !== "project") {
+              return `\`project\` is not valid with scope:"${scope}". Drop one.`
+            }
+
+            // Build the project list according to scope.
+            let projects: string[]
+            if (scope === "global") {
+              projects = [GLOBAL_PROJECT]
+            } else if (scope === "project") {
+              projects = args.project
+                ? [args.project]
+                : (await collectProjectsWithMemory()).filter((p) => p !== GLOBAL_PROJECT)
+            } else {
+              projects = args.project ? [args.project] : await collectProjectsWithMemory()
+            }
+
+            const result: DeleteResult = { deleted: [], skipped: [] }
+            let totalRemoved = 0
+
+            // Returns a matcher that identifies lines to REMOVE, or undefined to
+            // skip this file entirely. When no matcher fields are set, remove all.
+            const matcherFor = (forKind: Kind): ((line: string) => boolean) | undefined => {
+              if (slugNorm) return (l) => slugOf(l) === slugNorm
+              if (args.domain !== undefined) {
+                // 'domain' is facts-only; ignore files that can't match.
+                if (forKind !== "facts") return undefined
+                return (l) => l.split("|", 3)[1] === args.domain
               }
-              totalRemoved += removed
-              result.deleted.push(path)
-            } catch {
-              result.skipped.push(path)
-            }
-          }
-
-          for (const project of projects) {
-            const dir = memoryDirFor(project)
-            if (!existsSync(dir)) continue
-
-            if (kind === "rules" || kind === "all") {
-              await applyToFile(rulesPath(project), "rules")
-            }
-            if (kind === "facts" || kind === "all") {
-              await applyToFile(factsPath(project), "facts")
+              return () => true
             }
 
-            await removeEmptyDir(dir)
-          }
+            const applyToFile = async (path: string, forKind: Kind): Promise<void> => {
+              if (!existsSync(path)) return
+              const matcher = matcherFor(forKind)
+              if (!matcher) return
+              const before = await readLines(path)
+              const after = before.filter((l) => !matcher(l))
+              const removed = before.length - after.length
+              if (removed === 0) return
+              try {
+                if (after.length === 0) {
+                  await unlink(path)
+                } else {
+                  await writeLines(path, after)
+                }
+                totalRemoved += removed
+                result.deleted.push(path)
+              } catch {
+                result.skipped.push(path)
+              }
+            }
 
-          const noun = totalRemoved === 1 ? "entry" : "entries"
-          const lines = [`Deleted ${totalRemoved} memory ${noun}.`]
-          if (result.deleted.length > 0) {
-            lines.push(...result.deleted.map((p) => `  - ${p}`))
+            for (const project of projects) {
+              const dir = memoryDirFor(project)
+              if (!existsSync(dir)) continue
+
+              if (kind === "rules" || kind === "all") {
+                await applyToFile(rulesPath(project), "rules")
+              }
+              if (kind === "facts" || kind === "all") {
+                await applyToFile(factsPath(project), "facts")
+              }
+
+              await removeEmptyDir(dir)
+            }
+
+            const noun = totalRemoved === 1 ? "entry" : "entries"
+            const lines = [`Deleted ${totalRemoved} memory ${noun}.`]
+            if (result.deleted.length > 0) {
+              lines.push(...result.deleted.map((p) => `  - ${p}`))
+            }
+            if (result.skipped.length > 0) {
+              lines.push(`Skipped ${result.skipped.length} (could not delete):`)
+              lines.push(...result.skipped.map((p) => `  - ${p}`))
+            }
+            return lines.join("\n")
+          } catch (err) {
+            return `memory_delete failed: ${formatErr(err)}`
           }
-          if (result.skipped.length > 0) {
-            lines.push(`Skipped ${result.skipped.length} (could not delete):`)
-            lines.push(...result.skipped.map((p) => `  - ${p}`))
-          }
-          return lines.join("\n")
         },
       }),
     },
