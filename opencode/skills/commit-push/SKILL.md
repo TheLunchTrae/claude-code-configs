@@ -1,4 +1,5 @@
 ---
+name: commit-push
 description: "Stage, commit, and push changes"
 ---
 

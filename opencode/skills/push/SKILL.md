@@ -1,4 +1,5 @@
 ---
+name: push
 description: "Push the current branch to the remote"
 ---
 
@@ -13,7 +14,7 @@ Push the current branch to its remote. Follow these steps:
 5. If the push is rejected (non-fast-forward), stop and report the situation to the user — do not force-push unless explicitly instructed.
 6. Confirm success by reporting the remote URL and branch that was pushed to.
 
-Repository-level CLAUDE.md instructions take precedence over these defaults.
+Repository-level AGENTS.md instructions take precedence over these defaults.
 
 $ARGUMENTS
 
