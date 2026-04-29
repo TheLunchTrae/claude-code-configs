@@ -21,11 +21,16 @@ Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
 
 ## Intensity
 
-| Level | What change |
-|-------|------------|
-| **lite** | No filler/hedging. Keep articles + full sentences. Professional but tight |
-| **full** | Drop articles, fragments OK, short synonyms. Classic caveman |
-| **ultra** | Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough |
+| Level | Target | What change |
+|-------|--------|------------|
+| **lite** | ~25% cut | No filler/hedging. Keep articles + full sentences. Professional but tight |
+| **full** | ~50% cut | Drop articles, fragments OK, short synonyms. Classic caveman |
+| **ultra** | ~75% cut | Abbreviate (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough |
+
+Gradient — "I will help you fix the bug in your authentication middleware. First, I'll need to examine the error logs."
+- lite: "Will help fix bug in authentication middleware. First, need to examine error logs."
+- full: "Fix auth bug. Check logs first."
+- ultra: "auth bug → check logs"
 
 Example — "Why React component re-render?"
 - lite: "Your component re-renders because you create a new object reference each render. Wrap it in `useMemo`."
