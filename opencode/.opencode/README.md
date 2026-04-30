@@ -4,18 +4,16 @@ Houses `/sync-configs` — the command for pulling these OpenCode configs from t
 
 ## First-time setup
 
-`/sync-configs` is implemented by a plugin (`plugins/sync-configs.ts`) that must be present locally before the command will run. If you cloned this repo into your config directory, you already have it — skip to **Usage** below. If you started from an empty config directory, run this once from the OpenCode config root (the directory containing your `.opencode/`):
+`/sync-configs` is implemented by a project-local plugin (`.opencode/plugins/sync-configs.ts`) that must be present locally before the command will run. If you cloned this repo into your config directory, you already have it — skip to **Usage** below. If you started from an empty config directory, run this once from the OpenCode config root (the directory containing your `.opencode/`):
 
 ```sh
-mkdir -p plugins/lib && \
-  curl -fsSL -o plugins/sync-configs.ts https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/plugins/sync-configs.ts && \
-  curl -fsSL -o plugins/lib/project.ts  https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/plugins/lib/project.ts && \
-  curl -fsSL -o tsconfig.json           https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/tsconfig.json && \
-  bun install && \
+mkdir -p .opencode/plugins && \
+  curl -fsSL -o .opencode/plugins/sync-configs.ts https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/plugins/sync-configs.ts && \
+  curl -fsSL -o tsconfig.json                    https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/tsconfig.json && \
   echo "Done. Restart OpenCode, then run /sync-configs."
 ```
 
-Then restart OpenCode so the plugin loads, and run `/sync-configs` to pull the rest of the configs.
+Then restart OpenCode so the plugin loads (OpenCode auto-installs `@opencode-ai/plugin` for each config dir at startup), and run `/sync-configs` to pull the rest of the configs.
 
 ## Usage
 
@@ -27,4 +25,5 @@ Then restart OpenCode so the plugin loads, and run `/sync-configs` to pull the r
 | File | What it does |
 |------|--------------|
 | `commands/sync-configs.md` | The slash-command implementation — thin wrapper that calls the `sync-configs` plugin tools and surfaces decisions. |
-| `sync-configs-manifest.md` | List of files `/sync-configs` ships. Fetched fresh from upstream on every run; the local copy is never consulted. |
+| `plugins/sync-configs.ts` | The plugin that does the work. Auto-discovered as a project-local plugin when OpenCode loads this `.opencode/` config dir. |
+| `sync-configs-manifest.json` | List of files `/sync-configs` ships. Fetched fresh from upstream on every run; the local copy is never consulted. |

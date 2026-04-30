@@ -43,7 +43,7 @@ When a CC config change lands in a category that *is* mirrored (anything not in 
 
 ### Not to be confused with `/sync-configs`
 
-`/sync-configs` (`opencode/.opencode/commands/sync-configs.md`) is a completely different tool. It is an OC-side command that always fetches its manifest from `opencode/.opencode/sync-configs-manifest.md` on `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` and then webfetches every file listed in it into a downstream install, with diff/merge for local customizations. That manifest must be comprehensive — every file under `opencode/` that OC reads at runtime appears in it. Do not use this skill's hardcoded exclusion list as a reason to leave anything out of that manifest.
+`/sync-configs` (`opencode/.opencode/commands/sync-configs.md`) is a completely different tool. It is an OC-side command that always fetches its manifest from `opencode/.opencode/sync-configs-manifest.json` on `raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/` and then webfetches every file listed in it into a downstream install, with diff/merge for local customizations. That manifest must be comprehensive — every file under `opencode/` that OC reads at runtime appears in it. Do not use this skill's hardcoded exclusion list as a reason to leave anything out of that manifest.
 
 ## Rule: keep mirrored categories in sync
 

@@ -52,13 +52,12 @@ Sync OpenCode config files from the upstream GitHub repo into this project direc
 - path/to/file.md
 ```
 
-Omit any section whose count is zero. When `version_advanced` is `false`, append `Version fact not advanced — re-run /sync-configs to retry the failed/unresolved paths.`. When `delete_skipped_first_run` is set on the plan result, append `Skipped N deletion(s) — no prior sync state, cannot prove these files came from a previous sync.`. When `plugin_self_updated` is `true`, append `Plugin sync-configs.ts was updated in this run — restart OpenCode and run "bun install" in the opencode/ directory to load the new version.`
+Omit any section whose count is zero. When `version_advanced` is `false`, append `Version fact not advanced — re-run /sync-configs to retry the failed/unresolved paths.`. When `delete_skipped_first_run` is set on the plan result, append `Skipped N deletion(s) — no prior sync state, cannot prove these files came from a previous sync.`. When `plugin_self_updated` is `true`, append `Plugin .opencode/plugins/sync-configs.ts was updated in this run — restart OpenCode to load the new version.`
 
 ## Notes
 
-- This command requires the `sync-configs` plugin to be loaded. First-time setup is documented in `.opencode/README.md` ("First-time setup") — a single shell snippet that curls the plugin files into place.
-- After any change under `plugins/` or to `tsconfig.json`, prompt the user to run `bun install` in the OpenCode config root so plugin dependencies (`@opencode-ai/plugin`, types) are resolved before the next session.
+- This command requires the `sync-configs` plugin to be loaded from `.opencode/plugins/sync-configs.ts` (project-local plugin, auto-discovered when OpenCode loads the project's `.opencode/` config dir). First-time setup is documented in `.opencode/README.md` ("First-time setup") — a single shell snippet that curls the plugin file into place. OpenCode auto-installs plugin dependencies (`@opencode-ai/plugin`) at startup, so no manual `bun install` is required.
 - The version is stored per project at `~/.opencode-data/sync-configs/<project>/version`, where `<project>` is `basename(PluginInput.project.worktree)` resolved by OpenCode. Run `/sync-configs` from the same working directory each time so the same project is resolved on read and write.
-- Removing the version file forces the next run to re-sync every tracked file from scratch, but deletions from the manifest's `## Deleted` section will be **skipped** on that run — the plugin cannot prove those files came from a previous sync. Deletions from the current manifest version will not be applied retroactively unless the upstream manifest bumps the version again.
+- Removing the version file forces the next run to re-sync every tracked file from scratch, but entries in the manifest's `deleted` array will be **skipped** on that run — the plugin cannot prove those files came from a previous sync. Deletions from the current manifest version will not be applied retroactively unless the upstream manifest bumps the version again.
 
 $ARGUMENTS

@@ -4,10 +4,13 @@
 // (mutating commit). The /sync-configs slash command orchestrates them and
 // surfaces user decisions for non-allowlisted drift.
 //
+// Lives under .opencode/plugins/ (not opencode/plugins/) so it is auto-
+// discovered as a project-local plugin only when OpenCode loads this
+// repo's .opencode/ config dir, not in unrelated workspaces.
+//
 // State: ~/.opencode-data/sync-configs/<project>/version contains the
 // last-synced manifest version integer for this project. No format, no
-// schema. Sibling subtree to artifacts/ and memory/ so cleanup tooling for
-// one cannot reach the others.
+// schema. Sibling subtree to artifacts/ and memory/.
 //
 // HTTP: native fetch (Node 18+); no curl, no SDK calls. opencode.jsonc is
 // always deferred to the user when it differs — no JSONC merge logic in
@@ -16,15 +19,20 @@
 import { type Plugin, type PluginInput, tool } from "@opencode-ai/plugin"
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises"
 import { existsSync } from "node:fs"
+import { homedir } from "node:os"
 import { basename, dirname, join } from "node:path"
-import { formatErr, SYNC_CONFIGS_ROOT } from "./lib/project"
 
 type Client = PluginInput["client"]
 
+const formatErr = (err: unknown): string =>
+  err instanceof Error ? err.message : String(err)
+
+const SYNC_CONFIGS_ROOT = join(homedir(), ".opencode-data", "sync-configs")
+
 const BASE_URL =
   "https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/"
-const MANIFEST_PATH = ".opencode/sync-configs-manifest.md"
-const PLUGIN_SELF_PATH = "plugins/sync-configs.ts"
+const MANIFEST_PATH = ".opencode/sync-configs-manifest.json"
+const PLUGIN_SELF_PATH = ".opencode/plugins/sync-configs.ts"
 const ALWAYS_DEFER_PATHS: ReadonlySet<string> = new Set(["opencode.jsonc"])
 
 const versionPathFor = (project: string): string =>
@@ -69,35 +77,38 @@ type ParsedManifest = {
   deletePaths: string[]
 }
 
+const isStringArray = (v: unknown): v is string[] =>
+  Array.isArray(v) && v.every((x) => typeof x === "string")
+
 const parseManifest = (body: string): ParsedManifest | { error: string } => {
-  let version: number | undefined
+  let raw: unknown
+  try {
+    raw = JSON.parse(body)
+  } catch (err) {
+    return { error: `manifest is not valid JSON: ${formatErr(err)}` }
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { error: "manifest must be a JSON object" }
+  }
+  const obj = raw as Record<string, unknown>
+  if (typeof obj.version !== "number" || !Number.isInteger(obj.version) || obj.version < 0) {
+    return { error: "manifest 'version' must be a non-negative integer" }
+  }
+  if (!obj.paths || typeof obj.paths !== "object" || Array.isArray(obj.paths)) {
+    return { error: "manifest 'paths' must be an object whose values are string arrays" }
+  }
   const syncPaths: string[] = []
-  const deletePaths: string[] = []
-  let inDeleted = false
-
-  for (const line of body.split(/\r?\n/)) {
-    const versionMatch = /^Version:\s*(\d+)\s*$/.exec(line)
-    if (versionMatch) {
-      version = Number(versionMatch[1])
-      continue
+  for (const [key, val] of Object.entries(obj.paths as Record<string, unknown>)) {
+    if (!isStringArray(val)) {
+      return { error: `manifest 'paths.${key}' must be a string array` }
     }
-    const headerMatch = /^##\s+(.*\S)\s*$/.exec(line)
-    if (headerMatch) {
-      inDeleted = headerMatch[1].toLowerCase() === "deleted"
-      continue
-    }
-    const pathMatch = /^-\s+(\S+)\s*$/.exec(line)
-    if (pathMatch) {
-      const p = pathMatch[1]
-      if (inDeleted) deletePaths.push(p)
-      else syncPaths.push(p)
-    }
+    syncPaths.push(...val)
   }
-
-  if (version === undefined) {
-    return { error: "manifest missing 'Version: <integer>' line" }
+  if (!isStringArray(obj.deleted ?? [])) {
+    return { error: "manifest 'deleted' must be a string array" }
   }
-  return { version, syncPaths, deletePaths }
+  const deletePaths = (obj.deleted as string[] | undefined) ?? []
+  return { version: obj.version, syncPaths, deletePaths }
 }
 
 type FetchOk = { ok: true; body: string }

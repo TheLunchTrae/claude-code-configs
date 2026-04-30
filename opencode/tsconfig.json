@@ -13,5 +13,5 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["plugins/**/*.ts"]
+  "include": ["plugins/**/*.ts", ".opencode/plugins/**/*.ts"]
 }
