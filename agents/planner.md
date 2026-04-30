@@ -52,16 +52,3 @@ Default to plans that describe an immediate, full-state change — the system as
 - [ ] Criterion 1
 ```
 
-## Best practices
-
-1. **Be specific** — use exact file paths, function names, variable names.
-2. **Consider edge cases** — error scenarios, null values, empty states.
-3. **Minimize changes** — prefer extending existing code over rewriting.
-4. **Maintain patterns** — follow existing project conventions.
-5. **Enable testing** — structure changes to be easily testable.
-6. **Think incrementally** — each step should be verifiable.
-7. **Document decisions** — explain why, not just what.
-
-## Planning refactors
-
-Identify code smells and technical debt. List specific improvements.
