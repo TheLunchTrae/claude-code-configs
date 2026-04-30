@@ -17,9 +17,10 @@ If you don't want to clone this repo (or can't — restricted environment, ephem
 Run this once from your OpenCode config root (the directory that contains your `.opencode/`):
 
 ```sh
-mkdir -p .opencode/plugins && \
-  curl -fsSL -o .opencode/plugins/sync-configs.ts https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/plugins/sync-configs.ts && \
-  curl -fsSL -o .opencode/tsconfig.json           https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/tsconfig.json && \
+mkdir -p .opencode/plugins .opencode/commands && \
+  curl -fsSL -o .opencode/plugins/sync-configs.ts   https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/plugins/sync-configs.ts && \
+  curl -fsSL -o .opencode/commands/sync-configs.md  https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/commands/sync-configs.md && \
+  curl -fsSL -o .opencode/tsconfig.json             https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/tsconfig.json && \
   echo "Done. Restart OpenCode, then run /sync-configs."
 ```
 
