@@ -1,0 +1,96 @@
+{
+  "version": 21,
+  "paths": {
+    "config": [
+      "opencode.jsonc",
+      "AGENTS.md",
+      "README.md"
+    ],
+    "agents": [
+      "agents/README.markdown",
+      "agents/lead.md",
+      "agents/architect.md",
+      "agents/planner.md",
+      "agents/security-reviewer.md",
+      "agents/code-reviewer.md",
+      "agents/code-simplifier.md",
+      "agents/refactor-cleaner.md",
+      "agents/doc-updater.md",
+      "agents/mcp-builder.md",
+      "agents/github-actions-developer.md",
+      "agents/gitlab-ci-developer.md",
+      "agents/performance-optimizer.md",
+      "agents/csharp-developer.md",
+      "agents/csharp-reviewer.md",
+      "agents/go-developer.md",
+      "agents/go-reviewer.md",
+      "agents/php-developer.md",
+      "agents/php-reviewer.md",
+      "agents/typescript-developer.md",
+      "agents/typescript-reviewer.md",
+      "agents/doctrine-developer.md",
+      "agents/efcore-developer.md",
+      "agents/laminas-developer.md",
+      "agents/react-developer.md"
+    ],
+    "commands": [
+      "commands/README.markdown",
+      "commands/caveman.md",
+      "commands/commit.md",
+      "commands/commit-push.md",
+      "commands/push.md",
+      "commands/plan.md",
+      "commands/phased-plan.md",
+      "commands/review.md",
+      "commands/security-review.md",
+      "commands/summarize-branch.md",
+      "commands/handoff.md",
+      "commands/catchup.md",
+      "commands/design.md",
+      "commands/cleanup-artifacts.md",
+      "commands/cleanup-memory.md",
+      "commands/manage-storage.md",
+      "commands/code-review.md",
+      "commands/update-docs.md",
+      "commands/verify.md",
+      "commands/refactor-clean.md",
+      "commands/go-review.md"
+    ],
+    "skills": [
+      "skills/README.md",
+      "skills/caveman/SKILL.md",
+      "skills/commit/SKILL.md",
+      "skills/commit-push/SKILL.md",
+      "skills/plan/SKILL.md",
+      "skills/phased-plan/SKILL.md",
+      "skills/push/SKILL.md",
+      "skills/review/SKILL.md",
+      "skills/review/template.md",
+      "skills/security-review/SKILL.md",
+      "skills/security-review/references/owasp-2021.md",
+      "skills/verify/SKILL.md"
+    ],
+    "plugins": [
+      "plugins/README.md",
+      "plugins/artifacts.ts",
+      "plugins/block-secrets.ts",
+      "plugins/lib/project.ts",
+      "plugins/memory.ts",
+      "tsconfig.json"
+    ],
+    "sync_configs": [
+      ".opencode/README.md",
+      ".opencode/commands/sync-configs.md",
+      ".opencode/plugins/sync-configs.ts",
+      ".opencode/tsconfig.json"
+    ]
+  },
+  "deleted": [
+    "agents/README.md",
+    "commands/README.md",
+    "commands/review-memory.md",
+    "commands/orchestrate.md",
+    "plugins/sync-configs.ts",
+    ".opencode/sync-configs-manifest.md"
+  ]
+}

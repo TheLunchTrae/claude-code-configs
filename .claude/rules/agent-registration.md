@@ -11,7 +11,7 @@ When adding, renaming, or removing an agent in this repo, update every instructi
 
 - `opencode/AGENTS.md` — mirror the Claude Code change for any agent that also exists on the OpenCode side. Update both the Available subagents registry (in the `# Agents` section) and the `# Code Review` section if the new agent is a reviewer.
 - `opencode/agents/lead.md` — add a row to the Available subagents registry, grouped near related agents (language reviewers together, developers together, cross-stack utilities together).
-- `opencode/.opencode/sync-configs-manifest.md` — add a manifest entry for every new OpenCode agent so it ships via `/sync-configs` to user installs. See `.claude/rules/sync-configs-manifest.md`.
+- `opencode/.opencode/sync-configs-manifest.json` — add an entry under `paths.agents` for every new OpenCode agent so it ships via `/sync-configs` to user installs. See `.claude/rules/sync-configs-manifest.md`.
 
 ## Verify before committing
 
