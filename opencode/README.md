@@ -21,4 +21,4 @@ mkdir -p .opencode/plugins && \
   echo "Done. Restart OpenCode, then run /sync-configs."
 ```
 
-Then restart OpenCode so the plugin loads (OpenCode auto-installs `@opencode-ai/plugin` for each config dir at startup), and run `/sync-configs` to pull the rest of the configs.
+Then restart OpenCode so the plugin loads, and run `/sync-configs` to pull the rest of the configs.
