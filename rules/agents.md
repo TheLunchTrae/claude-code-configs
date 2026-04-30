@@ -71,9 +71,6 @@ When a language-specific reviewer surfaces a CRITICAL security finding, invoke `
 
 ## Implementation workflow
 
-0. **Research & reuse** _(mandatory before any new implementation)_ — scan the codebase for existing implementations, utilities, and patterns to reuse or adapt; read adjacent code to understand interfaces and wiring; confirm library APIs against primary vendor docs for the installed version.
-1. **Plan** — invoke `planner` for anything non-trivial. Output phases, dependencies, and risks before coding.
-2. **Implement** — delegate to the matching language-developer. When the work decomposes into non-overlapping files or modules, fan out to multiple developers in parallel (see **Delegation and parallelism**). Chain a framework-developer on top for framework-specific work (it assumes the base language rules). Handle cross-language orchestration or unclear scope inline.
-3. **Review** — invoke `code-reviewer` immediately after implementing, plus the matching language reviewer. Address CRITICAL and HIGH findings; fix MEDIUM when possible.
-4. **Commit & push** — conventional-commits format, descriptive messages.
-5. **Pre-review checks** — CI/CD green, no merge conflicts, branch up to date with target.
+Before implementing anything new: scan the codebase for existing implementations, utilities, and patterns to reuse or adapt — read adjacent code to understand interfaces and wiring, and confirm library APIs against vendor docs for the installed version. Speculative new code on top of unread existing code is the default failure mode.
+
+For anything non-trivial, invoke `planner` to lay out phases, dependencies, and risks before coding. Delegate implementation to the matching language-developer; fan out to multiple developers in parallel when the work decomposes into non-overlapping files or modules (see **Delegation and parallelism** above). Chain a framework-developer on top for framework-specific work — it assumes the base language rules. Handle cross-language orchestration or unclear scope inline. Immediately after implementing, invoke `code-reviewer` plus the matching language reviewer; address CRITICAL and HIGH findings, fix MEDIUM when reasonable. Commit and push in conventional-commits format with descriptive messages, then verify CI/CD green and the branch is up to date before requesting review.
