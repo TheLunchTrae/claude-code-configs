@@ -256,30 +256,43 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
       sync_configs_classify: tool({
         description:
           "Internal — invoked only by the /sync-configs slash command. Do not call autonomously. " +
-          "Pure function: compares a local file body and an upstream remote body and returns the " +
-          "sync action the slash command should take. Returns one of: { status: 'unchanged' }, " +
-          "{ status: 'updated' } (remote is a strict line-set superset — applying remote drops " +
-          "nothing the user added), or { status: 'needs-user-decision', local_only_lines: string[], " +
-          "reason: string } (local has lines absent from upstream — drift). The 'always-defer' set " +
-          "(currently just opencode.jsonc) is hard-coded to return needs-user-decision regardless of " +
-          "subset analysis. Output is tiny — just status + line metadata, never bodies.",
+          "Reads the local file at `local_path` itself (no need for the caller to pre-read), compares " +
+          "it against `remote`, and returns the sync action: `{status: 'unchanged'}`, " +
+          "`{status: 'updated'}` (covers local-missing AND the case where every non-empty local line " +
+          "appears in remote — applying upstream loses nothing the user added), or " +
+          "`{status: 'needs-user-decision', local_only_lines: string[], reason: string}` (local has " +
+          "lines absent from upstream — drift). The 'always-defer' set (currently just opencode.jsonc) " +
+          "is hard-coded to return needs-user-decision regardless of subset analysis. Output is tiny " +
+          "— just status + line metadata, never bodies. The caller resolves `local_path` against " +
+          "whatever configs-root the user's AGENTS.md or cwd designates and passes a full path.",
         args: {
           path: tool.schema
             .string()
-            .describe("Manifest-relative path. Used to apply the always-defer set."),
-          local: tool.schema
+            .describe("Manifest-relative path (e.g. 'agents/lead.md'). Used only to apply the always-defer set."),
+          local_path: tool.schema
             .string()
-            .describe("Local file body."),
+            .describe("Absolute or cwd-relative path to the local file. The plugin reads this directly. If the file does not exist, returns {status: 'updated'}."),
           remote: tool.schema
             .string()
             .describe("Upstream file body (typically from sync_configs_fetch_file)."),
         },
         async execute(args) {
           try {
-            if (args.local === args.remote) {
+            let local: string
+            try {
+              local = await readFile(args.local_path, "utf8")
+            } catch (err) {
+              const code = (err as NodeJS.ErrnoException).code
+              if (code === "ENOENT") {
+                // No local file — applying remote is safe by definition.
+                return JSON.stringify({ status: "updated" })
+              }
+              throw err
+            }
+            if (local === args.remote) {
               return JSON.stringify({ status: "unchanged" })
             }
-            const drift = localOnlyLines(args.local, args.remote)
+            const drift = localOnlyLines(local, args.remote)
             if (ALWAYS_DEFER_PATHS.has(args.path)) {
               return JSON.stringify({
                 status: "needs-user-decision",
