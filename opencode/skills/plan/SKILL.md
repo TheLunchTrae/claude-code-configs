@@ -3,7 +3,7 @@ name: plan
 description: Create a detailed implementation plan before writing any code
 ---
 
-<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
+<!-- Run this skill as a subtask in the `planner` subagent for context isolation. -->
 
 # Plan: $ARGUMENTS
 

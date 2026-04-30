@@ -10,3 +10,4 @@
 | `push` | Push the current branch to its remote, handling first-push tracking and network-error retries. Matches the `/push` command. |
 | `review` | Review code and present findings using a standard template. Matches the `/review` / `/code-review` commands. The template lives in `review/template.md`. |
 | `security-review` | Security-focused review of current changes or specified files. Matches the `/security-review` command. |
+| `verify` | Run the verification loop (type checking, linting, tests, build) and report PASS/FAIL with action items. Matches the `/verify` command. |

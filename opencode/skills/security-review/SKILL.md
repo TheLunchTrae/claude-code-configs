@@ -3,7 +3,7 @@ name: security-review
 description: Run a security review of current changes or specified files
 ---
 
-<!-- This skill is intended for subagent invocation. When invoking it programmatically, run it as a subtask for context isolation. -->
+<!-- Run this skill as a subtask in the `security-reviewer` subagent for context isolation. -->
 
 # Security review: $ARGUMENTS
 
