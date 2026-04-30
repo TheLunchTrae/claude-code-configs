@@ -33,9 +33,38 @@ For format-sensitive guidance (security patterns, framework idioms, query shapes
 
 Keep each example tight — a handful of lines per side. Skip codebase-specific or narrative examples (full feature plans, ADR templates with made-up technical content); those age poorly and inflate the prompt without commensurate steering value.
 
+## Avoid procedural openers
+
+Don't open the body with a numbered `When invoked: 1. Run X. 2. Run Y. 3. Run Z.` script. Hardcoded step sequences are the "too specific" failure mode from [Anthropic's context-engineering article](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — a model that sees the linter already failed shouldn't blindly run the next three commands before reporting. Express the same intent as a short prose paragraph that names the tools but leaves order to judgment.
+
+````markdown
+BAD:
+When invoked:
+1. Run `git diff -- '*.py'` to see recent Python changes
+2. Run `ruff check .` if available
+3. Run `mypy .` if available
+4. Run `bandit -r .` if available
+5. Begin review immediately
+
+GOOD:
+Start by understanding what changed (`git diff`). Run any project-configured
+linters and type-checkers (`ruff`, `mypy`, `bandit`) before reading the code
+yourself — their findings shape what to look for.
+````
+
+The narrow exception is high-stakes "stop and ask" gates (security boundaries, destructive-action confirmations) where missing an item is high-cost. Those stay enumerated.
+
+## Checklist sizing
+
+Keep behavioral checklists to ~5 high-signal items per category. Longer enumerated lists are the "laundry list of edge cases" anti-pattern — bullet bloat the model averages over rather than acts on. Compress to canonical pattern names (which are themselves high-signal tokens — "SQL injection", "path traversal", "N+1") plus one BAD/GOOD example per category. Trust the model to extrapolate from the names.
+
+Reviewer and developer agents should carry **at least one** BAD/GOOD worked example per behavioral category — examples are the "pictures worth a thousand words" the article calls out, and they constrain output more reliably than additional bullet points.
+
+Exceptions where exhaustive enumeration earns its tokens: stop-and-ask gates (security boundaries), output-shape templates (codemap structure, plan format), and tool-API surfaces (MCP tool-naming rules) where the explicit text *is* the contract. The `caveman` skill is the in-repo gold standard for worked-example-driven steering.
+
 ## Structure after the opening
 
-After role frame + optional task context, the rest of the body is procedure: checklists, output formats, severity tables, approval gates, `## Sections` as appropriate. The existing agents are the reference — match their structure.
+After role frame + optional task context, the body holds whatever the agent needs: checklists, output formats, severity tables, approval gates. Use Markdown headers to delineate sections. The two shape rules above (avoid procedural openers, keep checklists tight) apply throughout. Match the existing agents for the rest.
 
 ## CC and OC bodies must match
 
