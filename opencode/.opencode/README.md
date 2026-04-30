@@ -2,18 +2,7 @@
 
 Houses `/sync-configs` — the command for pulling these OpenCode configs from the upstream GitHub repo into your local install without cloning.
 
-## First-time setup
-
-`/sync-configs` is implemented by a project-local plugin (`.opencode/plugins/sync-configs.ts`) that must be present locally before the command will run. If you cloned this repo into your config directory, you already have it — skip to **Usage** below. If you started from an empty config directory, run this once from the OpenCode config root (the directory containing your `.opencode/`):
-
-```sh
-mkdir -p .opencode/plugins && \
-  curl -fsSL -o .opencode/plugins/sync-configs.ts https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/plugins/sync-configs.ts && \
-  curl -fsSL -o .opencode/tsconfig.json           https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/tsconfig.json && \
-  echo "Done. Restart OpenCode, then run /sync-configs."
-```
-
-Then restart OpenCode so the plugin loads (OpenCode auto-installs `@opencode-ai/plugin` for each config dir at startup), and run `/sync-configs` to pull the rest of the configs.
+First-time setup (curl the plugin file into place from a fresh OpenCode config dir) lives at the OpenCode config root [`README.md`](../README.md#first-time-setup), not here — by the time this file is on disk, you've already bootstrapped.
 
 ## Usage
 

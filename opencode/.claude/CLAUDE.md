@@ -20,12 +20,12 @@ Each tracked subdirectory has a user-facing README that is a **pure TOC** — ti
 
 | README | Contents |
 |--------|----------|
-| `opencode/README.md` | Folder map — one row per subdirectory |
+| `opencode/README.md` | Folder map (one row per subdirectory) **plus** a "First-time setup" section with the bootstrap shell snippet for users who don't yet have a local clone. The only top-level non-TOC content lives here because this is the README a fresh user lands on before they have an `.opencode/` directory. |
 | `opencode/agents/README.markdown` | Agent roster tables grouped by category. Named `.markdown` (not `.md`) so OpenCode's `opencode/agents/*.md` discovery glob skips it — otherwise it gets loaded as a phantom agent. |
 | `opencode/commands/README.markdown` | Slash-command catalogue grouped by workflow. Named `.markdown` (not `.md`) so OpenCode's `opencode/commands/*.md` discovery glob skips it — otherwise it gets loaded as a phantom command. |
 | `opencode/skills/README.md` | Skill inventory (single table) |
 | `opencode/plugins/README.md` | Plugin inventory (single table) |
-| `opencode/.opencode/README.md` | `/sync-configs` usage blurb + files table. The only README that isn't a pure TOC — it documents the one command entry point exposed by this directory. |
+| `opencode/.opencode/README.md` | `/sync-configs` usage blurb + files table. Bootstrap instructions live one level up (in `opencode/README.md`), since this README isn't on disk until after the bootstrap has run. |
 
 **When you add, rename, or remove any agent / command / skill / plugin, update the matching README table in the same commit.** Keep rows terse — one line describing what the item does, following the existing pattern.
 
