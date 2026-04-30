@@ -2,6 +2,7 @@
 
 | Skill | What it does |
 |-------|--------------|
+| `available-agents` | Subagent registry index — points at five group-keyed registry files (`registries/*.md`) listing the agents available for delegation. Read-only; agents load the matching registry on demand when picking a subagent. |
 | `caveman` | Token-efficient response mode — drops articles, filler, and pleasantries while keeping technical substance exact. Intensity levels: `lite`, `full` (default), `ultra`. Matches the `/caveman` command. |
 | `commit` | Stage and commit changes with a secret-scan guard and a "why-not-what" commit message. Matches the `/commit` command. |
 | `commit-push` | Run the commit skill, then the push skill. Matches the `/commit-push` command. |
