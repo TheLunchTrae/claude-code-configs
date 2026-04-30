@@ -42,7 +42,7 @@ The manifest must include **every file under `opencode/`** that OpenCode reads a
 | `commands`     | `opencode/commands/` | every `*.md` |
 | `skills`       | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
 | `plugins`      | `opencode/plugins/` + root | every `plugins/*.ts` plus `tsconfig.json` |
-| `sync_configs` | `opencode/.opencode/` | files that ship to user installs to enable `/sync-configs`: the slash-command file, the project-local plugin, and the user-facing README. The manifest itself is excluded by design. |
+| `sync_configs` | `opencode/.opencode/` | files that ship to user installs to enable `/sync-configs`: the slash-command file, the project-local plugin, the project-local `tsconfig.json` (covers `.opencode/plugins/**/*.ts` for editor IntelliSense), and the user-facing README. The manifest itself is excluded by design. |
 | `deleted`      | any path previously tracked | paths removed from the OC tree; never pruned |
 
 ## Excluded by design

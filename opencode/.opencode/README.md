@@ -9,7 +9,7 @@ Houses `/sync-configs` — the command for pulling these OpenCode configs from t
 ```sh
 mkdir -p .opencode/plugins && \
   curl -fsSL -o .opencode/plugins/sync-configs.ts https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/plugins/sync-configs.ts && \
-  curl -fsSL -o tsconfig.json                    https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/tsconfig.json && \
+  curl -fsSL -o .opencode/tsconfig.json           https://raw.githubusercontent.com/thelunchtrae/claude-code-configs/main/opencode/.opencode/tsconfig.json && \
   echo "Done. Restart OpenCode, then run /sync-configs."
 ```
 
@@ -26,4 +26,5 @@ Then restart OpenCode so the plugin loads (OpenCode auto-installs `@opencode-ai/
 |------|--------------|
 | `commands/sync-configs.md` | The slash-command implementation — thin wrapper that calls the `sync-configs` plugin tools and surfaces decisions. |
 | `plugins/sync-configs.ts` | The plugin that does the work. Auto-discovered as a project-local plugin when OpenCode loads this `.opencode/` config dir. |
+| `tsconfig.json` | Project-local TypeScript config covering `plugins/**/*.ts` here under `.opencode/`. Editor-only; OpenCode bundles its own TS support at runtime. |
 | `sync-configs-manifest.json` | List of files `/sync-configs` ships. Fetched fresh from upstream on every run; the local copy is never consulted. |

@@ -81,7 +81,8 @@
     "sync_configs": [
       ".opencode/README.md",
       ".opencode/commands/sync-configs.md",
-      ".opencode/plugins/sync-configs.ts"
+      ".opencode/plugins/sync-configs.ts",
+      ".opencode/tsconfig.json"
     ]
   },
   "deleted": [
