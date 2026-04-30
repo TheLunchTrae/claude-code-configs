@@ -15,6 +15,13 @@
 // HTTP: native fetch (Node 18+); no curl, no SDK calls. opencode.jsonc is
 // always deferred to the user when it differs — no JSONC merge logic in
 // this plugin.
+//
+// Plan/apply contract: plan returns metadata only (no file bodies for
+// 'updated' paths) so the LLM round-trip stays small. Apply re-fetches
+// from upstream for 'updated' paths and 'drop' decisions. needs-user-
+// decision entries keep their remote/local bodies because the LLM uses
+// them when the user picks 'custom' (hand-merged) and there's no clean
+// way to re-derive that.
 
 import { type Plugin, type PluginInput, tool } from "@opencode-ai/plugin"
 import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises"
@@ -142,7 +149,7 @@ const fetchUpstream = async (relPath: string): Promise<FetchOk | FetchErr> => {
 
 type PathPlan =
   | { path: string; status: "unchanged" }
-  | { path: string; status: "updated"; remote: string }
+  | { path: string; status: "updated" }
   | {
       path: string
       status: "needs-user-decision"
@@ -183,7 +190,7 @@ const classifyPath = async (
   }
   const remote = fetchResult.body
   if (!existsSync(path)) {
-    return { path, status: "updated", remote }
+    return { path, status: "updated" }
   }
   const local = await readFile(path, "utf8")
   if (local === remote) {
@@ -203,7 +210,7 @@ const classifyPath = async (
   // loses nothing the user added — treat as a routine upstream update.
   const drift = localOnlyLines(local, remote)
   if (drift.length === 0) {
-    return { path, status: "updated", remote }
+    return { path, status: "updated" }
   }
   return {
     path,
@@ -261,9 +268,13 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
           "Internal — invoked only by the /sync-configs slash command. Do not call autonomously. " +
           "Fetches the upstream manifest, compares versions, fetches every tracked path in parallel, " +
           "and returns a structured plan: { manifest_version, last_version, paths: [{path, status, ...}], " +
-          "delete_paths }. Writes nothing. Status values: 'unchanged', 'updated' (write remote verbatim), " +
-          "'needs-user-decision' (caller must collect preserve/drop/custom and pass to sync_configs_apply), " +
-          "'failed' (with reason). When manifest_version equals last_version, returns short_circuit.",
+          "delete_paths }. Writes nothing. Status values: 'unchanged' (no further work), 'updated' " +
+          "(metadata only — apply re-fetches and writes the upstream body), 'needs-user-decision' " +
+          "(includes remote+local bodies and local_only_lines for the merge UX; caller collects " +
+          "preserve/drop/custom and passes to sync_configs_apply), 'failed' (with reason). When " +
+          "manifest_version equals last_version, returns short_circuit and no per-path detail. " +
+          "Plan output is intentionally body-free for 'updated' paths so cold-start runs don't blow " +
+          "the LLM tool-result size budget.",
         args: {},
         async execute() {
           try {
@@ -333,26 +344,22 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
       sync_configs_apply: tool({
         description:
           "Internal — invoked only by the /sync-configs slash command. Do not call autonomously. " +
-          "Applies a previously-planned sync. Writes 'updated' paths verbatim from `paths_to_update`, " +
-          "applies each `decision` for needs-user-decision paths, deletes `delete_paths`, and persists " +
-          "the version only when nothing failed and every needs-user-decision path has a matching decision. " +
-          "Returns a structured report. The caller (the slash command) is responsible for re-running plan " +
-          "and validating that every needs-user-decision case has a corresponding decision before calling apply.",
+          "Applies a previously-planned sync. Re-fetches the upstream manifest first and aborts if " +
+          "the version no longer matches `manifest_version` (defensive — closes the plan→apply race). " +
+          "Then re-fetches every path in `paths_to_update` and every 'drop' decision, writes them, " +
+          "applies 'custom' decisions verbatim, treats 'preserve' as a no-op, deletes `delete_paths`, " +
+          "and persists the version only when nothing failed and every needs-user-decision path was " +
+          "resolved. Returns a structured report.",
         args: {
           manifest_version: tool.schema
             .number()
             .int()
             .nonnegative()
-            .describe("The version returned by sync_configs_plan. Must match what plan saw."),
+            .describe("The version returned by sync_configs_plan. Apply refetches the manifest and aborts if upstream has moved."),
           paths_to_update: tool.schema
-            .array(
-              tool.schema.object({
-                path: tool.schema.string(),
-                content: tool.schema.string(),
-              }),
-            )
+            .array(tool.schema.string())
             .describe(
-              "Every path the plan classified as 'updated' (write remote verbatim). Caller passes the remote content from the plan.",
+              "Every path the plan classified as 'updated'. Apply re-fetches each from upstream and writes the body. Pass plain path strings.",
             ),
           decisions: tool.schema
             .array(
@@ -360,12 +367,10 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
                 tool.schema.object({
                   path: tool.schema.string(),
                   action: tool.schema.literal("preserve"),
-                  content: tool.schema.string().describe("The local content to keep verbatim."),
                 }),
                 tool.schema.object({
                   path: tool.schema.string(),
                   action: tool.schema.literal("drop"),
-                  content: tool.schema.string().describe("The remote content to write."),
                 }),
                 tool.schema.object({
                   path: tool.schema.string(),
@@ -375,7 +380,7 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
               ]),
             )
             .describe(
-              "User decisions for needs-user-decision paths. Omit a path to leave the run unresolved (version will not advance).",
+              "User decisions for needs-user-decision paths. 'preserve' is a no-op; 'drop' triggers an upstream re-fetch; 'custom' writes the supplied content. Omit a path to leave the run unresolved (version will not advance).",
             ),
           unresolved: tool.schema
             .array(tool.schema.string())
@@ -402,41 +407,66 @@ export const SyncConfigsPlugin: Plugin = async ({ client, project }) => {
           try {
             showToast(client, "applying sync")
 
+            // Manifest version assertion — guards the plan→apply race so a
+            // user reviewing drift can't accidentally apply a newer upstream.
+            const manifestFetch = await fetchUpstream(MANIFEST_PATH)
+            if (!manifestFetch.ok) {
+              return JSON.stringify({ error: `manifest re-fetch failed: ${manifestFetch.reason}` })
+            }
+            const parsedManifest = parseManifest(manifestFetch.body)
+            if ("error" in parsedManifest) {
+              return JSON.stringify({ error: parsedManifest.error })
+            }
+            if (parsedManifest.version !== args.manifest_version) {
+              return JSON.stringify({
+                error: `manifest version changed between plan and apply (was ${args.manifest_version}, now ${parsedManifest.version}) — re-run /sync-configs`,
+              })
+            }
+
             const updated: string[] = []
             const preserved: string[] = []
             const failed: { path: string; reason: string }[] = [...args.failed]
 
-            for (const u of args.paths_to_update) {
+            // Coalesce `paths_to_update` and `drop` decisions into one parallel
+            // re-fetch — same write semantics for both ("write upstream body").
+            const dropPaths = args.decisions
+              .filter((d): d is { path: string; action: "drop" } => d.action === "drop")
+              .map((d) => d.path)
+            const pathsToFetch = [...args.paths_to_update, ...dropPaths]
+
+            const fetchResults = await Promise.all(
+              pathsToFetch.map(async (p) => ({ p, r: await fetchUpstream(p) })),
+            )
+
+            for (const { p, r } of fetchResults) {
+              if (!r.ok) {
+                failed.push({ path: p, reason: `fetch failed: ${r.reason}` })
+                continue
+              }
               try {
-                await writeFileEnsuringDir(u.path, u.content)
-                updated.push(u.path)
+                await writeFileEnsuringDir(p, r.body)
+                updated.push(p)
               } catch (err) {
-                failed.push({ path: u.path, reason: `write failed: ${formatErr(err)}` })
+                failed.push({ path: p, reason: `write failed: ${formatErr(err)}` })
               }
             }
 
             for (const d of args.decisions) {
-              try {
-                if (d.action === "preserve") {
-                  // Local content is already what we want — verify on disk, but no write needed.
-                  // If the local file was somehow removed between plan and apply, write the preserved content back.
-                  if (!existsSync(d.path)) {
-                    await writeFileEnsuringDir(d.path, d.content)
-                  } else {
-                    const onDisk = await readFile(d.path, "utf8")
-                    if (onDisk !== d.content) {
-                      await writeFileEnsuringDir(d.path, d.content)
-                    }
-                  }
-                  preserved.push(d.path)
-                } else {
-                  // 'drop' or 'custom' — write the supplied content.
+              if (d.action === "preserve") {
+                // Pure no-op: the local file is already what the user wants.
+                preserved.push(d.path)
+                continue
+              }
+              if (d.action === "custom") {
+                try {
                   await writeFileEnsuringDir(d.path, d.content)
                   updated.push(d.path)
+                } catch (err) {
+                  failed.push({ path: d.path, reason: `custom-write failed: ${formatErr(err)}` })
                 }
-              } catch (err) {
-                failed.push({ path: d.path, reason: `decision-apply failed: ${formatErr(err)}` })
+                continue
               }
+              // 'drop' was already handled in the parallel fetch loop above.
             }
 
             const deleted: string[] = []
