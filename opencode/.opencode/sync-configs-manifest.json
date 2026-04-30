@@ -54,9 +54,7 @@
       "commands/update-docs.md",
       "commands/verify.md",
       "commands/refactor-clean.md",
-      "commands/go-review.md",
-      ".opencode/commands/sync-configs.md",
-      ".opencode/README.md"
+      "commands/go-review.md"
     ],
     "skills": [
       "skills/README.md",
@@ -73,13 +71,17 @@
       "skills/verify/SKILL.md"
     ],
     "plugins": [
-      ".opencode/plugins/sync-configs.ts",
       "plugins/README.md",
       "plugins/artifacts.ts",
       "plugins/block-secrets.ts",
       "plugins/lib/project.ts",
       "plugins/memory.ts",
       "tsconfig.json"
+    ],
+    "sync_configs": [
+      ".opencode/README.md",
+      ".opencode/commands/sync-configs.md",
+      ".opencode/plugins/sync-configs.ts"
     ]
   },
   "deleted": [

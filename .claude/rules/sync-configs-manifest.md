@@ -35,14 +35,15 @@ Update the manifest in the **same PR** as any of these changes to `opencode/`. E
 
 The manifest must include **every file under `opencode/`** that OpenCode reads at runtime. `/sync-configs` is the distribution mechanism for a user's OC install — anything missing from the manifest won't reach the user.
 
-| `paths` key | Location | Includes |
-|-------------|----------|----------|
-| `config`   | `opencode/` root | `opencode.jsonc`, `AGENTS.md`, and any future top-level config files |
-| `agents`   | `opencode/agents/` | every `*.md` — meta agents, reviewers, language developers, framework developers, specialists |
-| `commands` | `opencode/commands/` + `opencode/.opencode/commands/` | every `*.md` (including `sync-configs.md` itself) plus `opencode/.opencode/README.md` |
-| `skills`   | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
-| `plugins`  | `opencode/plugins/` + `opencode/.opencode/plugins/` + root | every `plugins/*.ts` and `.opencode/plugins/*.ts` plus `tsconfig.json` |
-| `deleted`  | any path previously tracked | paths removed from the OC tree; never pruned |
+| `paths` key    | Location | Includes |
+|----------------|----------|----------|
+| `config`       | `opencode/` root | `opencode.jsonc`, `AGENTS.md`, and any future top-level config files |
+| `agents`       | `opencode/agents/` | every `*.md` — meta agents, reviewers, language developers, framework developers, specialists |
+| `commands`     | `opencode/commands/` | every `*.md` |
+| `skills`       | `opencode/skills/` | every `*/SKILL.md` and any companion files (e.g. `template.md`) |
+| `plugins`      | `opencode/plugins/` + root | every `plugins/*.ts` plus `tsconfig.json` |
+| `sync_configs` | `opencode/.opencode/` | files that ship to user installs to enable `/sync-configs`: the slash-command file, the project-local plugin, and the user-facing README. The manifest itself is excluded by design. |
+| `deleted`      | any path previously tracked | paths removed from the OC tree; never pruned |
 
 ## Excluded by design
 
