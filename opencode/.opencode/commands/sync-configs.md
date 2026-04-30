@@ -18,12 +18,12 @@ Sync OpenCode config files from the upstream GitHub repo into this project direc
    - If the user skips a path, treat it as unresolved.
 
 3. **Apply.** Call `sync_configs_apply` with:
-   - `manifest_version`: from the plan result.
-   - `paths_to_update`: every plan entry with `status: "updated"`, mapped to `{ path, content: <entry.remote> }`.
+   - `manifest_version`: from the plan result. Apply re-fetches the manifest and aborts if upstream has moved.
+   - `paths_to_update`: every plan entry with `status: "updated"`, mapped to its `path` (a plain string). Apply re-fetches each from upstream and writes the body — do **not** include any content here; the plan tool intentionally omits bodies for `updated` paths to keep the round-trip small.
    - `decisions`: one entry per resolved needs-user-decision case, shaped per the user's choice:
-     - drop → `{ path, action: "drop", content: <entry.remote> }`
-     - preserve → `{ path, action: "preserve", content: <entry.local> }`
-     - custom → `{ path, action: "custom", content: <user-supplied content> }`
+     - drop → `{ path, action: "drop" }` (apply re-fetches and writes the upstream body)
+     - preserve → `{ path, action: "preserve" }` (apply leaves the local file alone)
+     - custom → `{ path, action: "custom", content: <user-supplied merged content> }`
    - `unresolved`: paths the user skipped.
    - `delete_paths`: from the plan result.
    - `failed`: every plan entry with `status: "failed"`, mapped to `{ path, reason: <entry.reason> }`.
