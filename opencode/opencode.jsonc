@@ -1,5 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "{file:.config-dir}/instructions/caveman.md",
+    "{file:.config-dir}/instructions/general.md",
+    "{file:.config-dir}/instructions/security.md",
+    "{file:.config-dir}/instructions/accuracy.md",
+    "{file:.config-dir}/instructions/coding-style.md",
+    "{file:.config-dir}/instructions/code-review.md",
+    "{file:.config-dir}/instructions/testing.md",
+    "{file:.config-dir}/instructions/patterns.md",
+    "{file:.config-dir}/instructions/agents.md"
+  ],
   "permission": {
     "bash": {
       "git commit*": "ask",
