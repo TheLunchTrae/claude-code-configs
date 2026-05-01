@@ -6,7 +6,7 @@ The `permission.bash` block is matched top-down with last-matching-pattern seman
 
 The `permission.edit` is set to `"ask"` globally.
 
-This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `opencode.jsonc`, the files referenced from its `instructions` array (under `instructions/`), and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
+This directory contains OpenCode-specific configuration. It is not a Claude Code config directory — OpenCode reads `AGENTS.md`, `opencode.jsonc`, and files under `agents/`, `commands/`, and `skills/`. This `.claude/CLAUDE.md` file is read only by Claude Code agents working in this repository, not by OpenCode itself.
 
 # Hooks are out of scope on the OpenCode side
 
@@ -179,18 +179,6 @@ Verify hook signatures and the return shape against the source before adding a n
 - **Custom tools** — registers `artifact_read`, `artifact_write`, `artifact_list`, and `artifact_delete`. These are the preferred API for `/handoff`, `/catchup`, and `/cleanup-artifacts`. Each tool accepts an optional `project` argument for cross-project access; omitted, it uses the current project (`basename(PluginInput.project.worktree)`, see "Storage convention"). `artifact_delete` requires `confirm: true` on every call as a guardrail; scope is implied by which of `command` / `project` are passed (both → single file, only `project` → all artifacts in that project, only `command` → that command's file across every project, neither → wipe all artifacts across all projects). Operates only under `~/.opencode-data/artifacts/`; memory storage lives in the sibling `memory/` subtree and is unreachable from this tool.
 - **Startup TTL prune** — on plugin init, fires a fire-and-forget pass that deletes any artifact whose `mtime` is older than `OPENCODE_ARTIFACT_TTL_DAYS` (default `90`). Set the env var to `0` to disable. Errors during the prune do not block plugin init; deletions are logged via `client.app.log` at `info` level when any occur, and prune failures are logged at `error` level via the same channel (with a `console.error` fallback if the log call itself fails).
 - **Defensive error handling** — every hook body and tool `execute()` body is wrapped in `try`/`catch`. Hook failures (`shell.env`) are logged via `client.app.log` at `error` level (with `console.error` fallback) and swallowed so they don't break the surrounding shell call. Tool failures return a `<tool> failed: <message>` string, matching the de-facto OpenCode convention of returning error strings from `execute()` rather than throwing. The shared `formatErr` helper in `lib/project.ts` normalises `unknown` into a string.
-
-### `plugins/instructions-base.ts` — InstructionsBasePlugin
-
-- **Purpose** — writes the OpenCode config dir's absolute, forward-slash path to `<configdir>/.config-dir` on every session start. `opencode.jsonc` references this sentinel via `{file:.config-dir}` substitution to build absolute paths into the `instructions` array, which would otherwise resolve relative to the running session's cwd.
-- **No hooks, no tools** — single startup write. Plugin returns `{}` after writing.
-- **Resolves its own location via `import.meta.url`** — `fileURLToPath` + `path.dirname` gives the plugins directory; one more `dirname` gives the config dir. No env var needed; the plugin's own file location is the source of truth.
-- **Forward slashes only** — replaces backslashes with forward slashes before writing. Backslashes from `OPENCODE_CONFIG_DIR` on Windows produce invalid JSON escape sequences when interpolated into the config text pre-parse, so the sentinel is normalized to a POSIX-style path that survives JSON-string-encoding intact. OpenCode's `path.isAbsolute` accepts forward-slash absolute paths on all platforms.
-- **First-run bootstrap** — the placeholder `~/.config/opencode` ships in the repo and via `/sync-configs`. OpenCode's instructions resolver expands `~/`, so on Linux/macOS first-run installs it resolves to the right place even before the plugin has run once. Windows users see one mis-resolved session before the plugin's first overwrite; subsequent sessions use the correct platform-specific path.
-- **Tracked-file drift** — the plugin overwrites `.config-dir` on every session start. Local sessions dirty the working tree as a result; treat it as ambient noise (mirrors OpenCode's auto-`$schema` write to `opencode.jsonc`). Do not gitignore — that would lose the file from `/sync-configs` and break fresh installs.
-- **Atomic write** — uses an inlined `<path>.tmp-<pid>-<ts>` → `rename` helper (same pattern as `memory.ts:atomicReplace`) so a crashed write can't leave a half-written sentinel that would crash the next config load.
-- **Self-contained** — does not import from `lib/project.ts`. Inlines `formatErr` and the atomic-write helper, matching the precedent set by `.opencode/plugins/sync-configs.ts`.
-- **Defensive error handling** — wraps the body in `try`/`catch`. Failures are logged via `client.app.log` at `error` level (with `console.error` fallback) and swallowed so they don't block session init. If the write fails on a fresh install where the placeholder hasn't shipped yet, OpenCode aborts config loading on the next session — but on a session that already loaded successfully, the failure only delays the path refresh.
 
 ### `plugins/memory.ts` — MemoryPlugin
 

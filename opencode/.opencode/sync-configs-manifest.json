@@ -1,21 +1,10 @@
 {
-  "version": 26,
+  "version": 25,
   "paths": {
     "config": [
       "opencode.jsonc",
-      ".config-dir",
+      "AGENTS.md",
       "README.md"
-    ],
-    "instructions": [
-      "instructions/caveman.md",
-      "instructions/general.md",
-      "instructions/security.md",
-      "instructions/accuracy.md",
-      "instructions/coding-style.md",
-      "instructions/code-review.md",
-      "instructions/testing.md",
-      "instructions/patterns.md",
-      "instructions/agents.md"
     ],
     "agents": [
       "agents/README.markdown",
@@ -85,7 +74,6 @@
       "plugins/README.md",
       "plugins/artifacts.ts",
       "plugins/block-secrets.ts",
-      "plugins/instructions-base.ts",
       "plugins/lib/project.ts",
       "plugins/memory.ts",
       "tsconfig.json"
@@ -103,7 +91,6 @@
     "commands/review-memory.md",
     "commands/orchestrate.md",
     "plugins/sync-configs.ts",
-    ".opencode/sync-configs-manifest.md",
-    "AGENTS.md"
+    ".opencode/sync-configs-manifest.md"
   ]
 }

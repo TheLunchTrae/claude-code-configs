@@ -20,7 +20,7 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 - `agents/python-developer.md`, `agents/python-reviewer.md`
 - `agents/rust-developer.md`, `agents/rust-reviewer.md`
 
-**Rules** (`.claude/rules/*.md` with no `opencode/instructions/*.md` counterpart — these are repo-local rules for authoring in this repo, not general-purpose CC rules):
+**Rules** (`.claude/rules/*.md` with no `opencode/AGENTS.md` counterpart — these are repo-local rules for authoring in this repo, not general-purpose CC rules):
 - `.claude/rules/agent-prompt-body.md`
 - `.claude/rules/agent-registration.md`
 - `.claude/rules/config-sync.md`
@@ -37,7 +37,7 @@ This skill is about **selective** CC↔OC parity inside this repo. It is not a 1
 
 **Plugins (without a hook counterpart)** — OC plugins that have no CC equivalent (`artifacts.ts`, `memory.ts`) stay OC-only. They rely on `~/.opencode-data/` conventions that only exist for OC sessions.
 
-**Plugin-specific guidance lives in plugin tool descriptions, not in the `instructions/` files** — the `memory` plugin (`opencode/plugins/memory.ts`) carries its when-to-write / when-not-to-write rules inside the `memory_write` tool description. There is no corresponding file under `opencode/instructions/`, and no CC-side rule to mirror — the model picks up the guidance from the tool schema at call time.
+**Plugin-specific guidance lives in plugin tool descriptions, not AGENTS.md** — the `memory` plugin (`opencode/plugins/memory.ts`) carries its when-to-write / when-not-to-write rules inside the `memory_write` tool description. There is no corresponding section in `opencode/AGENTS.md`, and no CC-side rule to mirror — the model picks up the guidance from the tool schema at call time.
 
 When a CC config change lands in a category that *is* mirrored (anything not in the list above), the matching OC file must be updated in the same commit. Use the mapping table below to find the right OC target.
 
@@ -53,7 +53,7 @@ When any config file in a mirrored category is created or modified, the correspo
 
 | Claude Code | OpenCode | Notes |
 |-------------|----------|-------|
-| `rules/*.md` (cross-agent) | `opencode/instructions/*.md` (file-for-file mirror) | The CC side keeps one file per topic under `rules/`; the OC side mirrors them 1:1 under `opencode/instructions/`. Each file is referenced from the `instructions` array in `opencode/opencode.jsonc` via `{file:.config-dir}/instructions/<topic>.md`, where `.config-dir` is a sentinel file written at session start by the `instructions-base` plugin (it holds the absolute, forward-slash path of the OpenCode config dir so absolute paths work cross-platform regardless of cwd). The auto-discovered `AGENTS.md` from the config dir is intentionally absent — using both would double-load every rule. |
+| `rules/*.md` (cross-agent) | `opencode/AGENTS.md` (a single coalesced file) | OpenCode reads `AGENTS.md` automatically — no `instructions` array needed. The CC side keeps one file per topic under `rules/`; the OC side concatenates them into `AGENTS.md` under topic headings (`# General`, `# Security`, `# Coding Style`, `# Code Review`, `# Testing`, `# Patterns`, `# Agents`, etc.). |
 | `settings.json` | `opencode/opencode.jsonc` | Permissions translated (see below). `enabledPlugins` (CC-official plugins) have no equivalent. `statusLine` has no OC equivalent. `hooks` ↔ `opencode/plugins/*.ts` — see next row. |
 | `hooks/*.sh` (registered in `settings.json.hooks`) | `opencode/plugins/*.ts` | Functional counterparts across stacks, not automatic translations. Mirror manually and directionally. Current pair: `hooks/block-secrets.sh` ↔ `opencode/plugins/block-secrets.ts`. |
 | _(none — OpenCode-only)_ | `opencode/plugins/{artifacts,memory}.ts` | Authored OpenCode plugins with no CC counterpart — rely on `~/.opencode-data/` conventions specific to OC sessions. |
@@ -85,13 +85,13 @@ OpenCode has no implicit primary agent equivalent to Claude Code's default behav
 **`lead` ↔ CC base session.** Functionally, the OC `lead` agent IS the CC base session — both are "the agent the user is talking to before any subagent fork." This means an OC skill or command that delegates to `lead` (e.g. `agent: lead, subtask: true`) has no CC counterpart with `agent: lead` because CC has no `lead` agent file. The CC equivalent is "no `agent:` in frontmatter — runs in the calling session." Subtask-style CC skills mirroring an OC `lead` wrapper therefore stay agent-less; this is expected, not drift.
 
 **The split:**
-- `opencode/instructions/*.md` — rules that apply to **all** agents. One file per topic (`general.md`, `security.md`, etc.); each is referenced from the `instructions` array in `opencode/opencode.jsonc`. Auto-discovered `AGENTS.md` is intentionally absent — these files are the only cross-agent rule source.
+- `opencode/AGENTS.md` — rules that apply to **all** agents. OpenCode reads this file automatically from the `opencode/` root; no `instructions` array or loader wiring is needed. Sections are topic-headed (`# General`, `# Security`, etc.).
 - `opencode/agents/lead.md` — workflow behavior and the subagent registry (which agents exist and when to invoke them). Only the primary agent reads this file, so the registry does not leak into subagent contexts.
 
 **When adding a new rule, decide:**
-- Does it apply to every agent? → create or extend `opencode/instructions/<topic>.md` AND register it in the `instructions` array in `opencode/opencode.jsonc`
+- Does it apply to every agent? → add a new section (or extend an existing one) in `opencode/AGENTS.md`
 - Does it describe how the primary agent should orchestrate or approach work, or which subagents to invoke? → `opencode/agents/lead.md`
-- Is it plugin-specific guidance (designs, memory)? → expand the relevant plugin's tool description in `opencode/plugins/*.ts`. Plugin rules should not live in `instructions/`.
+- Is it plugin-specific guidance (designs, memory)? → expand the relevant plugin's tool description in `opencode/plugins/*.ts`. Plugin rules should not live in `AGENTS.md`.
 
 ### OC-only content (no Claude Code analog)
 
@@ -210,7 +210,7 @@ Determine the category first — see **Skill categories** above.
 
 1. Create `rules/<topic>.md` (Claude Code) + symlink `.claude/rules/<topic>.md`
 2. Decide: cross-agent content or lead-agent content? (see Lead Agent section above)
-3. Cross-agent: create `opencode/instructions/<topic>.md` (mirror the CC body), add an entry to the `instructions` array in `opencode/opencode.jsonc` (form `{file:.config-dir}/instructions/<topic>.md`), and add `instructions/<topic>.md` to `paths.instructions` in `opencode/.opencode/sync-configs-manifest.json` (bump `version` once per PR).
+3. Cross-agent: add a new `# <Topic>` section in `opencode/AGENTS.md` with the rule body
 4. Lead-agent: add content to `opencode/agents/lead.md`
 5. Plugin-specific: expand the tool description in the relevant `opencode/plugins/*.ts` file instead
 
