@@ -60,7 +60,7 @@ Keep behavioral checklists to ~5 high-signal items per category. Longer enumerat
 
 Reviewer and developer agents should carry **at least one** BAD/GOOD worked example per behavioral category — examples are the "pictures worth a thousand words" the article calls out, and they constrain output more reliably than additional bullet points.
 
-Exceptions where exhaustive enumeration earns its tokens: stop-and-ask gates (security boundaries), output-shape templates (codemap structure, plan format), and tool-API surfaces (MCP tool-naming rules) where the explicit text *is* the contract. The `caveman` skill is the in-repo gold standard for worked-example-driven steering.
+Exceptions where exhaustive enumeration earns its tokens: stop-and-ask gates (security boundaries), output-shape templates (codemap structure, plan format), and tool-API surfaces (MCP tool-naming rules) where the explicit text *is* the contract. The `caveman` rule (`rules/caveman.md`) is the in-repo gold standard for worked-example-driven steering.
 
 ## Structure after the opening
 
