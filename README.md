@@ -22,7 +22,7 @@ These configs are based heavily on the work in [everything-claude-code](https://
 
 [agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski was also consulted as a reference when shaping the language-specific developer agents.
 
-The `caveman` skill was vendored from [caveman](https://github.com/JuliusBrussee/caveman) by JuliusBrussee (MIT-licensed; trimmed to the `lite` / `full` / `ultra` intensity levels — Classical Chinese (wenyan) variants dropped).
+The `caveman` rule (`rules/caveman.md`) was vendored from [caveman](https://github.com/JuliusBrussee/caveman) by JuliusBrussee (MIT-licensed; trimmed to the `lite` / `full` / `ultra` intensity levels — Classical Chinese (wenyan) variants dropped).
 
 ## OpenCode configurations
 

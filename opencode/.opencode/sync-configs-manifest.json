@@ -1,5 +1,5 @@
 {
-  "version": 25,
+  "version": 26,
   "paths": {
     "config": [
       "opencode.jsonc",
@@ -35,7 +35,6 @@
     ],
     "commands": [
       "commands/README.markdown",
-      "commands/caveman.md",
       "commands/commit.md",
       "commands/commit-push.md",
       "commands/push.md",
@@ -58,7 +57,6 @@
     ],
     "skills": [
       "skills/README.md",
-      "skills/caveman/SKILL.md",
       "skills/commit/SKILL.md",
       "skills/commit-push/SKILL.md",
       "skills/plan/SKILL.md",
@@ -88,9 +86,11 @@
   "deleted": [
     "agents/README.md",
     "commands/README.md",
+    "commands/caveman.md",
     "commands/review-memory.md",
     "commands/orchestrate.md",
     "plugins/sync-configs.ts",
+    "skills/caveman/SKILL.md",
     ".opencode/sync-configs-manifest.md"
   ]
 }

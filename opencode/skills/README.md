@@ -2,7 +2,6 @@
 
 | Skill | What it does |
 |-------|--------------|
-| `caveman` | Token-efficient response mode — drops articles, filler, and pleasantries while keeping technical substance exact. Intensity levels: `lite`, `full` (default), `ultra`. Matches the `/caveman` command. |
 | `commit` | Stage and commit changes with a secret-scan guard and a "why-not-what" commit message. Matches the `/commit` command. |
 | `commit-push` | Run the commit skill, then the push skill. Matches the `/commit-push` command. |
 | `plan` | Draft a detailed implementation plan (phases, file paths, risks) before any code is written. Matches the `/plan` command. |
