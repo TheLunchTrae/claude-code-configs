@@ -4,7 +4,7 @@ When adding, renaming, or removing an agent in this repo, update every instructi
 
 ## Claude Code
 
-- `rules/agents.md` — add a row to the **Available subagents** registry table at the top, AND a row to the appropriate Implement-step table further down. Language-specific developers go in the language-developer table; cross-stack utilities (e.g. `mcp-builder`, `github-actions-developer`) go in the Cross-stack specialists table; framework developers go in the Framework table alongside their base language-developer.
+- `rules/agents.md` — add a row to the **Available subagents** registry table at the top, AND a row to the appropriate Implement-step table further down. Language-specific developers go in the language-developer table; cross-stack utilities (e.g. `github-actions-developer`, `gitlab-ci-developer`) go in the Cross-stack specialists table; framework developers go in the Framework table alongside their base language-developer.
 - `rules/code-review.md` — add a row to the Agent Usage table when the new agent is a reviewer.
 
 ## OpenCode
