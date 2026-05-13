@@ -1,5 +1,5 @@
 {
-  "version": 26,
+  "version": 27,
   "paths": {
     "config": [
       "opencode.jsonc",
@@ -16,7 +16,6 @@
       "agents/code-simplifier.md",
       "agents/refactor-cleaner.md",
       "agents/doc-updater.md",
-      "agents/mcp-builder.md",
       "agents/github-actions-developer.md",
       "agents/gitlab-ci-developer.md",
       "agents/performance-optimizer.md",
@@ -85,6 +84,7 @@
   },
   "deleted": [
     "agents/README.md",
+    "agents/mcp-builder.md",
     "commands/README.md",
     "commands/caveman.md",
     "commands/review-memory.md",

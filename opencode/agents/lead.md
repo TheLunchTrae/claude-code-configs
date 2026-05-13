@@ -103,7 +103,6 @@ When a language-specific reviewer surfaces a CRITICAL security finding, invoke `
 | refactor-cleaner | Dead code and duplicate removal | Unused exports or imports, duplicate logic, or leftover scaffolding. |
 | performance-optimizer | Bottleneck analysis | Slow queries, N+1 patterns, algorithmic hotspots, or memory/resource leaks. |
 | doc-updater | Documentation and codemaps | Public API changes, README drift, or docstring gaps. |
-| mcp-builder | MCP server development | Building Model Context Protocol servers — tools, resources, prompts, transports. Cross-stack. |
 | github-actions-developer | GitHub Actions workflows | Authoring or fixing workflows under `.github/workflows/`, composite actions, reusable workflows. Cross-stack. |
 | gitlab-ci-developer | GitLab CI/CD pipelines | Authoring or fixing `.gitlab-ci.yml`, CI/CD components, child pipelines. Cross-stack. |
 | typescript-developer | TypeScript / JavaScript implementation | Any TypeScript or JavaScript implementation task. Pair with `typescript-reviewer` afterward. |

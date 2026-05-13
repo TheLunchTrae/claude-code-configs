@@ -38,7 +38,6 @@
 
 | Agent | When it helps |
 |-------|---------------|
-| `mcp-builder` | Building [Model Context Protocol](https://modelcontextprotocol.io/) servers. |
 | `github-actions-developer` | Authoring or fixing GitHub Actions workflows. |
 | `gitlab-ci-developer` | GitLab CI/CD pipelines, components, child pipelines. |
 | `performance-optimizer` | Slow queries, N+1 patterns, algorithmic hotspots. |
