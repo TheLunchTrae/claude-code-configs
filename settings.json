@@ -1,4 +1,30 @@
 {
   "enabledPlugins": {},
-  "theme": "dark"
+  "theme": "dark",
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git branch -D*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh",
+    "padding": 0
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Grep|Bash",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.claude/hooks/block-secrets.sh" }
+        ]
+      }
+    ]
+  }
 }
