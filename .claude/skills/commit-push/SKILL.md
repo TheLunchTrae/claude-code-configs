@@ -1,1 +1,0 @@
-../../../skills/commit-push/SKILL.md

@@ -1,1 +1,0 @@
-../../rules/caveman.md

@@ -1,33 +1,23 @@
 # claude-code-configs
 
-This repository is a versioned backup of a personal `~/.claude` directory for [Claude Code](https://claude.ai/code). It exists to make migrating Claude Code configuration to a new machine straightforward.
+Hand-authored Claude Code config from `~/.claude`, kept so it's easy to move to a new machine.
 
-## Migrating to a new machine
+Some things already follow your Claude account and don't need to live here: claude.ai connectors (MCP servers), synced plugins, and synced skills.
 
-1. Install Claude Code.
-2. Clone this repo into `~/.claude`:
-   ```sh
-   git clone git@github.com:thelunchtrae/claude-code-configs.git ~/.claude
-   ```
-3. Reinstall any plugins listed as enabled in `settings.json` — they are excluded from the repo (see `.gitignore`) but the enabled set is captured there.
-4. (Optional) Add user-scope MCP servers via `claude mcp add`. They are not versioned in this repo because Claude Code stores user-scope MCP config in the auto-managed `~/.claude.json`, not in `~/.claude/settings.json`. Recommended starter set:
-   ```sh
-   claude mcp add fetch --scope user -- uvx mcp-server-fetch
-   ```
-   Add the GitHub MCP server only if you need authenticated access from sessions outside the IDE harness — it requires a personal access token, which should never be checked in.
+## Install
 
-## Attribution
+Copy files into `~/.claude`:
 
-These configs are based heavily on the work in [everything-claude-code](https://github.com/affaan-m/everything-claude-code/tree/main/.opencode) by affaan-m.
+```sh
+cp settings.json ~/.claude/settings.json
+```
 
-[agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski was also consulted as a reference when shaping the language-specific developer agents.
+Claude Code edits `settings.json` itself (for example, when you click "always allow"). Copy useful changes back here now and then.
 
-The `caveman` rule (`rules/caveman.md`) was vendored from [caveman](https://github.com/JuliusBrussee/caveman) by JuliusBrussee (MIT-licensed; trimmed to the `lite` / `full` / `ultra` intensity levels — Classical Chinese (wenyan) variants dropped).
+## What belongs here
+- `settings.json`: permissions, hooks, status line, env (no secrets)
+- `CLAUDE.md`: global instructions
+- `agents/`, `skills/`, `commands/`, `hooks/`: anything custom
 
-## OpenCode configurations
-
-The `opencode/` directory contains OpenCode equivalents of the Claude Code configurations in this repo. They are kept as close as possible to their Claude Code counterparts, but are not 1-1 due to functionality differences and limitations between the two tools.
-
-## What's excluded
-
-See `.gitignore` for the full list. Short version: credentials, session data, conversation history, caches, plugins, and runtime-generated directories are all excluded. Only configuration that is worth versioning is committed.
+## What doesn't
+Credentials, `~/.claude.json`, `settings.local.json`, history, `projects/`, and anything synced from your account. See `.gitignore`.

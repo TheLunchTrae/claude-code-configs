@@ -1,1 +1,0 @@
-../../../skills/summarize-branch/SKILL.md
