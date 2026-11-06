@@ -1,1 +1,0 @@
-../../rules/git-claude-code.md

@@ -1,36 +1,17 @@
-# Credentials - NEVER commit (contains OAuth tokens)
+# Only hand-authored config belongs here. Never commit credentials or session data.
 .credentials.json
-
-
-# Conversation history
+.claude.json
+settings.local.json
 history.jsonl
-
-# Runtime caches and generated data
+projects/
+sessions/
+session-env/
+shell-snapshots/
+file-history/
 cache/
 backups/
-file-history/
 downloads/
-session-env/
-sessions/
-shell-snapshots/
-tasks/
-
-# Claude Code plugins cache (root-level only — reinstallable; enabled plugins are captured in settings.json).
-# Scoped so it does NOT match authored OpenCode plugins under opencode/plugins/.
-/plugins/
-
-# Node module installs (e.g. opencode/ runs `bun install` for authored TS plugins)
-node_modules/
-
-# Bun lockfile for the opencode/ plugin workspace — local-install-only, not a
-# shipped package. See rules/security.md for the carve-out.
-opencode/bun.lock
-
-# MCP auth cache
+plugins/
+skills/synced/
 mcp-needs-auth-cache.json
-
-# Project data
-projects/
-
-# IDE
-.idea/
+.DS_Store

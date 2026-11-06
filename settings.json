@@ -1,43 +1,30 @@
 {
+  "enabledPlugins": {},
+  "theme": "dark",
   "permissions": {
-    "allow": [],
     "deny": [
-      "Bash(git branch -D*)",
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(git reset --hard*)",
       "Bash(git clean -f*)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
-      "Bash(git reset --hard*)",
-      "Bash(rm -rf*)"
-    ],
-    "ask": [
-      "Bash(git commit*)",
-      "Bash(git push*)",
-      "Bash(sudo*)"
-    ],
-    "defaultMode": "auto"
-  },
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
+      "Bash(git branch -D*)"
+    ]
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline.sh",
+    "command": "bash ~/.claude/statusline.sh",
     "padding": 0
   },
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Read|Edit|Write|Bash",
+        "matcher": "Read|Edit|Write|Grep|Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/hooks/block-secrets.sh"
-          }
+          { "type": "command", "command": "bash ~/.claude/hooks/block-secrets.sh" }
         ]
       }
     ]
-  },
-  "autoUpdatesChannel": "latest"
+  }
 }

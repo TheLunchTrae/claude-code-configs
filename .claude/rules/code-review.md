@@ -1,1 +1,0 @@
-../../rules/code-review.md

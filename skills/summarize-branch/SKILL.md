@@ -1,20 +1,14 @@
 ---
-description: "Summarize all changes on the current branch"
-disable-model-invocation: true
+name: summarize-branch
+description: Summarize all changes on the current branch against its default/target branch, with purpose and concerns.
+argument-hint: "[target branch or focus]"
 ---
 
-Determine the default/target branch for this repository (e.g. main,
-master, develop), then compare the current branch against it.
+Determine the repository's default/target branch (e.g. main, master, develop), then compare the
+current branch against it. Use a branch named in the arguments instead when one is given.
+Work read-only; report unavailable evidence.
 
-Read the changed files and summarize:
-- What has changed and the purpose of each change
-- Any concerns or potential issues
-- Group by area or feature if there are many changes
+Read changed files. Summarize changes, each change's purpose, and concerns or potential issues.
+Group many changes by area or feature.
 
 $ARGUMENTS
-
-## Gotchas
-
-- Assumes the current branch is up to date with its merge target. A stale branch produces a summary mixing the user's actual changes with merged-in commits from the target — rebase or merge first if accuracy matters.
-- Uncommitted changes in the working tree are not included; the summary reflects committed state only.
-- On long-lived branches, the summary may exceed a reasonable response length. Group aggressively and link out to file paths rather than quoting full diffs.

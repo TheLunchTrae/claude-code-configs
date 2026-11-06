@@ -1,33 +1,35 @@
 # claude-code-configs
 
-This repository is a versioned backup of a personal `~/.claude` directory for [Claude Code](https://claude.ai/code). It exists to make migrating Claude Code configuration to a new machine straightforward.
+Hand-authored Claude Code config from `~/.claude`, kept so it's easy to move to a new machine.
 
-## Migrating to a new machine
+Some things already follow your Claude account and don't need to live here: claude.ai connectors (MCP servers), synced plugins, and synced skills.
 
-1. Install Claude Code.
-2. Clone this repo into `~/.claude`:
-   ```sh
-   git clone git@github.com:thelunchtrae/claude-code-configs.git ~/.claude
-   ```
-3. Reinstall any plugins listed as enabled in `settings.json` — they are excluded from the repo (see `.gitignore`) but the enabled set is captured there.
-4. (Optional) Add user-scope MCP servers via `claude mcp add`. They are not versioned in this repo because Claude Code stores user-scope MCP config in the auto-managed `~/.claude.json`, not in `~/.claude/settings.json`. Recommended starter set:
-   ```sh
-   claude mcp add fetch --scope user -- uvx mcp-server-fetch
-   ```
-   Add the GitHub MCP server only if you need authenticated access from sessions outside the IDE harness — it requires a personal access token, which should never be checked in.
+| File | Goes to | What |
+| --- | --- | --- |
+| `settings.json` | `~/.claude/settings.json` | Theme, destructive-command denies, status line, hooks |
+| `CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions (ported from OpenCode `AGENTS.md`) |
+| `references/*.md` | `~/.claude/references/` | Coding style, docs standard, testing standards, verification scope. Read only when `CLAUDE.md` or a skill says to |
+| `skills/*/SKILL.md` | `~/.claude/skills/` | Ported from OpenCode. Language/stack skills (`go`, `typescript`, `csharp`, `php`, `persistence`, `ci`) load automatically; the rest are also `/name` commands |
+| `statusline.sh` | `~/.claude/statusline.sh` | `Opus 5.5 · repo (branch) · ctx 23% · 5h 41%`, color-coded |
+| `hooks/block-secrets.sh` | `~/.claude/hooks/block-secrets.sh` | Blocks Read/Edit/Write/Grep/Bash on `.env`, keys, `.ssh/`, cloud credentials |
 
-## Attribution
+## Install
 
-These configs are based heavily on the work in [everything-claude-code](https://github.com/affaan-m/everything-claude-code/tree/main/.opencode) by affaan-m.
+Requires `jq`, which ships with macOS 15+. Without it the hook fails closed and blocks every call it checks.
 
-[agency-agents](https://github.com/msitarzewski/agency-agents) by msitarzewski was also consulted as a reference when shaping the language-specific developer agents.
+```sh
+mkdir -p ~/.claude/hooks ~/.claude/references
+cp settings.json CLAUDE.md statusline.sh ~/.claude/
+cp hooks/block-secrets.sh ~/.claude/hooks/
+cp references/*.md ~/.claude/references/
+cp -R skills/. ~/.claude/skills/
+```
 
-The `caveman` rule (`rules/caveman.md`) was vendored from [caveman](https://github.com/JuliusBrussee/caveman) by JuliusBrussee (MIT-licensed; trimmed to the `lite` / `full` / `ultra` intensity levels — Classical Chinese (wenyan) variants dropped).
+Claude Code edits `settings.json` itself (for example, when you click "always allow"). Copy useful changes back here now and then.
 
-## OpenCode configurations
+## Notes
+- The deny list catches the common spellings (`rm -rf`, `rm -fr`, `git push -f`, ...), not every variant. It's a guardrail, not a sandbox.
+- The secrets hook is deliberately conservative. If it blocks something legitimate, add the pattern to `ALLOWED` in the script.
 
-The `opencode/` directory contains OpenCode equivalents of the Claude Code configurations in this repo. They are kept as close as possible to their Claude Code counterparts, but are not 1-1 due to functionality differences and limitations between the two tools.
-
-## What's excluded
-
-See `.gitignore` for the full list. Short version: credentials, session data, conversation history, caches, plugins, and runtime-generated directories are all excluded. Only configuration that is worth versioning is committed.
+## What doesn't belong here
+Credentials, `~/.claude.json`, `settings.local.json`, history, `projects/`, and anything synced from your account. See `.gitignore`.
