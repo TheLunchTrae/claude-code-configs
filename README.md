@@ -8,7 +8,8 @@ Some things already follow your Claude account and don't need to live here: clau
 | --- | --- | --- |
 | `settings.json` | `~/.claude/settings.json` | Theme, destructive-command denies, status line, hooks |
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions (ported from OpenCode `AGENTS.md`) |
-| `references/*.md` | `~/.claude/references/` | Coding style, docs standard, verification scope. Read only when `CLAUDE.md` says to |
+| `references/*.md` | `~/.claude/references/` | Coding style, docs standard, testing standards, verification scope. Read only when `CLAUDE.md` or a skill says to |
+| `skills/*/SKILL.md` | `~/.claude/skills/` | Ported from OpenCode. Language/stack skills (`go`, `typescript`, `csharp`, `php`, `persistence`, `ci`) load automatically; the rest are also `/name` commands |
 | `statusline.sh` | `~/.claude/statusline.sh` | `Opus 5.5 · repo (branch) · ctx 23% · 5h 41%`, color-coded |
 | `hooks/block-secrets.sh` | `~/.claude/hooks/block-secrets.sh` | Blocks Read/Edit/Write/Grep/Bash on `.env`, keys, `.ssh/`, cloud credentials |
 
@@ -21,6 +22,7 @@ mkdir -p ~/.claude/hooks ~/.claude/references
 cp settings.json CLAUDE.md statusline.sh ~/.claude/
 cp hooks/block-secrets.sh ~/.claude/hooks/
 cp references/*.md ~/.claude/references/
+cp -R skills/. ~/.claude/skills/
 ```
 
 Claude Code edits `settings.json` itself (for example, when you click "always allow"). Copy useful changes back here now and then.
