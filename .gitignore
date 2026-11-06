@@ -1,17 +1,17 @@
-# Only hand-authored config belongs here. Never commit credentials or session data.
-.credentials.json
-.claude.json
-settings.local.json
-history.jsonl
-projects/
-sessions/
-session-env/
-shell-snapshots/
-file-history/
-cache/
-backups/
-downloads/
-plugins/
-skills/synced/
-mcp-needs-auth-cache.json
+# This repo is checked out directly as ~/.claude, which Claude Code also fills with
+# credentials, history, caches and session data. Ignore everything, then allow only
+# hand-authored config. Add new tracked paths below.
+/*
+
+!/.gitignore
+!/README.md
+!/CLAUDE.md
+!/settings.json
+!/statusline.sh
+!/hooks/
+!/references/
+!/skills/
+
+# Skills synced from the Claude account
+/skills/synced/
 .DS_Store
