@@ -41,7 +41,7 @@
   Documentation sent between agents still follows the Technical Documentation Standard below.
 - Keep code, identifiers, comments, docstrings, logs, errors, documentation, commits, and PR text readable.
   Use normal language and descriptive identifiers such as `getUserById` and `connectionPool`.
-  Apply the instruction-authoring rules below to prompts, skills, commands, and shared references.
+  Use the `instruction-authoring` skill when writing prompts, skills, commands, and shared references.
 - Never leak the conversation, prompt, or iteration history into code comments, pull request descriptions,
   or other maintainer-facing prose.
 
@@ -56,16 +56,6 @@ Read `~/.claude/references/asd-ste100.md` before creating or revising technical 
 and docstrings.
 Follow applicable repository documentation standards first. Use the reference's defaults for unspecified choices.
 Read repository terminology sources when present. Apply the reference's preservation and verification requirements.
-
-## Instruction Authoring
-
-- Write compact, direct instructions in normal grammar. Remove filler and true redundancy; keep useful examples.
-- Preserve every requirement, trigger, actor, condition, exception, sequence, limit, and required output field.
-  Keep requirement strength, negation, and exact literals. Shorter wording must not broaden or weaken authority.
-- Consolidate only when every consumer is guaranteed to load the complete rule at the required point.
-  Preserve explicit reference reads and standalone context; similarity alone does not make instructions redundant.
-- Compare each rewrite with the original obligations. Review proposed behavior changes separately from wording changes.
-  Word counts measure size, not semantic equivalence or model reliability.
 
 # General
 
@@ -91,82 +81,22 @@ Read repository terminology sources when present. Apply the reference's preserva
 
 ## Tool Selection
 
-Apply this policy to every task, including exploration, implementation, review, and verification.
-
-### Working directory
-
-- Form commands and paths from the selected tool's actual working directory, not automatically from the repository root.
-  Use supplied environment context and documented tool defaults. Check the directory only when unknown or ambiguous,
-  or when evidence indicates it changed.
-- When the target is already the working directory, run the command directly and use relative paths when supported.
-  For example, use `git status`, not `cd /same/directory && git status` or `git -C /same/directory status`.
-  Fill required directory arguments, but omit optional overrides that only repeat the tool's default.
-- When an operation needs another directory, prefer the tool's working-directory argument when supported.
-  Otherwise, use a scoped `cd <directory> && <command>`, or `git -C <directory>` for a different Git target.
-  Do not combine equivalent directory overrides for the same operation. Resolve paths against the command or tool's base.
-- Shell tools can start a fresh shell for each call. Do not assume a `cd` persists or transfers to another agent.
-  Follow the tool's documented session behavior. Supply a directory override again when a new call needs one.
-
-### Dedicated tools
-
-Always use available dedicated tools for the operations they support. Match the operation to the tool's documented
-capability:
-
-| Operation | Use this tool | Do not use shell substitutes |
-| --- | --- | --- |
-| Read files | `Read` | `cat`, `head`, `tail`, `less` |
-| Find file paths or list directories | `Glob` | `find`, `ls`, `ls -R` |
-| Search file contents | `Grep` | Shell `grep`, `rg`, `ag` |
-| Create or modify files | `Write`, `Edit` | `sed`, `awk`, `tee`, `>`, `>>` |
-| Retrieve web information | `WebFetch`, `WebSearch` | `curl`, `wget` |
-
-These are examples, not an exhaustive list. Apply the restriction to the operation, not just the command name.
-The `Grep` tool is distinct from the shell command with the same name.
-The project-command policy below still applies; these examples do not prohibit authorized build, test, or Git commands.
-
-Use enabled dedicated service tools (MCP servers, connectors) for supported integrations. Follow each tool's
-permissions and limits. An equivalent dedicated tool must remain within the same role, scope, and permission boundaries.
-Tool-name differences do not authorize shell or script substitutes, new execution mechanisms, or retries after denial.
-Narrow searches, page through reads, and make individual edits when needed.
-Use these tools even when they are slower or require more calls and manual work.
-Speed, convenience, batching, output truncation, and tool limits are not exceptions.
-
-### Prohibited shortcuts
-
-- NEVER create or execute ad hoc scripts or inline code for task inspection, extraction, file changes, or verification.
-- Never substitute shell commands for dedicated tools. This includes shell-based file reads, searches, and edits.
-- Do not use interpreter one-liners, heredocs, shell loops, pipelines, temporary helper files, aliases, or indirect
-  execution to work around these rules.
-- The prohibition applies to Bash, Python, Node.js, PowerShell, Ruby, PHP, and other shells and runtimes.
-  Examples include `python -c`, `node -e`, `ruby -e`, `php -r`, and `bash -c`.
-- If permitted tools cannot complete an operation, stop that operation and report the limitation.
-  Do not invent a script fallback.
-
-### Project commands and deliverables
-
-Standard build, test, lint, formatter, static-analysis, documentation-generation, and Git commands remain available
-within the agent's role, permissions, and required approvals. Use existing project scripts only for their established
-purpose, such as scripts declared in `package.json`, `composer.json`, or a Makefile.
-Never use these commands or scripts as substitutes for dedicated tools or as workarounds for this policy.
-
-Implement requested application code, tests, and project scripts with the editing tools when authorized.
-Do not create helper files merely to reclassify a prohibited shortcut as an existing project script or deliverable.
+- Use dedicated tools instead of shell equivalents for files and the web: `Read` (not `cat`/`head`/`tail`),
+  `Glob` (not `find`/`ls -R`), `Grep` (not shell `grep`/`rg`), `Edit`/`Write` (not `sed`/`awk`/redirects),
+  `WebFetch`/`WebSearch` (not `curl`/`wget`). Use enabled MCP tools for their integrations.
+- Do not write throwaway scripts, helper files, or inline interpreter code to work around tool limits or permissions.
+  If permitted tools cannot complete an operation, stop and report the limitation.
+- Build, test, lint, project-script, and Git commands are fine, including pipelines over their output
+  (for example `git log | head`).
 
 ## Git
 
 - Do not add Claude Code session links (trailer lines like `https://claude.ai/code/session_XXX`) to commit messages
   or pull request bodies. They clutter the git log and public PR history.
-
-# Security
-
-- Always validate user input: type, range, allow lists, and regex where appropriate.
-- Always use parameterized queries. Never interpolate user input into SQL.
 - Never commit or store secrets (API keys, credentials, tokens) in code.
-- Encode output from endpoints returning HTML.
-- Return generic errors to users. Never expose stack traces or internal details.
-- Lock dependency versions where possible. Never gitignore lock files in shipped applications or libraries.
-  Config/tooling repos may gitignore lockfiles only when dependencies serve only local editor support,
-  such as plugin workspaces.
+
+Use the `secure-coding` skill when writing or reviewing application code that handles input, queries, output, errors,
+or dependencies.
 
 # Accuracy
 
