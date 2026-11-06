@@ -7,7 +7,8 @@ Some things already follow your Claude account and don't need to live here: clau
 | File | Goes to | What |
 | --- | --- | --- |
 | `settings.json` | `~/.claude/settings.json` | Theme, destructive-command denies, status line, hooks |
-| `CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions |
+| `CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions (ported from OpenCode `AGENTS.md`) |
+| `references/*.md` | `~/.claude/references/` | Coding style, docs standard, verification scope. Read only when `CLAUDE.md` says to |
 | `statusline.sh` | `~/.claude/statusline.sh` | `Opus 5.5 · repo (branch) · ctx 23% · 5h 41%`, color-coded |
 | `hooks/block-secrets.sh` | `~/.claude/hooks/block-secrets.sh` | Blocks Read/Edit/Write/Grep/Bash on `.env`, keys, `.ssh/`, cloud credentials |
 
@@ -16,9 +17,10 @@ Some things already follow your Claude account and don't need to live here: clau
 Requires `jq`, which ships with macOS 15+. Without it the hook fails closed and blocks every call it checks.
 
 ```sh
-mkdir -p ~/.claude/hooks
+mkdir -p ~/.claude/hooks ~/.claude/references
 cp settings.json CLAUDE.md statusline.sh ~/.claude/
 cp hooks/block-secrets.sh ~/.claude/hooks/
+cp references/*.md ~/.claude/references/
 ```
 
 Claude Code edits `settings.json` itself (for example, when you click "always allow"). Copy useful changes back here now and then.
