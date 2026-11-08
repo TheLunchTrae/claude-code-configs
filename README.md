@@ -1,8 +1,8 @@
 # claude-code-configs
 
-Hand-authored Claude Code config. The repo is checked out directly as `~/.claude`, so `git pull` there updates the live config. `.gitignore` allows only the files below; everything else Claude Code writes to `~/.claude` stays untracked.
+My hand-authored Claude Code config. The repo is checked out directly as `~/.claude`, so `git pull` there updates the live config. `.gitignore` allows only the files below; everything else Claude Code writes to `~/.claude` stays untracked.
 
-Some things already follow your Claude account and don't need to live here: claude.ai connectors (MCP servers), synced plugins, and synced skills.
+Some things already follow my Claude account and don't need to live here: claude.ai connectors (MCP servers), synced plugins, and synced skills.
 
 | File | What |
 | --- | --- |
@@ -30,11 +30,11 @@ git checkout -f -t origin/main
 ## Updating
 
 - Pull: `git -C ~/.claude pull`
-- Claude Code edits `settings.json` itself (for example, when you click "always allow"). Those edits show up in `git status`; commit the ones worth keeping.
+- Claude Code edits `settings.json` itself (for example, when I click "always allow"). Those edits show up in `git status`; commit the ones worth keeping.
 
 ## Notes
 - The deny list catches the common spellings (`rm -rf`, `rm -fr`, `git push -f`, ...), not every variant. It's a guardrail, not a sandbox.
 - The secrets hook is deliberately conservative. If it blocks something legitimate, add the pattern to `ALLOWED` in the script.
 
 ## What doesn't belong here
-Credentials, `~/.claude.json`, `settings.local.json`, history, `projects/`, and anything synced from your account. See `.gitignore`.
+Credentials, `~/.claude.json`, `settings.local.json`, history, `projects/`, and anything synced from my account. See `.gitignore`.
