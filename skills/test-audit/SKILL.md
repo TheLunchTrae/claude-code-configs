@@ -19,7 +19,7 @@ Read test configuration, CI selection, setup, fixtures, relevant production entr
 Identify tests that run in each relevant environment. Record source state and inspected scope.
 Use permitted existing commands for baseline evidence. A planner only proposes execution.
 Under a reviewer's tool restrictions, do not add tools or write custom verification scripts.
-Report evidence that permitted existing commands cannot produce as unverified.
+Report claims that permitted existing commands cannot verify as unverified.
 
 ## Assess coverage and candidates
 
