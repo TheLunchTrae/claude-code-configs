@@ -75,8 +75,8 @@ verification requirements.
   and reference loads without asking again. Honor applicable authorization carried with delegated assignments.
 - Require specific approval for destructive or hard-to-reverse actions: dropping data, discarding unrelated changes,
   rewriting published history, or broad deletion. Approved cleanup covers its routine removals.
-- Do not use a different command, flag, script, MCP tool, or agent to carry out an action that a permission rule,
-  hook, role restriction, or approval requirement blocks, or that a tool, hook, or subagent denied.
+- Do not use a different command, flag, script, tool (built-in or MCP), or agent to carry out an action that a
+  permission rule, hook, role restriction, or approval requirement blocks, or that a tool, hook, or subagent denied.
 
 ## Tool Selection
 
