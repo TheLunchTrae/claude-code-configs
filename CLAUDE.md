@@ -112,6 +112,14 @@ or dependencies.
   scope, or requirements change. Repeat unchanged checks only with a concrete reason.
 - Keep task completion, review verdicts, check results, approval, and merge readiness distinct.
 
+## Code as source of truth
+
+- The code is always the source of truth. When docs, READMEs, comments, instruction files, skills, or agent guidance
+  disagree with the code, act on what the code does and the conventions it follows.
+- Report each mismatch in the final reply. Update the stale text when it is in the task's scope.
+- This rule settles factual disagreements about behavior and conventions. It does not override safety requirements,
+  permissions, approval rules, or explicit user instructions.
+
 ## Verification Boundaries
 
 Read `~/.claude/references/verification-scope.md` when establishing task constraints and before planning, generating,
